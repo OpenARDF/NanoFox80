@@ -1,4 +1,4 @@
-20166433099453493
+20185684254387994
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -33254,8 +33254,8 @@ PinHeader_1x02_P2.54_Nonpolarized
 
 
 0
-0
-0
+2
+2
 Connector_PinHeader_2.54mm
 PinHeader_1x02_P2.54mm_Horizontal
 Through hole angled pin header, 1x02, 2.54mm pitch, 6mm pin length, single row
@@ -57592,6 +57592,90 @@ LED_THT
 LED_VCCLite_5381H7_6.35x6.35mm
 Yellow 5381 Series LED VCCLite https://vcclite.com/wp-content/uploads/wpallimport/files/files/5381Series.pdf http://static.vcclite.com/pdf/Mounting%20Hole%20Pattern%202.pdf
 Yellow 5381 Series LED
+0
+2
+2
+Measurement
+Measurement_Point_Round-SMD-Pad_Big
+Mesurement Point, Round, SMD Pad, DM 3mm,
+Mesurement Point, Round, SMD Pad, DM 3mm,
+0
+1
+1
+Measurement
+Measurement_Point_Round-SMD-Pad_Small
+Mesurement Point, Round, SMD Pad, DM 1.5mm,
+Mesurement Point, Round, SMD Pad, DM 1.5mm,
+0
+1
+1
+Measurement
+Measurement_Point_Round-TH_Big
+Mesurement Point, Square, Trough Hole,  DM 3mm, Drill 1.5mm,
+Mesurement Point, Square, Trough Hole, DM 3mm, Drill 1.5mm,
+0
+1
+1
+Measurement
+Measurement_Point_Round-TH_Small
+Mesurement Point, Square, Trough Hole,  DM 1.5mm, Drill 0.8mm,
+Mesurement Point, Square, Trough Hole, DM 1.5mm, Drill 0.8mm,
+0
+1
+1
+Measurement
+Measurement_Point_ScopeProbe_Round-SMD-2sides-Pad_Small
+Mesurement Point, Round, SMD Pad, DM 1.5mm,
+Mesurement Point, Round, SMD Pad, DM 1.5mm,
+0
+6
+2
+Measurement
+Measurement_Point_ScopeProbe_Round-SMD-Pad_Small
+Mesurement Point, Round, SMD Pad, DM 1.5mm,
+Mesurement Point, Round, SMD Pad, DM 1.5mm,
+0
+6
+2
+Measurement
+Measurement_Point_Square-SMD-Pad_Big
+Mesurement Point, Square, SMD Pad,  3mm x 3mm,
+Mesurement Point, Square, SMD Pad, 3mm x 3mm,
+0
+1
+1
+Measurement
+Measurement_Point_Square-SMD-Pad_Small
+Mesurement Point, Square, SMD Pad,  1.5mm x 1.5mm,
+Mesurement Point, Square, SMD Pad, 1.5mm x 1.5mm,
+0
+1
+1
+Measurement
+Measurement_Point_Square-TH_Big
+Mesurement Point, Square, Trough Hole,  3mm x 3mm, Drill 1.5mm,
+Mesurement Point, Square, Trough Hole, 3mm x 3mm, Drill 1.5mm,
+0
+1
+1
+Measurement
+Measurement_Point_Square-TH_Small
+Mesurement Point, Square, Trough Hole,  1.5mm x 1.5mm, Drill 0.8mm,
+Mesurement Point, Square, Trough Hole, 1.5mm x 1.5mm, Drill 0.8mm,
+0
+1
+1
+Measurement
+Test_Point
+Connecteurs 2 pins
+CONN DEV
+0
+2
+1
+Measurement
+Test_Point_2Pads
+Connecteurs 2 pins
+CONN DEV
 0
 2
 2

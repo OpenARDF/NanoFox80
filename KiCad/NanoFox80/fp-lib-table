@@ -1,0 +1,4 @@
+(fp_lib_table
+  (lib (name "FlexFox80")(type "KiCad")(uri "/Library/Application Support/kicad/docs/KiCad/Receiver_Development_Platform/Dual-Band_MiniTx")(options "")(descr ""))
+  (lib (name "Measurement")(type "KiCad")(uri "/Library/Application Support/kicad/modules/Measurement_Points.pretty")(options "")(descr ""))
+)
