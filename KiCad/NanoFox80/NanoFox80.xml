@@ -1,0 +1,2168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<export version="E">
+  <design>
+    <source>/Users/Charles/Documents/GitHub/NanoFox80/KiCad/NanoFox80/NanoFox80.kicad_sch</source>
+    <date>Tuesday, April 26, 2022 at 02:29:02 PM</date>
+    <tool>Eeschema (6.0.4-0)</tool>
+    <sheet number="1" name="/" tstamps="/">
+      <title_block>
+        <title>NanoFox80 Foxoring Transmitter</title>
+        <company/>
+        <rev>0.2</rev>
+        <date>2022-04-25</date>
+        <source>NanoFox80.kicad_sch</source>
+        <comment number="1" value=""/>
+        <comment number="2" value=""/>
+        <comment number="3" value=""/>
+        <comment number="4" value=""/>
+        <comment number="5" value=""/>
+        <comment number="6" value=""/>
+        <comment number="7" value=""/>
+        <comment number="8" value=""/>
+        <comment number="9" value=""/>
+      </title_block>
+    </sheet>
+  </design>
+  <components>
+    <comp ref="AE101">
+      <value>Antenna_Shield</value>
+      <footprint>Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical</footprint>
+      <libsource lib="Device" part="Antenna_Shield" description="Antenna with extra pin for shielding"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>c938e709-b8e6-465b-a1ac-8390c5f3f4c9</tstamps>
+    </comp>
+    <comp ref="BT101">
+      <value>6-12V</value>
+      <footprint>Connector_PinSocket_2.54mm:PinSocket_1x02_P2.54mm_Vertical</footprint>
+      <libsource lib="Device" part="Battery" description="Multiple-cell battery"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>075db516-c47e-4490-baa9-e7f2a344f795</tstamps>
+    </comp>
+    <comp ref="C101">
+      <value>470nF</value>
+      <footprint>Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder</footprint>
+      <fields>
+        <field name="Description">CAP CER 0.47UF 100V X7S 0805</field>
+        <field name="Digi-Key Part No.">445-5203-1-ND</field>
+        <field name="Manufacturer">TDK Corporation</field>
+        <field name="Manufacturer PN">C2012X7S2A474K125AB</field>
+      </fields>
+      <libsource lib="Device" part="C_Small" description="Unpolarized capacitor, small symbol"/>
+      <property name="Digi-Key Part No." value="445-5203-1-ND"/>
+      <property name="Manufacturer" value="TDK Corporation"/>
+      <property name="Manufacturer PN" value="C2012X7S2A474K125AB"/>
+      <property name="Description" value="CAP CER 0.47UF 100V X7S 0805"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>9b35fbee-b857-4446-a1c5-dd215c25987a</tstamps>
+    </comp>
+    <comp ref="C102">
+      <value>470nF</value>
+      <footprint>Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder</footprint>
+      <fields>
+        <field name="Description">CAP CER 0.47UF 100V X7S 0805</field>
+        <field name="Digi-Key Part No.">445-5203-1-ND</field>
+        <field name="Manufacturer">TDK Corporation</field>
+        <field name="Manufacturer PN">C2012X7S2A474K125AB</field>
+      </fields>
+      <libsource lib="Device" part="C_Small" description="Unpolarized capacitor, small symbol"/>
+      <property name="Digi-Key Part No." value="445-5203-1-ND"/>
+      <property name="Manufacturer" value="TDK Corporation"/>
+      <property name="Manufacturer PN" value="C2012X7S2A474K125AB"/>
+      <property name="Description" value="CAP CER 0.47UF 100V X7S 0805"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>cf3c07b8-5cea-48e2-9614-2d95bc8b8f2e</tstamps>
+    </comp>
+    <comp ref="C103">
+      <value>10uF</value>
+      <footprint>Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder</footprint>
+      <fields>
+        <field name="Description">CAP CER 10UF 10V X7R 0805</field>
+        <field name="Digi-Key Part No.">1276-1764-1-ND</field>
+        <field name="Manufacturer">Samsung Electro-Mechanics</field>
+        <field name="Manufacturer PN">CL21B106KPQNNNE</field>
+      </fields>
+      <libsource lib="Device" part="C_Small" description="Unpolarized capacitor, small symbol"/>
+      <property name="Digi-Key Part No." value="1276-1764-1-ND"/>
+      <property name="Manufacturer" value="Samsung Electro-Mechanics"/>
+      <property name="Manufacturer PN" value="CL21B106KPQNNNE"/>
+      <property name="Description" value="CAP CER 10UF 10V X7R 0805"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>4d01a4ed-7a8f-4d8e-a158-141b5b7cb50b</tstamps>
+    </comp>
+    <comp ref="C104">
+      <value>10uF</value>
+      <footprint>Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder</footprint>
+      <fields>
+        <field name="Description">CAP CER 10UF 10V X7R 0805</field>
+        <field name="Digi-Key Part No.">1276-1764-1-ND</field>
+        <field name="Manufacturer">Samsung Electro-Mechanics</field>
+        <field name="Manufacturer PN">CL21B106KPQNNNE</field>
+      </fields>
+      <libsource lib="Device" part="C_Small" description="Unpolarized capacitor, small symbol"/>
+      <property name="Digi-Key Part No." value="1276-1764-1-ND"/>
+      <property name="Manufacturer" value="Samsung Electro-Mechanics"/>
+      <property name="Manufacturer PN" value="CL21B106KPQNNNE"/>
+      <property name="Description" value="CAP CER 10UF 10V X7R 0805"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>dddae9da-f7c9-4160-be0f-e3bf88462873</tstamps>
+    </comp>
+    <comp ref="C105">
+      <value>220pF</value>
+      <footprint>Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder</footprint>
+      <fields>
+        <field name="Description">CAP CER 220PF 200V C0G/NP0 0805</field>
+        <field name="Digi-Key Part No.">478-1274-1-ND</field>
+        <field name="Manufacturer">KYOCERA AVX</field>
+        <field name="Manufacturer PN">08052A221JAT2A</field>
+      </fields>
+      <libsource lib="Device" part="C_Small" description="Unpolarized capacitor, small symbol"/>
+      <property name="Digi-Key Part No." value="478-1274-1-ND"/>
+      <property name="Manufacturer" value="KYOCERA AVX"/>
+      <property name="Manufacturer PN" value="08052A221JAT2A"/>
+      <property name="Description" value="CAP CER 220PF 200V C0G/NP0 0805"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>ad5bf304-9c9d-415d-87d6-a7c28e54b71f</tstamps>
+    </comp>
+    <comp ref="C107">
+      <value>10nF</value>
+      <footprint>Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder</footprint>
+      <fields>
+        <field name="Description">CAP CER 10000PF 50V X7R 0805</field>
+        <field name="Digi-Key Part No.">1276-1015-1-ND</field>
+        <field name="Manufacturer">Samsung Electro-Mechanics</field>
+        <field name="Manufacturer PN">CL21B103KBANNNC</field>
+      </fields>
+      <libsource lib="Device" part="C_Small" description="Unpolarized capacitor, small symbol"/>
+      <property name="Digi-Key Part No." value="1276-1015-1-ND"/>
+      <property name="Manufacturer" value="Samsung Electro-Mechanics"/>
+      <property name="Manufacturer PN" value="CL21B103KBANNNC"/>
+      <property name="Description" value="CAP CER 10000PF 50V X7R 0805"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>1230aad1-fe96-4be0-9f04-1e46bf447e94</tstamps>
+    </comp>
+    <comp ref="C108">
+      <value>100nF</value>
+      <footprint>Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder</footprint>
+      <fields>
+        <field name="Description">CAP CER 0.1UF 25V X7R 0805</field>
+        <field name="Digi-Key Part No.">1276-1099-1-ND</field>
+        <field name="Manufacturer">Samsung Electro-Mechanics</field>
+        <field name="Manufacturer PN">CL21B104KACNNNC</field>
+      </fields>
+      <libsource lib="Device" part="C_Small" description="Unpolarized capacitor, small symbol"/>
+      <property name="Digi-Key Part No." value="1276-1099-1-ND"/>
+      <property name="Manufacturer" value="Samsung Electro-Mechanics"/>
+      <property name="Manufacturer PN" value="CL21B104KACNNNC"/>
+      <property name="Description" value="CAP CER 0.1UF 25V X7R 0805"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>c4f48a19-d212-408e-8017-f51b398fc85c</tstamps>
+    </comp>
+    <comp ref="C109">
+      <value>100nF</value>
+      <footprint>Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder</footprint>
+      <fields>
+        <field name="Description">CAP CER 0.1UF 25V X7R 0805</field>
+        <field name="Digi-Key Part No.">1276-1099-1-ND</field>
+        <field name="Manufacturer">Samsung Electro-Mechanics</field>
+        <field name="Manufacturer PN">CL21B104KACNNNC</field>
+      </fields>
+      <libsource lib="Device" part="C_Small" description="Unpolarized capacitor, small symbol"/>
+      <property name="Digi-Key Part No." value="1276-1099-1-ND"/>
+      <property name="Manufacturer" value="Samsung Electro-Mechanics"/>
+      <property name="Manufacturer PN" value="CL21B104KACNNNC"/>
+      <property name="Description" value="CAP CER 0.1UF 25V X7R 0805"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>60f2c20b-9fdf-4411-a08c-a24286c14c36</tstamps>
+    </comp>
+    <comp ref="C110">
+      <value>1uF</value>
+      <footprint>Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder</footprint>
+      <fields>
+        <field name="Description">CAP CER 1UF 25V X7R 0805</field>
+        <field name="Digi-Key Part No.">1276-1066-1-ND</field>
+        <field name="Manufacturer">Samsung Electro-Mechanics</field>
+        <field name="Manufacturer PN">CL21B105KAFNNNE</field>
+      </fields>
+      <libsource lib="Device" part="C_Small" description="Unpolarized capacitor, small symbol"/>
+      <property name="Digi-Key Part No." value="1276-1066-1-ND"/>
+      <property name="Manufacturer" value="Samsung Electro-Mechanics"/>
+      <property name="Manufacturer PN" value="CL21B105KAFNNNE"/>
+      <property name="Description" value="CAP CER 1UF 25V X7R 0805"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>3edcd031-fa8a-4bc5-b5ab-c8504e139c95</tstamps>
+    </comp>
+    <comp ref="C111">
+      <value>470nF</value>
+      <footprint>Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder</footprint>
+      <fields>
+        <field name="Description">CAP CER 0.47UF 100V X7S 0805</field>
+        <field name="Digi-Key Part No.">445-5203-1-ND</field>
+        <field name="Manufacturer">TDK Corporation</field>
+        <field name="Manufacturer PN">C2012X7S2A474K125AB</field>
+      </fields>
+      <libsource lib="Device" part="C_Small" description="Unpolarized capacitor, small symbol"/>
+      <property name="Digi-Key Part No." value="445-5203-1-ND"/>
+      <property name="Manufacturer" value="TDK Corporation"/>
+      <property name="Manufacturer PN" value="C2012X7S2A474K125AB"/>
+      <property name="Description" value="CAP CER 0.47UF 100V X7S 0805"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>85836671-e63f-46b7-be6e-6e57fca3529d</tstamps>
+    </comp>
+    <comp ref="C112">
+      <value>470nF</value>
+      <footprint>Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder</footprint>
+      <fields>
+        <field name="Description">CAP CER 0.47UF 100V X7S 0805</field>
+        <field name="Digi-Key Part No.">445-5203-1-ND</field>
+        <field name="Manufacturer">TDK Corporation</field>
+        <field name="Manufacturer PN">C2012X7S2A474K125AB</field>
+      </fields>
+      <libsource lib="Device" part="C_Small" description="Unpolarized capacitor, small symbol"/>
+      <property name="Digi-Key Part No." value="445-5203-1-ND"/>
+      <property name="Manufacturer" value="TDK Corporation"/>
+      <property name="Manufacturer PN" value="C2012X7S2A474K125AB"/>
+      <property name="Description" value="CAP CER 0.47UF 100V X7S 0805"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>fe24efc1-998e-486e-bf7d-e6825aa47aa0</tstamps>
+    </comp>
+    <comp ref="C113">
+      <value>470nF</value>
+      <footprint>Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder</footprint>
+      <fields>
+        <field name="Description">CAP CER 0.47UF 100V X7S 0805</field>
+        <field name="Digi-Key Part No.">445-5203-1-ND</field>
+        <field name="Manufacturer">TDK Corporation</field>
+        <field name="Manufacturer PN">C2012X7S2A474K125AB</field>
+      </fields>
+      <libsource lib="Device" part="C_Small" description="Unpolarized capacitor, small symbol"/>
+      <property name="Digi-Key Part No." value="445-5203-1-ND"/>
+      <property name="Manufacturer" value="TDK Corporation"/>
+      <property name="Manufacturer PN" value="C2012X7S2A474K125AB"/>
+      <property name="Description" value="CAP CER 0.47UF 100V X7S 0805"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>4c769d4e-0bcb-462b-8e78-b0c7be148ede</tstamps>
+    </comp>
+    <comp ref="C114">
+      <value>67pF</value>
+      <footprint>Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder</footprint>
+      <fields>
+        <field name="Description">CAP CER 68PF 50V C0G/NP0 0805</field>
+        <field name="Digi-Key Part No.">478-1314-1-ND</field>
+        <field name="Manufacturer">KYOCERA AVX</field>
+        <field name="Manufacturer PN">08055A680JAT2A</field>
+      </fields>
+      <libsource lib="Device" part="C_Small" description="Unpolarized capacitor, small symbol"/>
+      <property name="Digi-Key Part No." value="478-1314-1-ND"/>
+      <property name="Manufacturer" value="KYOCERA AVX"/>
+      <property name="Manufacturer PN" value="08055A680JAT2A"/>
+      <property name="Description" value="CAP CER 68PF 50V C0G/NP0 0805"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>9cd1ba63-2087-4000-a5a9-797dad78d993</tstamps>
+    </comp>
+    <comp ref="C115">
+      <value>560nF</value>
+      <footprint>Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder</footprint>
+      <fields>
+        <field name="Description">CAP CER 0.56UF 50V X7R 0805</field>
+        <field name="Digi-Key Part No.">399-C0805C564K5RAC7800CT-ND</field>
+        <field name="Manufacturer">KEMET</field>
+        <field name="Manufacturer PN">C0805C564K5RAC7800</field>
+      </fields>
+      <libsource lib="Device" part="C_Small" description="Unpolarized capacitor, small symbol"/>
+      <property name="Digi-Key Part No." value="399-C0805C564K5RAC7800CT-ND"/>
+      <property name="Manufacturer" value="KEMET"/>
+      <property name="Manufacturer PN" value="C0805C564K5RAC7800"/>
+      <property name="Description" value="CAP CER 0.56UF 50V X7R 0805"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>cd6a8253-1a55-48f0-b8df-2f1fd686db18</tstamps>
+    </comp>
+    <comp ref="C116">
+      <value>470nF</value>
+      <footprint>Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder</footprint>
+      <fields>
+        <field name="Description">CAP CER 0.47UF 100V X7S 0805</field>
+        <field name="Digi-Key Part No.">445-5203-1-ND</field>
+        <field name="Manufacturer">TDK Corporation</field>
+        <field name="Manufacturer PN">C2012X7S2A474K125AB</field>
+      </fields>
+      <libsource lib="Device" part="C_Small" description="Unpolarized capacitor, small symbol"/>
+      <property name="Digi-Key Part No." value="445-5203-1-ND"/>
+      <property name="Manufacturer" value="TDK Corporation"/>
+      <property name="Manufacturer PN" value="C2012X7S2A474K125AB"/>
+      <property name="Description" value="CAP CER 0.47UF 100V X7S 0805"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>cae855cb-7eb8-4774-a0af-2c529c28e1c2</tstamps>
+    </comp>
+    <comp ref="C117">
+      <value>470nF</value>
+      <footprint>Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder</footprint>
+      <fields>
+        <field name="Description">CAP CER 0.47UF 100V X7S 0805</field>
+        <field name="Digi-Key Part No.">445-5203-1-ND</field>
+        <field name="Manufacturer">TDK Corporation</field>
+        <field name="Manufacturer PN">C2012X7S2A474K125AB</field>
+      </fields>
+      <libsource lib="Device" part="C_Small" description="Unpolarized capacitor, small symbol"/>
+      <property name="Digi-Key Part No." value="445-5203-1-ND"/>
+      <property name="Manufacturer" value="TDK Corporation"/>
+      <property name="Manufacturer PN" value="C2012X7S2A474K125AB"/>
+      <property name="Description" value="CAP CER 0.47UF 100V X7S 0805"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>e26e4dc9-f52f-42cb-975b-faaa78859843</tstamps>
+    </comp>
+    <comp ref="C118">
+      <value>10uF</value>
+      <footprint>Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder</footprint>
+      <fields>
+        <field name="Description">CAP CER 10UF 10V X7R 0805</field>
+        <field name="Digi-Key Part No.">1276-1764-1-ND</field>
+        <field name="Manufacturer">Samsung Electro-Mechanics</field>
+        <field name="Manufacturer PN">CL21B106KPQNNNE</field>
+      </fields>
+      <libsource lib="Device" part="C_Small" description="Unpolarized capacitor, small symbol"/>
+      <property name="Digi-Key Part No." value="1276-1764-1-ND"/>
+      <property name="Manufacturer" value="Samsung Electro-Mechanics"/>
+      <property name="Manufacturer PN" value="CL21B106KPQNNNE"/>
+      <property name="Description" value="CAP CER 10UF 10V X7R 0805"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>a3c65c07-b560-4f91-9171-9d1d4d59c1c7</tstamps>
+    </comp>
+    <comp ref="C119">
+      <value>10uF</value>
+      <footprint>Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder</footprint>
+      <fields>
+        <field name="Description">CAP CER 10UF 10V X7R 0805</field>
+        <field name="Digi-Key Part No.">1276-1764-1-ND</field>
+        <field name="Manufacturer">Samsung Electro-Mechanics</field>
+        <field name="Manufacturer PN">CL21B106KPQNNNE</field>
+      </fields>
+      <libsource lib="Device" part="C_Small" description="Unpolarized capacitor, small symbol"/>
+      <property name="Digi-Key Part No." value="1276-1764-1-ND"/>
+      <property name="Manufacturer" value="Samsung Electro-Mechanics"/>
+      <property name="Manufacturer PN" value="CL21B106KPQNNNE"/>
+      <property name="Description" value="CAP CER 10UF 10V X7R 0805"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>3e4ea16d-f89d-4afc-9e52-51be4fb33d91</tstamps>
+    </comp>
+    <comp ref="C120">
+      <value>10nF</value>
+      <footprint>Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder</footprint>
+      <fields>
+        <field name="Description">CAP CER 10000PF 50V X7R 0805</field>
+        <field name="Digi-Key Part No.">1276-1015-1-ND</field>
+        <field name="Manufacturer">Samsung Electro-Mechanics</field>
+        <field name="Manufacturer PN">CL21B103KBANNNC</field>
+      </fields>
+      <libsource lib="Device" part="C_Small" description="Unpolarized capacitor, small symbol"/>
+      <property name="Digi-Key Part No." value="1276-1015-1-ND"/>
+      <property name="Manufacturer" value="Samsung Electro-Mechanics"/>
+      <property name="Manufacturer PN" value="CL21B103KBANNNC"/>
+      <property name="Description" value="CAP CER 10000PF 50V X7R 0805"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>ccac76bc-c47b-40b0-aa9d-bd0354387c4f</tstamps>
+    </comp>
+    <comp ref="C121">
+      <value>100nF</value>
+      <footprint>Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder</footprint>
+      <fields>
+        <field name="Description">CAP CER 0.1UF 25V X7R 0805</field>
+        <field name="Digi-Key Part No.">1276-1099-1-ND</field>
+        <field name="Manufacturer">Samsung Electro-Mechanics</field>
+        <field name="Manufacturer PN">CL21B104KACNNNC</field>
+      </fields>
+      <libsource lib="Device" part="C_Small" description="Unpolarized capacitor, small symbol"/>
+      <property name="Digi-Key Part No." value="1276-1099-1-ND"/>
+      <property name="Manufacturer" value="Samsung Electro-Mechanics"/>
+      <property name="Manufacturer PN" value="CL21B104KACNNNC"/>
+      <property name="Description" value="CAP CER 0.1UF 25V X7R 0805"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>6acc6fcf-4b9f-4444-92c4-4fe7b9ec74a5</tstamps>
+    </comp>
+    <comp ref="D101">
+      <value>LED_Filled</value>
+      <footprint>LED_SMD:LED_APDA1806SECK</footprint>
+      <fields>
+        <field name="Description">LED RED CLEAR SMD RIGHT ANGLE</field>
+        <field name="Digi-Key Part No.">754-2329-1-ND</field>
+        <field name="Manufacturer">Kingbright</field>
+        <field name="Manufacturer PN">APDA1806SECK/J3-PRV</field>
+      </fields>
+      <libsource lib="Device" part="LED_Filled" description="Light emitting diode, filled shape"/>
+      <property name="Digi-Key Part No." value="754-2329-1-ND"/>
+      <property name="Manufacturer" value="Kingbright"/>
+      <property name="Manufacturer PN" value="APDA1806SECK/J3-PRV"/>
+      <property name="Description" value="LED RED CLEAR SMD RIGHT ANGLE"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>3d96634f-3b26-447f-8ede-f6059a78b14d</tstamps>
+    </comp>
+    <comp ref="D102">
+      <value>SMV1253-079LF</value>
+      <footprint>Diode_SMD:D_SC-80</footprint>
+      <fields>
+        <field name="Description">DIODE VAR HYPRABRUPT JUNC TUNING</field>
+        <field name="Digi-Key Part No.">863-SMV1253-079LFCT-ND</field>
+        <field name="Manufacturer">Skyworks Solutions Inc.</field>
+        <field name="Manufacturer PN">SMV1253-079LF</field>
+      </fields>
+      <libsource lib="Device" part="D_Capacitance_Filled" description="Variable capacitance diode, filled shape"/>
+      <property name="Digi-Key Part No." value="863-SMV1253-079LFCT-ND"/>
+      <property name="Manufacturer" value="Skyworks Solutions Inc."/>
+      <property name="Manufacturer PN" value="SMV1253-079LF"/>
+      <property name="Description" value="DIODE VAR HYPRABRUPT JUNC TUNING"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>01fc7e35-808f-4893-8946-de46f5592e56</tstamps>
+    </comp>
+    <comp ref="D103">
+      <value>CG0603MLC-05LECT-ND</value>
+      <footprint>Resistor_SMD:R_0805_2012Metric</footprint>
+      <fields>
+        <field name="Description">VARISTOR 0603</field>
+        <field name="Digi-Key Part No.">CG0603MLC-05LECT-ND</field>
+        <field name="LCSC Part Number">C316054</field>
+        <field name="Link">&lt;a href="https://www.digikey.com/products/en?keywords=CG0603MLC-05LECT-ND"&gt;Link&lt;/a&gt;</field>
+        <field name="Manufacturer">Bourns Inc.</field>
+        <field name="Manufacturer PN">CG0603MLC-05LE</field>
+      </fields>
+      <libsource lib="" part="ESD9B5.0ST5G_1" description="ESD protection diode, 5.0Vrwm, SOD-923"/>
+      <property name="Digi-Key Part No." value="CG0603MLC-05LECT-ND"/>
+      <property name="Link" value="&lt;a href=&quot;https://www.digikey.com/products/en?keywords=CG0603MLC-05LECT-ND&quot;&gt;Link&lt;/a&gt;"/>
+      <property name="Manufacturer" value="Bourns Inc."/>
+      <property name="Manufacturer PN" value="CG0603MLC-05LE"/>
+      <property name="Description" value="VARISTOR 0603"/>
+      <property name="LCSC Part Number" value="C316054"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>65a65254-81b2-460e-b204-dde7910a6779</tstamps>
+    </comp>
+    <comp ref="D104">
+      <value>CG0603MLC-05LECT-ND</value>
+      <footprint>Resistor_SMD:R_0805_2012Metric</footprint>
+      <fields>
+        <field name="Description">VARISTOR 0603</field>
+        <field name="Digi-Key Part No.">CG0603MLC-05LECT-ND</field>
+        <field name="LCSC Part Number">C316054</field>
+        <field name="Link">&lt;a href="https://www.digikey.com/products/en?keywords=CG0603MLC-05LECT-ND"&gt;Link&lt;/a&gt;</field>
+        <field name="Manufacturer">Bourns Inc.</field>
+        <field name="Manufacturer PN">CG0603MLC-05LE</field>
+      </fields>
+      <libsource lib="" part="ESD9B5.0ST5G_1" description="ESD protection diode, 5.0Vrwm, SOD-923"/>
+      <property name="Digi-Key Part No." value="CG0603MLC-05LECT-ND"/>
+      <property name="Link" value="&lt;a href=&quot;https://www.digikey.com/products/en?keywords=CG0603MLC-05LECT-ND&quot;&gt;Link&lt;/a&gt;"/>
+      <property name="Manufacturer" value="Bourns Inc."/>
+      <property name="Manufacturer PN" value="CG0603MLC-05LE"/>
+      <property name="Description" value="VARISTOR 0603"/>
+      <property name="LCSC Part Number" value="C316054"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>a82359e1-b08d-43f8-bcc5-50ecc086d2d4</tstamps>
+    </comp>
+    <comp ref="J101">
+      <value>Conn_01x02</value>
+      <footprint>Connector_PinSocket_2.54mm:PinSocket_1x02_P2.54mm_Vertical</footprint>
+      <libsource lib="Connector_Generic" part="Conn_01x02" description="Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>a27abb84-56e0-453a-b41b-2d099dd070cf</tstamps>
+    </comp>
+    <comp ref="J102">
+      <value>Conn_01x02</value>
+      <footprint>Connector_PinSocket_2.54mm:PinSocket_1x02_P2.54mm_Vertical</footprint>
+      <fields>
+        <field name="Digi-Key Part No.">np</field>
+        <field name="Link">np</field>
+        <field name="Manufacturer">np</field>
+      </fields>
+      <libsource lib="Connector_Generic" part="Conn_01x02" description="Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+      <property name="Digi-Key Part No." value="np"/>
+      <property name="Link" value="np"/>
+      <property name="Manufacturer" value="np"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>cf891ffc-e6e6-4efc-9515-4f39414bd57a</tstamps>
+    </comp>
+    <comp ref="J103">
+      <value>Conn_01x01</value>
+      <footprint>Connector_PinSocket_2.54mm:PinSocket_1x01_P2.54mm_Vertical</footprint>
+      <libsource lib="Connector_Generic" part="Conn_01x01" description="Generic connector, single row, 01x01, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>d458bf4a-1dc8-413e-9ad0-707a11bac815</tstamps>
+    </comp>
+    <comp ref="J104">
+      <value>Conn_01x02</value>
+      <footprint>Connector_PinSocket_2.54mm:PinSocket_1x02_P2.54mm_Vertical</footprint>
+      <libsource lib="Connector_Generic" part="Conn_01x02" description="Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>2523324a-ade5-4c85-bd2b-859aa5063a61</tstamps>
+    </comp>
+    <comp ref="J105">
+      <value>Conn_01x02</value>
+      <footprint>Connector_PinSocket_2.54mm:PinSocket_1x02_P2.54mm_Vertical</footprint>
+      <libsource lib="Connector_Generic" part="Conn_01x02" description="Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>419b2eb4-0e77-438b-a9e2-054e000b0cea</tstamps>
+    </comp>
+    <comp ref="J106">
+      <value>Conn_01x02</value>
+      <footprint>Connector_PinSocket_2.54mm:PinSocket_1x02_P2.54mm_Vertical</footprint>
+      <libsource lib="Connector_Generic" part="Conn_01x02" description="Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>baa05fd4-48b7-4824-8645-6e4b7267ad21</tstamps>
+    </comp>
+    <comp ref="J107">
+      <value>Conn_01x02</value>
+      <footprint>Connector_PinSocket_2.54mm:PinSocket_1x02_P2.54mm_Vertical</footprint>
+      <libsource lib="Connector_Generic" part="Conn_01x02" description="Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>6097ea9e-68ee-4bf1-90d5-5be7d67f3bfc</tstamps>
+    </comp>
+    <comp ref="J108">
+      <value>Conn_01x01</value>
+      <footprint>Connector_PinSocket_2.54mm:PinSocket_1x01_P2.54mm_Vertical</footprint>
+      <libsource lib="Connector_Generic" part="Conn_01x01" description="Generic connector, single row, 01x01, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>47554f73-1424-43d3-b1cc-8d895127a88f</tstamps>
+    </comp>
+    <comp ref="J109">
+      <value>Conn_01x02</value>
+      <footprint>Connector_PinSocket_2.54mm:PinSocket_1x02_P2.54mm_Vertical</footprint>
+      <libsource lib="Connector_Generic" part="Conn_01x02" description="Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>936ef327-024d-4aba-97c4-f12b1bd1d128</tstamps>
+    </comp>
+    <comp ref="J110">
+      <value>I2C</value>
+      <footprint>Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54_Nonpolarized</footprint>
+      <libsource lib="Connector_Generic" part="Conn_01x02" description="Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>239a9828-99f4-4de0-aea8-4f86c99959fe</tstamps>
+    </comp>
+    <comp ref="J111">
+      <value>DB9 Female</value>
+      <footprint>Connector_Dsub:DSUB-9_Female_EdgeMount_P2.77mm</footprint>
+      <fields>
+        <field name="Digi-Key Part No.">609-1525-ND</field>
+        <field name="Link">&lt;a href="https://www.digikey.com/products/en?keywords=609-1525-ND"&gt;Link&lt;/a&gt;</field>
+        <field name="Manufacturer">TH</field>
+        <field name="Manufacturer PN">TH</field>
+      </fields>
+      <libsource lib="Connector" part="DB9_Female" description="9-pin female D-SUB connector"/>
+      <property name="Digi-Key Part No." value="609-1525-ND"/>
+      <property name="Link" value="&lt;a href=&quot;https://www.digikey.com/products/en?keywords=609-1525-ND&quot;&gt;Link&lt;/a&gt;"/>
+      <property name="Manufacturer" value="TH"/>
+      <property name="Manufacturer PN" value="TH"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>f65562b6-a284-4df2-8df3-7bd9535e8174</tstamps>
+    </comp>
+    <comp ref="J112">
+      <value>Conn_01x02</value>
+      <footprint>Connector_PinSocket_2.54mm:PinSocket_1x02_P2.54mm_Vertical</footprint>
+      <libsource lib="Connector_Generic" part="Conn_01x02" description="Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>c5875cb9-6af0-4961-b2bf-5b09e29a87ee</tstamps>
+    </comp>
+    <comp ref="J113">
+      <value>Conn_01x02</value>
+      <footprint>Connector_PinSocket_2.54mm:PinSocket_1x02_P2.54mm_Vertical</footprint>
+      <libsource lib="Connector_Generic" part="Conn_01x02" description="Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>cfb460c6-00bb-42bc-a85e-d3510f7731c0</tstamps>
+    </comp>
+    <comp ref="J114">
+      <value>Conn_01x02</value>
+      <footprint>Connector_PinSocket_2.54mm:PinSocket_1x02_P2.54mm_Vertical</footprint>
+      <libsource lib="Connector_Generic" part="Conn_01x02" description="Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>4d4949c6-e296-4911-8bb1-1946dc342a61</tstamps>
+    </comp>
+    <comp ref="JP101">
+      <value>SolderJumper_3_Bridged12</value>
+      <footprint>Jumper:SolderJumper-3_P1.3mm_Bridged12_RoundedPad1.0x1.5mm_NumberLabels</footprint>
+      <libsource lib="Jumper" part="SolderJumper_3_Bridged12" description="3-pole Solder Jumper, pins 1+2 closed/bridged"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>76266a3a-be55-4fd6-94a3-ab706688e44c</tstamps>
+    </comp>
+    <comp ref="JP102">
+      <value>SolderJumper_3_Bridged12</value>
+      <footprint>Jumper:SolderJumper-3_P1.3mm_Bridged12_RoundedPad1.0x1.5mm_NumberLabels</footprint>
+      <libsource lib="Jumper" part="SolderJumper_3_Bridged12" description="3-pole Solder Jumper, pins 1+2 closed/bridged"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>e044fdb0-91ec-408e-b97a-c37a605bd406</tstamps>
+    </comp>
+    <comp ref="JP103">
+      <value>SolderJumper_3_Bridged12</value>
+      <footprint>Jumper:SolderJumper-3_P1.3mm_Bridged12_RoundedPad1.0x1.5mm_NumberLabels</footprint>
+      <libsource lib="Jumper" part="SolderJumper_3_Bridged12" description="3-pole Solder Jumper, pins 1+2 closed/bridged"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>a074c052-84ea-48e3-be3c-484703178790</tstamps>
+    </comp>
+    <comp ref="JP104">
+      <value>SolderJumper_3_Bridged12</value>
+      <footprint>Jumper:SolderJumper-3_P1.3mm_Bridged12_RoundedPad1.0x1.5mm_NumberLabels</footprint>
+      <libsource lib="Jumper" part="SolderJumper_3_Bridged12" description="3-pole Solder Jumper, pins 1+2 closed/bridged"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>801e6246-048a-4283-bda6-3a0087c901e4</tstamps>
+    </comp>
+    <comp ref="JP105">
+      <value>SolderJumper_3_Bridged12</value>
+      <footprint>Jumper:SolderJumper-3_P1.3mm_Bridged12_RoundedPad1.0x1.5mm_NumberLabels</footprint>
+      <libsource lib="Jumper" part="SolderJumper_3_Bridged12" description="3-pole Solder Jumper, pins 1+2 closed/bridged"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>ec467d2b-5ae7-43e4-b30f-164e530e82ec</tstamps>
+    </comp>
+    <comp ref="JP106">
+      <value>SolderJumper_2_Bridged</value>
+      <footprint>Jumper:SolderJumper-2_P1.3mm_Bridged_RoundedPad1.0x1.5mm</footprint>
+      <libsource lib="Jumper" part="SolderJumper_2_Bridged" description="Solder Jumper, 2-pole, closed/bridged"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>905fabdb-8ed0-4155-a223-e7e5bd968fe5</tstamps>
+    </comp>
+    <comp ref="L101">
+      <value>8uH</value>
+      <footprint>Transformer_THT:Autotransformer_ZS1052-AC</footprint>
+      <fields>
+        <field name="Description">TH</field>
+        <field name="Digi-Key Part No.">FT50A-43 (Amidon)</field>
+        <field name="Link">&lt;a href="http://www.amidoncorp.com/ft-50A-43/"&gt;Link&lt;/a&gt;</field>
+        <field name="Manufacturer">TH</field>
+        <field name="Manufacturer PN">TH</field>
+      </fields>
+      <libsource lib="Device" part="INDUCTOR_tapped" description=""/>
+      <property name="Digi-Key Part No." value="FT50A-43 (Amidon)"/>
+      <property name="Link" value="&lt;a href=&quot;http://www.amidoncorp.com/ft-50A-43/&quot;&gt;Link&lt;/a&gt;"/>
+      <property name="Manufacturer" value="TH"/>
+      <property name="Manufacturer PN" value="TH"/>
+      <property name="Description" value="TH"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>3af61a1d-6303-4f58-a523-aa71131510a0</tstamps>
+    </comp>
+    <comp ref="P101">
+      <value>ISP/PDI</value>
+      <footprint>Connector_PinHeader_2.54mm:PinHeader_2x03_P2.54mm_Vertical_SMD</footprint>
+      <fields>
+        <field name="Digi-Key Part No.">609-3487-1-ND</field>
+        <field name="Link">&lt;a href="https://www.digikey.com/products/en?keywords=609-3487-1-ND"&gt;Link&lt;/a&gt;</field>
+        <field name="Manufacturer">Amphenol ICC (FCI)</field>
+        <field name="Manufacturer PN">95278-101A06LF</field>
+      </fields>
+      <libsource lib="Connector_Generic" part="Conn_02x03_Odd_Even" description="Generic connector, double row, 02x03, odd/even pin numbering scheme (row 1 odd numbers, row 2 even numbers), script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+      <property name="Digi-Key Part No." value="609-3487-1-ND"/>
+      <property name="Link" value="&lt;a href=&quot;https://www.digikey.com/products/en?keywords=609-3487-1-ND&quot;&gt;Link&lt;/a&gt;"/>
+      <property name="Manufacturer" value="Amphenol ICC (FCI)"/>
+      <property name="Manufacturer PN" value="95278-101A06LF"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>4e311d93-5f40-4ddc-a18b-bc90d30fc613</tstamps>
+    </comp>
+    <comp ref="Q101">
+      <value>BSS84</value>
+      <footprint>Package_TO_SOT_SMD:SOT-23</footprint>
+      <datasheet>http://assets.nexperia.com/documents/data-sheet/BSS84.pdf</datasheet>
+      <fields>
+        <field name="Description">MOSFET P-CH 60V 230MA SST3</field>
+        <field name="Digi-Key Part No.">846-BSS84T116CT-ND</field>
+        <field name="Manufacturer">Rohm Semiconductor</field>
+        <field name="Manufacturer PN">BSS84T116</field>
+      </fields>
+      <libsource lib="Transistor_FET" part="BSS84" description="-0.13A Id, -50V Vds, P-Channel MOSFET, SOT-23"/>
+      <property name="Digi-Key Part No." value="846-BSS84T116CT-ND"/>
+      <property name="Manufacturer" value="Rohm Semiconductor"/>
+      <property name="Manufacturer PN" value="BSS84T116"/>
+      <property name="Description" value="MOSFET P-CH 60V 230MA SST3"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>a9d01109-ee71-4ed8-bb46-2d54f0d937f1</tstamps>
+    </comp>
+    <comp ref="Q102">
+      <value>BSS138</value>
+      <footprint>Package_TO_SOT_SMD:SOT-23</footprint>
+      <datasheet>https://www.onsemi.com/pub/Collateral/BSS138-D.PDF</datasheet>
+      <fields>
+        <field name="Description">MOSFET N-CH 50V 220MA SOT23-3</field>
+        <field name="Digi-Key Part No.">BSS138CT-ND</field>
+        <field name="Manufacturer">onsemi</field>
+        <field name="Manufacturer PN">BSS138</field>
+      </fields>
+      <libsource lib="Transistor_FET" part="BSS138" description="50V Vds, 0.22A Id, N-Channel MOSFET, SOT-23"/>
+      <property name="Digi-Key Part No." value="BSS138CT-ND"/>
+      <property name="Manufacturer" value="onsemi"/>
+      <property name="Manufacturer PN" value="BSS138"/>
+      <property name="Description" value="MOSFET N-CH 50V 220MA SOT23-3"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>c8819402-7151-4b21-9689-27976a72a03f</tstamps>
+    </comp>
+    <comp ref="R101">
+      <value>200k</value>
+      <footprint>Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder</footprint>
+      <fields>
+        <field name="Description">RES SMD 200K OHM 1% 1/8W 0805</field>
+        <field name="Digi-Key Part No.">RHM200KAHCT-ND</field>
+        <field name="Manufacturer">Rohm Semiconductor</field>
+        <field name="Manufacturer PN">KTR10EZPF2003</field>
+      </fields>
+      <libsource lib="Device" part="R" description="Resistor"/>
+      <property name="Digi-Key Part No." value="RHM200KAHCT-ND"/>
+      <property name="Manufacturer" value="Rohm Semiconductor"/>
+      <property name="Manufacturer PN" value="KTR10EZPF2003"/>
+      <property name="Description" value="RES SMD 200K OHM 1% 1/8W 0805"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>8c1e669c-9eae-4110-b451-39841b9a0c11</tstamps>
+    </comp>
+    <comp ref="R102">
+      <value>200k</value>
+      <footprint>Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder</footprint>
+      <fields>
+        <field name="Description">RES SMD 200K OHM 1% 1/8W 0805</field>
+        <field name="Digi-Key Part No.">RHM200KAHCT-ND</field>
+        <field name="Manufacturer">Rohm Semiconductor</field>
+        <field name="Manufacturer PN">KTR10EZPF2003</field>
+      </fields>
+      <libsource lib="Device" part="R" description="Resistor"/>
+      <property name="Digi-Key Part No." value="RHM200KAHCT-ND"/>
+      <property name="Manufacturer" value="Rohm Semiconductor"/>
+      <property name="Manufacturer PN" value="KTR10EZPF2003"/>
+      <property name="Description" value="RES SMD 200K OHM 1% 1/8W 0805"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>4c98e821-2b5b-4224-b8b7-502df6597b67</tstamps>
+    </comp>
+    <comp ref="R103">
+      <value>np</value>
+      <footprint>Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder</footprint>
+      <libsource lib="Device" part="R" description="Resistor"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>8c0169b5-b57a-4b95-a42c-8111455dfb1a</tstamps>
+    </comp>
+    <comp ref="R104">
+      <value>100k</value>
+      <footprint>Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder</footprint>
+      <fields>
+        <field name="Description">RES 100K OHM 0.1% 1/8W 0805</field>
+        <field name="Digi-Key Part No.">2019-RN73H2ATTD1003B25CT-ND</field>
+        <field name="Manufacturer">KOA Speer Electronics, Inc.</field>
+        <field name="Manufacturer PN">RN73H2ATTD1003B25</field>
+      </fields>
+      <libsource lib="Device" part="R" description="Resistor"/>
+      <property name="Digi-Key Part No." value="2019-RN73H2ATTD1003B25CT-ND"/>
+      <property name="Manufacturer" value="KOA Speer Electronics, Inc."/>
+      <property name="Manufacturer PN" value="RN73H2ATTD1003B25"/>
+      <property name="Description" value="RES 100K OHM 0.1% 1/8W 0805"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>858f12ac-1d42-442c-968a-52f50ed1caa1</tstamps>
+    </comp>
+    <comp ref="R105">
+      <value>22k</value>
+      <footprint>Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder</footprint>
+      <fields>
+        <field name="Description">RES SMD 22K OHM 1% 1/8W 0805</field>
+        <field name="Digi-Key Part No.">A106059CT-ND</field>
+        <field name="Manufacturer">TE Connectivity Passive Product</field>
+        <field name="Manufacturer PN">CRG0805F22K</field>
+      </fields>
+      <libsource lib="Device" part="R" description="Resistor"/>
+      <property name="Digi-Key Part No." value="A106059CT-ND"/>
+      <property name="Manufacturer" value="TE Connectivity Passive Product"/>
+      <property name="Manufacturer PN" value="CRG0805F22K"/>
+      <property name="Description" value="RES SMD 22K OHM 1% 1/8W 0805"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>e6485193-adc9-4c2c-a52b-2f24171b5428</tstamps>
+    </comp>
+    <comp ref="R106">
+      <value>15.8k</value>
+      <footprint>Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder</footprint>
+      <fields>
+        <field name="Description">RES 15.8K OHM 1% 1/8W 0805</field>
+        <field name="Digi-Key Part No.">RMCF0805FT15K8CT-ND</field>
+        <field name="Manufacturer">Stackpole Electronics Inc</field>
+        <field name="Manufacturer PN">RMCF0805FT15K8</field>
+      </fields>
+      <libsource lib="Device" part="R" description="Resistor"/>
+      <property name="Digi-Key Part No." value="RMCF0805FT15K8CT-ND"/>
+      <property name="Manufacturer" value="Stackpole Electronics Inc"/>
+      <property name="Manufacturer PN" value="RMCF0805FT15K8"/>
+      <property name="Description" value="RES 15.8K OHM 1% 1/8W 0805"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>6c5da471-47bb-46ae-bc5c-b1cf3a9c98b7</tstamps>
+    </comp>
+    <comp ref="R107">
+      <value>np</value>
+      <footprint>Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder</footprint>
+      <libsource lib="Device" part="R" description="Resistor"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>c43b1b14-5f90-41bf-8b39-f603fd04b5d7</tstamps>
+    </comp>
+    <comp ref="R108">
+      <value>1k</value>
+      <footprint>Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder</footprint>
+      <fields>
+        <field name="Description">RES 1K OHM 1% 1/4W 0805</field>
+        <field name="Digi-Key Part No.">RNCP0805FTD1K00CT-ND</field>
+        <field name="Manufacturer">Stackpole Electronics Inc</field>
+        <field name="Manufacturer PN">RNCP0805FTD1K00</field>
+      </fields>
+      <libsource lib="Device" part="R" description="Resistor"/>
+      <property name="Digi-Key Part No." value="RNCP0805FTD1K00CT-ND"/>
+      <property name="Manufacturer" value="Stackpole Electronics Inc"/>
+      <property name="Manufacturer PN" value="RNCP0805FTD1K00"/>
+      <property name="Description" value="RES 1K OHM 1% 1/4W 0805"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>70d7e9b8-72de-46c6-8b2d-9c002d5f85b3</tstamps>
+    </comp>
+    <comp ref="R109">
+      <value>100k</value>
+      <footprint>Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder</footprint>
+      <fields>
+        <field name="Description">RES 100K OHM 0.1% 1/8W 0805</field>
+        <field name="Digi-Key Part No.">2019-RN73H2ATTD1003B25CT-ND</field>
+        <field name="Manufacturer">KOA Speer Electronics, Inc.</field>
+        <field name="Manufacturer PN">RN73H2ATTD1003B25</field>
+      </fields>
+      <libsource lib="Device" part="R" description="Resistor"/>
+      <property name="Digi-Key Part No." value="2019-RN73H2ATTD1003B25CT-ND"/>
+      <property name="Manufacturer" value="KOA Speer Electronics, Inc."/>
+      <property name="Manufacturer PN" value="RN73H2ATTD1003B25"/>
+      <property name="Description" value="RES 100K OHM 0.1% 1/8W 0805"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>86f82434-2924-4728-a2c6-30d31f1b1b29</tstamps>
+    </comp>
+    <comp ref="R110">
+      <value>162k</value>
+      <footprint>Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder</footprint>
+      <fields>
+        <field name="Description">RES 162K OHM 1% 1/8W 0805</field>
+        <field name="Digi-Key Part No.">311-162KCRCT-ND</field>
+        <field name="Manufacturer">YAGEO</field>
+        <field name="Manufacturer PN">RC0805FR-07162KL</field>
+      </fields>
+      <libsource lib="Device" part="R" description="Resistor"/>
+      <property name="Digi-Key Part No." value="311-162KCRCT-ND"/>
+      <property name="Manufacturer" value="YAGEO"/>
+      <property name="Manufacturer PN" value="RC0805FR-07162KL"/>
+      <property name="Description" value="RES 162K OHM 1% 1/8W 0805"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>bf74c164-7950-4cfc-a059-6612c0abb2a0</tstamps>
+    </comp>
+    <comp ref="R111">
+      <value>12.4k</value>
+      <footprint>Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder</footprint>
+      <fields>
+        <field name="Description">RES 12.4K OHM 1% 1/8W 0805</field>
+        <field name="Digi-Key Part No.">RMCF0805FT12K4CT-ND</field>
+        <field name="Manufacturer">Stackpole Electronics Inc</field>
+        <field name="Manufacturer PN">RMCF0805FT12K4</field>
+      </fields>
+      <libsource lib="Device" part="R" description="Resistor"/>
+      <property name="Digi-Key Part No." value="RMCF0805FT12K4CT-ND"/>
+      <property name="Manufacturer" value="Stackpole Electronics Inc"/>
+      <property name="Manufacturer PN" value="RMCF0805FT12K4"/>
+      <property name="Description" value="RES 12.4K OHM 1% 1/8W 0805"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>527505d0-de26-463f-b260-2507f08e9990</tstamps>
+    </comp>
+    <comp ref="SW101">
+      <value>SW_SPST</value>
+      <footprint>Button_Switch_SMD:SW_SPST_B3U-3000P-B</footprint>
+      <fields>
+        <field name="Description">SWITCH TACTILE SPST-NO 0.05A 12V</field>
+        <field name="Digi-Key Part No.">SW1256CT-ND</field>
+        <field name="Manufacturer">Omron Electronics Inc-EMC Div</field>
+        <field name="Manufacturer PN">B3U-3000P-B</field>
+      </fields>
+      <libsource lib="Switch" part="SW_SPST" description="Single Pole Single Throw (SPST) switch"/>
+      <property name="Digi-Key Part No." value="SW1256CT-ND"/>
+      <property name="Manufacturer" value="Omron Electronics Inc-EMC Div"/>
+      <property name="Manufacturer PN" value="B3U-3000P-B"/>
+      <property name="Description" value="SWITCH TACTILE SPST-NO 0.05A 12V"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>8753d621-69e1-4251-a22d-f8eaf42e9c5c</tstamps>
+    </comp>
+    <comp ref="U101">
+      <value>UCC27517DBVR</value>
+      <footprint>Package_TO_SOT_SMD:SOT-23-5</footprint>
+      <fields>
+        <field name="Description">IC GATE DRVR LOW-SIDE SOT23-5</field>
+        <field name="Digi-Key Part No.">296-39527-1-ND</field>
+        <field name="Manufacturer">Texas Instruments</field>
+        <field name="Manufacturer PN">UCC27517DBVR</field>
+      </fields>
+      <libsource lib="Driver_FET" part="UCC27517DBVR" description="MOSFET driver with inverting output, SOT-23-5"/>
+      <property name="Digi-Key Part No." value="296-39527-1-ND"/>
+      <property name="Manufacturer" value="Texas Instruments"/>
+      <property name="Manufacturer PN" value="UCC27517DBVR"/>
+      <property name="Description" value="IC GATE DRVR LOW-SIDE SOT23-5"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>8c0aa946-b2fb-4a4d-9000-18ad9346dcfb</tstamps>
+    </comp>
+    <comp ref="U102">
+      <value>LP2985-3.3</value>
+      <footprint>Package_TO_SOT_SMD:SOT-23-5</footprint>
+      <datasheet>http://www.ti.com/lit/ds/symlink/lp2985.pdf</datasheet>
+      <fields>
+        <field name="Description">IC REG LINEAR 3.3V 150MA SOT23-5</field>
+        <field name="Digi-Key Part No.">296-18479-1-ND</field>
+        <field name="Manufacturer">Texas Instruments</field>
+        <field name="Manufacturer PN">LP2985A-33DBVR</field>
+      </fields>
+      <libsource lib="Regulator_Linear" part="LP2985-3.3" description="150mA 16V Low-noise Low-dropout Regulator With Shutdown, 3.3V output voltage, SOT-23-5"/>
+      <property name="Digi-Key Part No." value="296-18479-1-ND"/>
+      <property name="Manufacturer" value="Texas Instruments"/>
+      <property name="Manufacturer PN" value="LP2985A-33DBVR"/>
+      <property name="Description" value="IC REG LINEAR 3.3V 150MA SOT23-5"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>7314a741-7b8f-470d-b237-bf9215c92321</tstamps>
+    </comp>
+    <comp ref="U103">
+      <value>OPA197</value>
+      <footprint>Package_TO_SOT_SMD:SOT-23-5</footprint>
+      <datasheet>http://www.ti.com/lit/ds/symlink/opa197.pdf</datasheet>
+      <fields>
+        <field name="Description">IC OPAMP GP 1 CIRCUIT 8VSSOP</field>
+        <field name="Digi-Key Part No.">296-44109-1-ND</field>
+        <field name="Manufacturer">Texas Instruments</field>
+        <field name="Manufacturer PN">OPA197IDGKT</field>
+      </fields>
+      <libsource lib="Amplifier_Operational" part="OPA197xDBV" description="Single 36V, Precision, Rail-to-Rail Input/Output, Low Offset Voltage, Operational Amplifier, SOT-23"/>
+      <property name="Digi-Key Part No." value="296-44109-1-ND"/>
+      <property name="Manufacturer" value="Texas Instruments"/>
+      <property name="Manufacturer PN" value="OPA197IDGKT"/>
+      <property name="Description" value="IC OPAMP GP 1 CIRCUIT 8VSSOP"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>6a87be2e-f259-416b-aadf-e12b9d44875b</tstamps>
+    </comp>
+    <comp ref="U104">
+      <value>74HC4046</value>
+      <footprint>Package_SO:SOIC-16W_5.3x10.2mm_P1.27mm</footprint>
+      <datasheet>https://assets.nexperia.com/documents/data-sheet/HEF4046B.pdf</datasheet>
+      <fields>
+        <field name="Description">IC PLL CMOS LOGIC W/VCO HS 16SO</field>
+        <field name="Digi-Key Part No.">SN74LV4046ANS-ND</field>
+        <field name="LCSC Part Number">C1535861</field>
+        <field name="Link">https://www.digikey.com/products/en?keywords=SN74LV4046ANS-ND</field>
+        <field name="Manufacturer">Texas Instruments</field>
+        <field name="Manufacturer PN">SN74LV4046ANS</field>
+      </fields>
+      <libsource lib="4xxx" part="4046" description="Phase Comp &amp; VCO"/>
+      <property name="Digi-Key Part No." value="SN74LV4046ANS-ND"/>
+      <property name="Manufacturer" value="Texas Instruments"/>
+      <property name="Manufacturer PN" value="SN74LV4046ANS"/>
+      <property name="Description" value="IC PLL CMOS LOGIC W/VCO HS 16SO"/>
+      <property name="LCSC Part Number" value="C1535861"/>
+      <property name="Link" value="https://www.digikey.com/products/en?keywords=SN74LV4046ANS-ND"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>431da72b-e35a-432f-9a9f-c4709ce3697c</tstamps>
+    </comp>
+    <comp ref="U105">
+      <value>AVR128DA28</value>
+      <footprint>Package_SO:SOIC-28W_7.5x17.9mm_P1.27mm</footprint>
+      <datasheet>http://ww1.microchip.com/downloads/en/DeviceDoc/doc7707.pdf</datasheet>
+      <fields>
+        <field name="Description">IC MCU 8BIT 128KB FLASH 28SOIC</field>
+        <field name="Digi-Key Part No.">150-AVR128DA28T-E/SOCT-ND</field>
+        <field name="Manufacturer">Microchip Technology</field>
+        <field name="Manufacturer PN">AVR128DA28T-E/SO</field>
+      </fields>
+      <libsource lib="MCU_Microchip_AVR" part="AVR128DA28" description="24MHz, 128kB Flash, 16kB SRAM, 512B EEPROM, USART, I2C, SPI, SOIC-28"/>
+      <property name="Digi-Key Part No." value="150-AVR128DA28T-E/SOCT-ND"/>
+      <property name="Manufacturer" value="Microchip Technology"/>
+      <property name="Manufacturer PN" value="AVR128DA28T-E/SO"/>
+      <property name="Description" value="IC MCU 8BIT 128KB FLASH 28SOIC"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>f5a29d91-dec0-42df-b7ff-6908a13b3b5c</tstamps>
+    </comp>
+    <comp ref="U106">
+      <value>74HC390</value>
+      <footprint>Package_SO:SOIC-16W_5.3x10.2mm_P1.27mm</footprint>
+      <fields>
+        <field name="Description">IC COUNTER DUAL 4STAGE 16SOIC</field>
+        <field name="Digi-Key Part No.">MC74HC390ADR2GOSCT-N</field>
+        <field name="Manufacturer">onsemi</field>
+        <field name="Manufacturer PN">MC74HC390ADR2G</field>
+      </fields>
+      <libsource lib="74xx" part="74HC390" description="Dual decade ripple counter"/>
+      <property name="Digi-Key Part No." value="MC74HC390ADR2GOSCT-N"/>
+      <property name="Manufacturer" value="onsemi"/>
+      <property name="Manufacturer PN" value="MC74HC390ADR2G"/>
+      <property name="Description" value="IC COUNTER DUAL 4STAGE 16SOIC"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>5d02026c-1021-4cf4-8b84-8156dae0db5e</tstamps>
+    </comp>
+    <comp ref="U107">
+      <value>74HC390</value>
+      <footprint>Package_SO:SOIC-16W_5.3x10.2mm_P1.27mm</footprint>
+      <fields>
+        <field name="Description">DECADE COUNTER, HC/UH SERIES</field>
+        <field name="Digi-Key Part No.">2156-MC74HC390AFEL-ND</field>
+        <field name="Manufacturer">onsemi</field>
+        <field name="Manufacturer PN">MC74HC390AFEL</field>
+      </fields>
+      <libsource lib="74xx" part="74HC390" description="Dual decade ripple counter"/>
+      <property name="Digi-Key Part No." value="2156-MC74HC390AFEL-ND"/>
+      <property name="Manufacturer" value="onsemi"/>
+      <property name="Manufacturer PN" value="MC74HC390AFEL"/>
+      <property name="Description" value="DECADE COUNTER, HC/UH SERIES"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>68cc7e6f-6260-4dac-9acc-88f3ac62e9a2</tstamps>
+    </comp>
+    <comp ref="U108">
+      <value>LP2985-5.0</value>
+      <footprint>Package_TO_SOT_SMD:SOT-23-5</footprint>
+      <datasheet>http://www.ti.com/lit/ds/symlink/lp2985.pdf</datasheet>
+      <fields>
+        <field name="Description">IC REG LINEAR 5V 150MA SOT23-5</field>
+        <field name="Digi-Key Part No.">296-20717-1-ND</field>
+        <field name="Manufacturer">Texas Instruments</field>
+        <field name="Manufacturer PN">LP2985-50DBVR</field>
+      </fields>
+      <libsource lib="Regulator_Linear" part="LP2985-5.0" description="150mA 16V Low-noise Low-dropout Regulator With Shutdown, 5.0V output voltage, SOT-23-5"/>
+      <property name="Digi-Key Part No." value="296-20717-1-ND"/>
+      <property name="Manufacturer" value="Texas Instruments"/>
+      <property name="Manufacturer PN" value="LP2985-50DBVR"/>
+      <property name="Description" value="IC REG LINEAR 5V 150MA SOT23-5"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>ba7454aa-2958-4df1-b458-f385bcf10818</tstamps>
+    </comp>
+    <comp ref="W101">
+      <value>TP2</value>
+      <footprint>Measurement:Measurement_Point_ScopeProbe_Round-SMD-2sides-Pad_Small</footprint>
+      <libsource lib="Connector" part="Conn_01x02_Female" description="Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>e35a88a1-414a-4f4e-8820-7b97f76e6a5e</tstamps>
+    </comp>
+    <comp ref="W102">
+      <value>TP3</value>
+      <footprint>Measurement:Measurement_Point_ScopeProbe_Round-SMD-2sides-Pad_Small</footprint>
+      <libsource lib="Connector" part="Conn_01x02_Female" description="Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>3ea008f6-0071-4754-8915-cb5462bff888</tstamps>
+    </comp>
+    <comp ref="W103">
+      <value>TP1</value>
+      <footprint>Measurement:Measurement_Point_ScopeProbe_Round-SMD-2sides-Pad_Small</footprint>
+      <libsource lib="Connector" part="Conn_01x02_Female" description="Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>e0c52ac2-fab9-42b9-8dd8-5a4bfcc3037e</tstamps>
+    </comp>
+    <comp ref="X101">
+      <value>SIT1566AC TCO</value>
+      <footprint>Oscillator:Oscillator_SMD_SiTime_SIT1566AC-4Pin_BGA</footprint>
+      <datasheet>http://www.petermann-technik.de/fileadmin/petermann/pdf/crystal-oscillators/OCXO-14_PETERMANN-TECHNIK.pdf</datasheet>
+      <fields>
+        <field name="Description">MEMS OSC TCXO 32.768KHZ CSP</field>
+        <field name="Digi-Key Part No.">1473-SIT1566AC-JV-XXE-32.768ECT-ND</field>
+        <field name="Manufacturer">SiTime</field>
+        <field name="Manufacturer PN">SIT1566AC-JV-XXE-32.768E</field>
+      </fields>
+      <libsource lib="Oscillator" part="SIT1566AC" description="Temperature Compensated MEMS Clock Oscillator"/>
+      <property name="Digi-Key Part No." value="1473-SIT1566AC-JV-XXE-32.768ECT-ND"/>
+      <property name="Manufacturer" value="SiTime"/>
+      <property name="Manufacturer PN" value="SIT1566AC-JV-XXE-32.768E"/>
+      <property name="Description" value="MEMS OSC TCXO 32.768KHZ CSP"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>c5382336-5a3a-4b19-b35a-8446f316af44</tstamps>
+    </comp>
+  </components>
+  <libparts>
+    <libpart lib="" part="ESD9B5.0ST5G_1">
+      <description>ESD protection diode, 5.0Vrwm, SOD-923</description>
+      <docs>https://www.onsemi.com/pub/Collateral/ESD9B-D.PDF</docs>
+      <footprints>
+        <fp>D*SOD?923*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">D</field>
+        <field name="Value">ESD9B5.0ST5G_1</field>
+        <field name="Footprint">Diode_SMD:D_SOD-923</field>
+        <field name="Datasheet">https://www.onsemi.com/pub/Collateral/ESD9B-D.PDF</field>
+      </fields>
+      <pins>
+        <pin num="1" name="A1" type="passive"/>
+        <pin num="2" name="A2" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="4xxx" part="4046">
+      <description>Phase Comp &amp; VCO</description>
+      <docs>https://assets.nexperia.com/documents/data-sheet/HEF4046B.pdf</docs>
+      <footprints>
+        <fp>DIP?16*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">4046</field>
+        <field name="Datasheet">https://assets.nexperia.com/documents/data-sheet/HEF4046B.pdf</field>
+      </fields>
+      <pins>
+        <pin num="1" name="PCP" type="output"/>
+        <pin num="2" name="PC1" type="output"/>
+        <pin num="3" name="RefIn" type="input"/>
+        <pin num="4" name="FOUT" type="output"/>
+        <pin num="5" name="Inh" type="input"/>
+        <pin num="6" name="C1" type="input"/>
+        <pin num="7" name="C2" type="input"/>
+        <pin num="8" name="VSS" type="power_in"/>
+        <pin num="9" name="VCOin" type="input"/>
+        <pin num="10" name="SFout" type="output"/>
+        <pin num="11" name="R1" type="input"/>
+        <pin num="12" name="R2" type="input"/>
+        <pin num="13" name="PC2" type="tri_state"/>
+        <pin num="14" name="SigIn" type="input"/>
+        <pin num="15" name="ZOUT" type="output"/>
+        <pin num="16" name="VDD" type="power_in"/>
+      </pins>
+    </libpart>
+    <libpart lib="74xx" part="74HC390">
+      <description>Dual decade ripple counter</description>
+      <footprints>
+        <fp>DIP?16*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">74HC390</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1~{CLK}A" type="input"/>
+        <pin num="2" name="1CLR" type="input"/>
+        <pin num="3" name="1QA" type="output"/>
+        <pin num="4" name="1~{CLK}B" type="input"/>
+        <pin num="5" name="1QB" type="output"/>
+        <pin num="6" name="1QC" type="output"/>
+        <pin num="7" name="1QD" type="output"/>
+        <pin num="8" name="GND" type="power_in"/>
+        <pin num="9" name="2QD" type="output"/>
+        <pin num="10" name="2QC" type="output"/>
+        <pin num="11" name="2QB" type="output"/>
+        <pin num="12" name="2~{CLK}B" type="input"/>
+        <pin num="13" name="2QA" type="output"/>
+        <pin num="14" name="2CLR" type="input"/>
+        <pin num="15" name="2~{CLK}A" type="input"/>
+        <pin num="16" name="VCC" type="power_in"/>
+      </pins>
+    </libpart>
+    <libpart lib="Amplifier_Operational" part="OPA197xDBV">
+      <description>Single 36V, Precision, Rail-to-Rail Input/Output, Low Offset Voltage, Operational Amplifier, SOT-23</description>
+      <docs>http://www.ti.com/lit/ds/symlink/opa197.pdf</docs>
+      <footprints>
+        <fp>SOT?23*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">OPA197xDBV</field>
+        <field name="Footprint">Package_TO_SOT_SMD:SOT-23-5</field>
+        <field name="Datasheet">http://www.ti.com/lit/ds/symlink/opa197.pdf</field>
+      </fields>
+      <pins>
+        <pin num="1" name="" type="output"/>
+        <pin num="2" name="V-" type="power_in"/>
+        <pin num="3" name="+" type="input"/>
+        <pin num="4" name="-" type="input"/>
+        <pin num="5" name="V+" type="power_in"/>
+      </pins>
+    </libpart>
+    <libpart lib="Connector" part="Conn_01x02_Female">
+      <description>Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>Connector*:*_1x??_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">J</field>
+        <field name="Value">Conn_01x02_Female</field>
+        <field name="Datasheet">~</field>
+      </fields>
+      <pins>
+        <pin num="1" name="Pin_1" type="passive"/>
+        <pin num="2" name="Pin_2" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Connector" part="DB9_Female">
+      <description>9-pin female D-SUB connector</description>
+      <docs> ~</docs>
+      <footprints>
+        <fp>DSUB*Female*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">J</field>
+        <field name="Value">DB9_Female</field>
+        <field name="Datasheet"> ~</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="passive"/>
+        <pin num="2" name="2" type="passive"/>
+        <pin num="3" name="3" type="passive"/>
+        <pin num="4" name="4" type="passive"/>
+        <pin num="5" name="5" type="passive"/>
+        <pin num="6" name="6" type="passive"/>
+        <pin num="7" name="7" type="passive"/>
+        <pin num="8" name="8" type="passive"/>
+        <pin num="9" name="9" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Connector_Generic" part="Conn_01x01">
+      <description>Generic connector, single row, 01x01, script generated (kicad-library-utils/schlib/autogen/connector/)</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>Connector*:*_1x??_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">J</field>
+        <field name="Value">Conn_01x01</field>
+        <field name="Datasheet">~</field>
+      </fields>
+      <pins>
+        <pin num="1" name="Pin_1" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Connector_Generic" part="Conn_01x02">
+      <description>Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>Connector*:*_1x??_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">J</field>
+        <field name="Value">Conn_01x02</field>
+        <field name="Datasheet">~</field>
+      </fields>
+      <pins>
+        <pin num="1" name="Pin_1" type="passive"/>
+        <pin num="2" name="Pin_2" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Connector_Generic" part="Conn_02x03_Odd_Even">
+      <description>Generic connector, double row, 02x03, odd/even pin numbering scheme (row 1 odd numbers, row 2 even numbers), script generated (kicad-library-utils/schlib/autogen/connector/)</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>Connector*:*_2x??_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">J</field>
+        <field name="Value">Conn_02x03_Odd_Even</field>
+        <field name="Datasheet">~</field>
+      </fields>
+      <pins>
+        <pin num="1" name="Pin_1" type="passive"/>
+        <pin num="2" name="Pin_2" type="passive"/>
+        <pin num="3" name="Pin_3" type="passive"/>
+        <pin num="4" name="Pin_4" type="passive"/>
+        <pin num="5" name="Pin_5" type="passive"/>
+        <pin num="6" name="Pin_6" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Device" part="Antenna_Shield">
+      <description>Antenna with extra pin for shielding</description>
+      <docs>~</docs>
+      <fields>
+        <field name="Reference">AE</field>
+        <field name="Value">Antenna_Shield</field>
+        <field name="Datasheet">~</field>
+      </fields>
+      <pins>
+        <pin num="1" name="Shield" type="input"/>
+        <pin num="2" name="A" type="input"/>
+      </pins>
+    </libpart>
+    <libpart lib="Device" part="Battery">
+      <description>Multiple-cell battery</description>
+      <docs>~</docs>
+      <fields>
+        <field name="Reference">BT</field>
+        <field name="Value">Battery</field>
+        <field name="Datasheet">~</field>
+      </fields>
+      <pins>
+        <pin num="1" name="-" type="passive"/>
+        <pin num="2" name="+" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Device" part="C_Small">
+      <description>Unpolarized capacitor, small symbol</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>C_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">C</field>
+        <field name="Value">C_Small</field>
+        <field name="Datasheet">~</field>
+      </fields>
+      <pins>
+        <pin num="1" name="" type="passive"/>
+        <pin num="2" name="" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Device" part="D_Capacitance_Filled">
+      <description>Variable capacitance diode, filled shape</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>TO-???*</fp>
+        <fp>*_Diode_*</fp>
+        <fp>*SingleDiode*</fp>
+        <fp>D_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">D</field>
+        <field name="Value">D_Capacitance_Filled</field>
+        <field name="Datasheet">~</field>
+      </fields>
+      <pins>
+        <pin num="1" name="K" type="passive"/>
+        <pin num="2" name="A" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Device" part="INDUCTOR_tapped">
+      <fields>
+        <field name="Reference">L?</field>
+        <field name="Value">INDUCTOR_tapped</field>
+        <field name="Footprint">Inductors:Toroid_T-50A_TH_BF_CT_Vertical</field>
+        <field name="Digi-Key Part No.">FT50A-43 (Amidon)</field>
+        <field name="Link">&lt;a href="http://www.amidoncorp.com/ft-50A-43/"&gt;Link&lt;/a&gt;</field>
+        <field name="Manufacturer">TH</field>
+        <field name="Manufacturer PN">TH</field>
+        <field name="Description">TH</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="passive"/>
+        <pin num="2" name="TAP" type="passive"/>
+        <pin num="3" name="3" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Device" part="LED_Filled">
+      <description>Light emitting diode, filled shape</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>LED*</fp>
+        <fp>LED_SMD:*</fp>
+        <fp>LED_THT:*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">D</field>
+        <field name="Value">LED_Filled</field>
+        <field name="Datasheet">~</field>
+      </fields>
+      <pins>
+        <pin num="1" name="K" type="passive"/>
+        <pin num="2" name="A" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Device" part="R">
+      <description>Resistor</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>R_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">R</field>
+        <field name="Value">R</field>
+        <field name="Datasheet">~</field>
+      </fields>
+      <pins>
+        <pin num="1" name="" type="passive"/>
+        <pin num="2" name="" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Driver_FET" part="UCC27517DBVR">
+      <description>MOSFET driver with inverting output, SOT-23-5</description>
+      <footprints>
+        <fp>SOT?23*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">UCC27517DBVR</field>
+        <field name="Footprint">Package_TO_SOT_SMD:SOT-23-5</field>
+      </fields>
+      <pins>
+        <pin num="1" name="NC" type="no_connect"/>
+        <pin num="2" name="GND" type="power_in"/>
+        <pin num="3" name="IN+" type="input"/>
+        <pin num="4" name="IN-" type="input"/>
+        <pin num="5" name="~{OUT}" type="output"/>
+      </pins>
+    </libpart>
+    <libpart lib="Jumper" part="SolderJumper_2_Bridged">
+      <description>Solder Jumper, 2-pole, closed/bridged</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>SolderJumper*Bridged*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">JP</field>
+        <field name="Value">SolderJumper_2_Bridged</field>
+        <field name="Datasheet">~</field>
+      </fields>
+      <pins>
+        <pin num="1" name="A" type="passive"/>
+        <pin num="2" name="B" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Jumper" part="SolderJumper_3_Bridged12">
+      <description>3-pole Solder Jumper, pins 1+2 closed/bridged</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>SolderJumper*Bridged12*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">JP</field>
+        <field name="Value">SolderJumper_3_Bridged12</field>
+        <field name="Datasheet">~</field>
+      </fields>
+      <pins>
+        <pin num="1" name="A" type="passive"/>
+        <pin num="2" name="C" type="passive"/>
+        <pin num="3" name="B" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="MCU_Microchip_AVR" part="AVR128DA28">
+      <description>24MHz, 128kB Flash, 16kB SRAM, 512B EEPROM, USART, I2C, SPI, SOIC-28</description>
+      <docs>http://ww1.microchip.com/downloads/en/DeviceDoc/doc7707.pdf</docs>
+      <footprints>
+        <fp>QFN*1EP*5x5mm*P0.5mm*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">AVR128DA28</field>
+        <field name="Footprint">Package_SO:SOIC-28W_7.5x17.9mm_P1.27mm</field>
+        <field name="Datasheet">http://ww1.microchip.com/downloads/en/DeviceDoc/doc7707.pdf</field>
+      </fields>
+      <pins>
+        <pin num="1" name="PA7" type="bidirectional"/>
+        <pin num="2" name="PC0/TxD1" type="bidirectional"/>
+        <pin num="3" name="PC1/RxD1" type="bidirectional"/>
+        <pin num="4" name="PC2/SDA" type="bidirectional"/>
+        <pin num="5" name="PC3/SCL" type="bidirectional"/>
+        <pin num="6" name="PD0/AIN0" type="bidirectional"/>
+        <pin num="7" name="PD1" type="bidirectional"/>
+        <pin num="8" name="PD2" type="bidirectional"/>
+        <pin num="9" name="PD3" type="bidirectional"/>
+        <pin num="10" name="PD4" type="bidirectional"/>
+        <pin num="11" name="PD5" type="bidirectional"/>
+        <pin num="12" name="PD6/DAC" type="bidirectional"/>
+        <pin num="13" name="PD7" type="bidirectional"/>
+        <pin num="14" name="AVDD" type="power_in"/>
+        <pin num="15" name="GND" type="power_in"/>
+        <pin num="16" name="PF0/XTAL32k1" type="input"/>
+        <pin num="17" name="PF1/XTAL32k2" type="bidirectional"/>
+        <pin num="18" name="PF6/~{RESET}" type="bidirectional"/>
+        <pin num="19" name="UDPI" type="passive"/>
+        <pin num="20" name="VDD" type="power_in"/>
+        <pin num="21" name="GND" type="power_in"/>
+        <pin num="22" name="PA0/EXTCLK" type="bidirectional"/>
+        <pin num="23" name="PA1" type="bidirectional"/>
+        <pin num="24" name="PA2" type="bidirectional"/>
+        <pin num="25" name="PA3" type="bidirectional"/>
+        <pin num="26" name="PA4" type="bidirectional"/>
+        <pin num="27" name="PA5" type="bidirectional"/>
+        <pin num="28" name="PA6" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="Oscillator" part="SIT1566AC">
+      <description>Temperature Compensated MEMS Clock Oscillator</description>
+      <docs>http://www.petermann-technik.de/fileadmin/petermann/pdf/crystal-oscillators/OCXO-14_PETERMANN-TECHNIK.pdf</docs>
+      <footprints>
+        <fp>Oscillator*DIP*14*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">X</field>
+        <field name="Value">SIT1566AC</field>
+        <field name="Footprint">Oscillator:Oscillator_SMD_SiTime_SIT1566AC-4Pin_BGA</field>
+        <field name="Datasheet">http://www.petermann-technik.de/fileadmin/petermann/pdf/crystal-oscillators/OCXO-14_PETERMANN-TECHNIK.pdf</field>
+      </fields>
+      <pins>
+        <pin num="1" name="NC" type="no_connect"/>
+        <pin num="2" name="OUT" type="output"/>
+        <pin num="3" name="Vdd" type="power_in"/>
+        <pin num="4" name="GND" type="power_in"/>
+      </pins>
+    </libpart>
+    <libpart lib="Regulator_Linear" part="LP2985-3.3">
+      <description>150mA 16V Low-noise Low-dropout Regulator With Shutdown, 3.3V output voltage, SOT-23-5</description>
+      <docs>http://www.ti.com/lit/ds/symlink/lp2985.pdf</docs>
+      <footprints>
+        <fp>SOT?23*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">LP2985-3.3</field>
+        <field name="Footprint">Package_TO_SOT_SMD:SOT-23-5</field>
+        <field name="Datasheet">http://www.ti.com/lit/ds/symlink/lp2985.pdf</field>
+      </fields>
+      <pins>
+        <pin num="1" name="VIN" type="power_in"/>
+        <pin num="2" name="GND" type="power_in"/>
+        <pin num="3" name="ON/~{OFF}" type="input"/>
+        <pin num="4" name="BP" type="input"/>
+        <pin num="5" name="VOUT" type="power_out"/>
+      </pins>
+    </libpart>
+    <libpart lib="Regulator_Linear" part="LP2985-5.0">
+      <description>150mA 16V Low-noise Low-dropout Regulator With Shutdown, 5.0V output voltage, SOT-23-5</description>
+      <docs>http://www.ti.com/lit/ds/symlink/lp2985.pdf</docs>
+      <footprints>
+        <fp>SOT?23*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">LP2985-5.0</field>
+        <field name="Footprint">Package_TO_SOT_SMD:SOT-23-5</field>
+        <field name="Datasheet">http://www.ti.com/lit/ds/symlink/lp2985.pdf</field>
+      </fields>
+      <pins>
+        <pin num="1" name="VIN" type="power_in"/>
+        <pin num="2" name="GND" type="power_in"/>
+        <pin num="3" name="ON/~{OFF}" type="input"/>
+        <pin num="4" name="BP" type="input"/>
+        <pin num="5" name="VOUT" type="power_out"/>
+      </pins>
+    </libpart>
+    <libpart lib="Switch" part="SW_SPST">
+      <description>Single Pole Single Throw (SPST) switch</description>
+      <docs>~</docs>
+      <fields>
+        <field name="Reference">SW</field>
+        <field name="Value">SW_SPST</field>
+        <field name="Datasheet">~</field>
+      </fields>
+      <pins>
+        <pin num="1" name="A" type="passive"/>
+        <pin num="2" name="B" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Transistor_FET" part="BSS138">
+      <description>50V Vds, 0.22A Id, N-Channel MOSFET, SOT-23</description>
+      <docs>https://www.onsemi.com/pub/Collateral/BSS138-D.PDF</docs>
+      <footprints>
+        <fp>SOT?23*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">Q</field>
+        <field name="Value">BSS138</field>
+        <field name="Footprint">Package_TO_SOT_SMD:SOT-23</field>
+        <field name="Datasheet">https://www.onsemi.com/pub/Collateral/BSS138-D.PDF</field>
+      </fields>
+      <pins>
+        <pin num="1" name="G" type="input"/>
+        <pin num="2" name="S" type="passive"/>
+        <pin num="3" name="D" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Transistor_FET" part="BSS84">
+      <description>-0.13A Id, -50V Vds, P-Channel MOSFET, SOT-23</description>
+      <docs>http://assets.nexperia.com/documents/data-sheet/BSS84.pdf</docs>
+      <footprints>
+        <fp>SOT?23*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">Q</field>
+        <field name="Value">BSS84</field>
+        <field name="Footprint">Package_TO_SOT_SMD:SOT-23</field>
+        <field name="Datasheet">http://assets.nexperia.com/documents/data-sheet/BSS84.pdf</field>
+      </fields>
+      <pins>
+        <pin num="1" name="G" type="input"/>
+        <pin num="2" name="S" type="passive"/>
+        <pin num="3" name="D" type="passive"/>
+      </pins>
+    </libpart>
+  </libparts>
+  <libraries>
+    <library logical="4xxx">
+      <uri>/Applications/KiCad/KiCad.app/Contents/SharedSupport/symbols//4xxx.kicad_sym</uri>
+    </library>
+    <library logical="74xx">
+      <uri>/Applications/KiCad/KiCad.app/Contents/SharedSupport/symbols//74xx.kicad_sym</uri>
+    </library>
+    <library logical="Amplifier_Operational">
+      <uri>/Applications/KiCad/KiCad.app/Contents/SharedSupport/symbols//Amplifier_Operational.kicad_sym</uri>
+    </library>
+    <library logical="Connector">
+      <uri>/Applications/KiCad/KiCad.app/Contents/SharedSupport/symbols//Connector.kicad_sym</uri>
+    </library>
+    <library logical="Connector_Generic">
+      <uri>/Applications/KiCad/KiCad.app/Contents/SharedSupport/symbols//Connector_Generic.kicad_sym</uri>
+    </library>
+    <library logical="Device">
+      <uri>/Applications/KiCad/KiCad.app/Contents/SharedSupport/symbols//Device.kicad_sym</uri>
+    </library>
+    <library logical="Driver_FET">
+      <uri>/Applications/KiCad/KiCad.app/Contents/SharedSupport/symbols//Driver_FET.kicad_sym</uri>
+    </library>
+    <library logical="Jumper">
+      <uri>/Applications/KiCad/KiCad.app/Contents/SharedSupport/symbols//Jumper.kicad_sym</uri>
+    </library>
+    <library logical="MCU_Microchip_AVR">
+      <uri>/Applications/KiCad/KiCad.app/Contents/SharedSupport/symbols//MCU_Microchip_AVR.kicad_sym</uri>
+    </library>
+    <library logical="Oscillator">
+      <uri>/Applications/KiCad/KiCad.app/Contents/SharedSupport/symbols//Oscillator.kicad_sym</uri>
+    </library>
+    <library logical="Regulator_Linear">
+      <uri>/Applications/KiCad/KiCad.app/Contents/SharedSupport/symbols//Regulator_Linear.kicad_sym</uri>
+    </library>
+    <library logical="Switch">
+      <uri>/Applications/KiCad/KiCad.app/Contents/SharedSupport/symbols//Switch.kicad_sym</uri>
+    </library>
+    <library logical="Transistor_FET">
+      <uri>/Applications/KiCad/KiCad.app/Contents/SharedSupport/symbols//Transistor_FET.kicad_sym</uri>
+    </library>
+  </libraries>
+  <nets>
+    <net code="1" name="+3V3">
+      <node ref="C104" pin="2" pintype="passive"/>
+      <node ref="C112" pin="1" pintype="passive"/>
+      <node ref="C113" pin="2" pintype="passive"/>
+      <node ref="C121" pin="2" pintype="passive"/>
+      <node ref="P101" pin="2" pinfunction="Pin_2" pintype="passive"/>
+      <node ref="U102" pin="5" pinfunction="VOUT" pintype="power_out"/>
+      <node ref="U105" pin="14" pinfunction="AVDD" pintype="power_in"/>
+      <node ref="U105" pin="20" pinfunction="VDD" pintype="power_in"/>
+      <node ref="X101" pin="3" pinfunction="Vdd" pintype="power_in"/>
+    </net>
+    <net code="2" name="+5V">
+      <node ref="C101" pin="2" pintype="passive"/>
+      <node ref="C109" pin="2" pintype="passive"/>
+      <node ref="C110" pin="2" pintype="passive"/>
+      <node ref="C111" pin="2" pintype="passive"/>
+      <node ref="C116" pin="1" pintype="passive"/>
+      <node ref="C117" pin="1" pintype="passive"/>
+      <node ref="C119" pin="2" pintype="passive"/>
+      <node ref="R102" pin="1" pintype="passive"/>
+      <node ref="U101" pin="1" pinfunction="Vdd" pintype="power_in"/>
+      <node ref="U103" pin="5" pinfunction="V+" pintype="power_in"/>
+      <node ref="U104" pin="16" pinfunction="VDD" pintype="power_in"/>
+      <node ref="U106" pin="16" pinfunction="VCC" pintype="power_in"/>
+      <node ref="U107" pin="16" pinfunction="VCC" pintype="power_in"/>
+      <node ref="U108" pin="5" pinfunction="VOUT" pintype="power_out"/>
+    </net>
+    <net code="3" name="+BATT">
+      <node ref="BT101" pin="2" pinfunction="+" pintype="passive"/>
+      <node ref="C103" pin="2" pintype="passive"/>
+      <node ref="C118" pin="2" pintype="passive"/>
+      <node ref="Q101" pin="2" pinfunction="S" pintype="passive"/>
+      <node ref="R109" pin="1" pintype="passive"/>
+      <node ref="U102" pin="1" pinfunction="VIN" pintype="power_in"/>
+      <node ref="U102" pin="3" pinfunction="ON/~{OFF}" pintype="input"/>
+      <node ref="U108" pin="1" pinfunction="VIN" pintype="power_in"/>
+    </net>
+    <net code="4" name="Enable_5V">
+      <node ref="U105" pin="25" pinfunction="PA3" pintype="bidirectional"/>
+      <node ref="U108" pin="3" pinfunction="ON/~{OFF}" pintype="input"/>
+    </net>
+    <net code="5" name="Enable_Vdiv">
+      <node ref="Q102" pin="1" pinfunction="G" pintype="input"/>
+      <node ref="U105" pin="26" pinfunction="PA4" pintype="bidirectional"/>
+    </net>
+    <net code="6" name="GND">
+      <node ref="AE101" pin="1" pinfunction="Shield" pintype="input"/>
+      <node ref="BT101" pin="1" pinfunction="-" pintype="passive"/>
+      <node ref="C101" pin="1" pintype="passive"/>
+      <node ref="C103" pin="1" pintype="passive"/>
+      <node ref="C104" pin="1" pintype="passive"/>
+      <node ref="C105" pin="2" pintype="passive"/>
+      <node ref="C107" pin="2" pintype="passive"/>
+      <node ref="C108" pin="1" pintype="passive"/>
+      <node ref="C109" pin="1" pintype="passive"/>
+      <node ref="C110" pin="1" pintype="passive"/>
+      <node ref="C111" pin="1" pintype="passive"/>
+      <node ref="C112" pin="2" pintype="passive"/>
+      <node ref="C113" pin="1" pintype="passive"/>
+      <node ref="C116" pin="2" pintype="passive"/>
+      <node ref="C117" pin="2" pintype="passive"/>
+      <node ref="C118" pin="1" pintype="passive"/>
+      <node ref="C119" pin="1" pintype="passive"/>
+      <node ref="C120" pin="2" pintype="passive"/>
+      <node ref="C121" pin="1" pintype="passive"/>
+      <node ref="D101" pin="1" pinfunction="K" pintype="passive"/>
+      <node ref="D103" pin="2" pinfunction="A2" pintype="passive"/>
+      <node ref="D104" pin="1" pinfunction="A1" pintype="passive"/>
+      <node ref="J101" pin="1" pinfunction="Pin_1" pintype="passive"/>
+      <node ref="J102" pin="1" pinfunction="Pin_1" pintype="passive"/>
+      <node ref="J105" pin="1" pinfunction="Pin_1" pintype="passive"/>
+      <node ref="J106" pin="1" pinfunction="Pin_1" pintype="passive"/>
+      <node ref="J109" pin="1" pinfunction="Pin_1" pintype="passive"/>
+      <node ref="J111" pin="6" pinfunction="6" pintype="passive"/>
+      <node ref="J112" pin="1" pinfunction="Pin_1" pintype="passive"/>
+      <node ref="J113" pin="1" pinfunction="Pin_1" pintype="passive"/>
+      <node ref="J114" pin="1" pinfunction="Pin_1" pintype="passive"/>
+      <node ref="L101" pin="3" pinfunction="3" pintype="passive"/>
+      <node ref="P101" pin="6" pinfunction="Pin_6" pintype="passive"/>
+      <node ref="Q102" pin="2" pinfunction="S" pintype="passive"/>
+      <node ref="R101" pin="1" pintype="passive"/>
+      <node ref="R105" pin="2" pintype="passive"/>
+      <node ref="R107" pin="2" pintype="passive"/>
+      <node ref="R111" pin="1" pintype="passive"/>
+      <node ref="SW101" pin="2" pinfunction="B" pintype="passive"/>
+      <node ref="U101" pin="2" pinfunction="GND" pintype="power_in"/>
+      <node ref="U102" pin="2" pinfunction="GND" pintype="power_in"/>
+      <node ref="U103" pin="2" pinfunction="V-" pintype="power_in"/>
+      <node ref="U104" pin="8" pinfunction="VSS" pintype="power_in"/>
+      <node ref="U105" pin="15" pinfunction="GND" pintype="power_in"/>
+      <node ref="U105" pin="21" pinfunction="GND" pintype="power_in"/>
+      <node ref="U106" pin="14" pinfunction="2CLR" pintype="input"/>
+      <node ref="U106" pin="2" pinfunction="1CLR" pintype="input"/>
+      <node ref="U106" pin="8" pinfunction="GND" pintype="power_in"/>
+      <node ref="U107" pin="14" pinfunction="2CLR" pintype="input"/>
+      <node ref="U107" pin="2" pinfunction="1CLR" pintype="input"/>
+      <node ref="U107" pin="8" pinfunction="GND" pintype="power_in"/>
+      <node ref="U108" pin="2" pinfunction="GND" pintype="power_in"/>
+      <node ref="W101" pin="2" pinfunction="Pin_2" pintype="passive"/>
+      <node ref="W102" pin="2" pinfunction="Pin_2" pintype="passive"/>
+      <node ref="W103" pin="2" pinfunction="Pin_2" pintype="passive"/>
+      <node ref="X101" pin="4" pinfunction="GND" pintype="power_in"/>
+    </net>
+    <net code="7" name="Net-(AE101-Pad2)">
+      <node ref="AE101" pin="2" pinfunction="A" pintype="input"/>
+      <node ref="C105" pin="1" pintype="passive"/>
+      <node ref="D102" pin="2" pinfunction="A" pintype="passive"/>
+      <node ref="J102" pin="2" pinfunction="Pin_2" pintype="passive"/>
+      <node ref="L101" pin="1" pinfunction="1" pintype="passive"/>
+      <node ref="W102" pin="1" pinfunction="Pin_1" pintype="passive"/>
+    </net>
+    <net code="8" name="Net-(C102-Pad1)">
+      <node ref="C102" pin="1" pintype="passive"/>
+      <node ref="J101" pin="2" pinfunction="Pin_2" pintype="passive"/>
+      <node ref="L101" pin="2" pinfunction="TAP" pintype="passive"/>
+      <node ref="W101" pin="1" pinfunction="Pin_1" pintype="passive"/>
+    </net>
+    <net code="9" name="Net-(C102-Pad2)">
+      <node ref="C102" pin="2" pintype="passive"/>
+      <node ref="U101" pin="5" pinfunction="~{OUT}" pintype="output"/>
+    </net>
+    <net code="10" name="Net-(C107-Pad1)">
+      <node ref="C107" pin="1" pintype="passive"/>
+      <node ref="U102" pin="4" pinfunction="BP" pintype="input"/>
+    </net>
+    <net code="11" name="Net-(C108-Pad2)">
+      <node ref="C108" pin="2" pintype="passive"/>
+      <node ref="R101" pin="2" pintype="passive"/>
+      <node ref="R102" pin="2" pintype="passive"/>
+      <node ref="R103" pin="1" pintype="passive"/>
+      <node ref="U103" pin="3" pinfunction="+" pintype="input"/>
+    </net>
+    <net code="12" name="Net-(C114-Pad1)">
+      <node ref="C114" pin="1" pintype="passive"/>
+      <node ref="U104" pin="6" pinfunction="C1" pintype="input"/>
+    </net>
+    <net code="13" name="Net-(C114-Pad2)">
+      <node ref="C114" pin="2" pintype="passive"/>
+      <node ref="U104" pin="7" pinfunction="C2" pintype="input"/>
+    </net>
+    <net code="14" name="Net-(C115-Pad1)">
+      <node ref="C115" pin="1" pintype="passive"/>
+      <node ref="JP106" pin="2" pinfunction="B" pintype="passive"/>
+      <node ref="U103" pin="1" pintype="output"/>
+    </net>
+    <net code="15" name="Net-(C115-Pad2)">
+      <node ref="C115" pin="2" pintype="passive"/>
+      <node ref="R106" pin="1" pintype="passive"/>
+    </net>
+    <net code="16" name="Net-(C120-Pad1)">
+      <node ref="C120" pin="1" pintype="passive"/>
+      <node ref="U108" pin="4" pinfunction="BP" pintype="input"/>
+    </net>
+    <net code="17" name="Net-(D101-Pad2)">
+      <node ref="D101" pin="2" pinfunction="A" pintype="passive"/>
+      <node ref="J113" pin="2" pinfunction="Pin_2" pintype="passive"/>
+      <node ref="R108" pin="2" pintype="passive"/>
+    </net>
+    <net code="18" name="Net-(D102-Pad1)">
+      <node ref="D102" pin="1" pinfunction="K" pintype="passive"/>
+      <node ref="U105" pin="12" pinfunction="PD6/DAC" pintype="bidirectional"/>
+    </net>
+    <net code="19" name="Net-(D103-Pad1)">
+      <node ref="D103" pin="1" pinfunction="A1" pintype="passive"/>
+      <node ref="J111" pin="8" pinfunction="8" pintype="passive"/>
+      <node ref="U105" pin="3" pinfunction="PC1/RxD1" pintype="bidirectional"/>
+    </net>
+    <net code="20" name="Net-(D104-Pad2)">
+      <node ref="D104" pin="2" pinfunction="A2" pintype="passive"/>
+      <node ref="J111" pin="9" pinfunction="9" pintype="passive"/>
+      <node ref="U105" pin="2" pinfunction="PC0/TxD1" pintype="bidirectional"/>
+    </net>
+    <net code="21" name="Net-(J103-Pad1)">
+      <node ref="J103" pin="1" pinfunction="Pin_1" pintype="passive"/>
+      <node ref="J104" pin="1" pinfunction="Pin_1" pintype="passive"/>
+    </net>
+    <net code="22" name="Net-(J104-Pad2)">
+      <node ref="J104" pin="2" pinfunction="Pin_2" pintype="passive"/>
+      <node ref="U104" pin="2" pinfunction="PC1" pintype="output"/>
+    </net>
+    <net code="23" name="Net-(J105-Pad2)">
+      <node ref="J105" pin="2" pinfunction="Pin_2" pintype="passive"/>
+      <node ref="U104" pin="1" pinfunction="PCP" pintype="output"/>
+    </net>
+    <net code="24" name="Net-(J106-Pad2)">
+      <node ref="J106" pin="2" pinfunction="Pin_2" pintype="passive"/>
+      <node ref="U104" pin="10" pinfunction="SFout" pintype="output"/>
+    </net>
+    <net code="25" name="Net-(J107-Pad1)">
+      <node ref="J107" pin="1" pinfunction="Pin_1" pintype="passive"/>
+      <node ref="U104" pin="15" pinfunction="ZOUT" pintype="output"/>
+    </net>
+    <net code="26" name="Net-(J107-Pad2)">
+      <node ref="J107" pin="2" pinfunction="Pin_2" pintype="passive"/>
+      <node ref="J108" pin="1" pinfunction="Pin_1" pintype="passive"/>
+    </net>
+    <net code="27" name="Net-(J109-Pad2)">
+      <node ref="J109" pin="2" pinfunction="Pin_2" pintype="passive"/>
+      <node ref="JP101" pin="3" pinfunction="B" pintype="passive"/>
+    </net>
+    <net code="28" name="Net-(J110-Pad1)">
+      <node ref="J110" pin="1" pinfunction="Pin_1" pintype="passive"/>
+      <node ref="U105" pin="4" pinfunction="PC2/SDA" pintype="bidirectional"/>
+    </net>
+    <net code="29" name="Net-(J110-Pad2)">
+      <node ref="J110" pin="2" pinfunction="Pin_2" pintype="passive"/>
+      <node ref="U105" pin="5" pinfunction="PC3/SCL" pintype="bidirectional"/>
+    </net>
+    <net code="30" name="Net-(J112-Pad2)">
+      <node ref="J112" pin="2" pinfunction="Pin_2" pintype="passive"/>
+      <node ref="SW101" pin="1" pinfunction="A" pintype="passive"/>
+      <node ref="U105" pin="9" pinfunction="PD3" pintype="bidirectional"/>
+    </net>
+    <net code="31" name="Net-(J114-Pad2)">
+      <node ref="J114" pin="2" pinfunction="Pin_2" pintype="passive"/>
+      <node ref="JP106" pin="1" pinfunction="A" pintype="passive"/>
+      <node ref="U104" pin="9" pinfunction="VCOin" pintype="input"/>
+    </net>
+    <net code="32" name="Net-(JP101-Pad1)">
+      <node ref="JP101" pin="1" pinfunction="A" pintype="passive"/>
+      <node ref="U105" pin="1" pinfunction="PA7" pintype="bidirectional"/>
+    </net>
+    <net code="33" name="Net-(JP101-Pad2)">
+      <node ref="JP101" pin="2" pinfunction="C" pintype="passive"/>
+      <node ref="JP104" pin="1" pinfunction="A" pintype="passive"/>
+      <node ref="JP105" pin="3" pinfunction="B" pintype="passive"/>
+    </net>
+    <net code="34" name="Net-(JP102-Pad1)">
+      <node ref="JP102" pin="1" pinfunction="A" pintype="passive"/>
+      <node ref="U107" pin="12" pinfunction="2~{CLK}B" pintype="input"/>
+      <node ref="U107" pin="3" pinfunction="1QA" pintype="output"/>
+    </net>
+    <net code="35" name="Net-(JP102-Pad2)">
+      <node ref="JP102" pin="2" pinfunction="C" pintype="passive"/>
+      <node ref="JP103" pin="1" pinfunction="A" pintype="passive"/>
+    </net>
+    <net code="36" name="Net-(JP102-Pad3)">
+      <node ref="JP102" pin="3" pinfunction="B" pintype="passive"/>
+      <node ref="U107" pin="13" pinfunction="2QA" pintype="output"/>
+    </net>
+    <net code="37" name="Net-(JP103-Pad2)">
+      <node ref="JP103" pin="2" pinfunction="C" pintype="passive"/>
+      <node ref="JP104" pin="3" pinfunction="B" pintype="passive"/>
+      <node ref="JP105" pin="1" pinfunction="A" pintype="passive"/>
+    </net>
+    <net code="38" name="Net-(JP103-Pad3)">
+      <node ref="JP103" pin="3" pinfunction="B" pintype="passive"/>
+      <node ref="U106" pin="13" pinfunction="2QA" pintype="output"/>
+      <node ref="U107" pin="4" pinfunction="1~{CLK}B" pintype="input"/>
+    </net>
+    <net code="39" name="Net-(JP104-Pad2)">
+      <node ref="JP104" pin="2" pinfunction="C" pintype="passive"/>
+      <node ref="U104" pin="3" pinfunction="RefIn" pintype="input"/>
+    </net>
+    <net code="40" name="Net-(JP105-Pad2)">
+      <node ref="JP105" pin="2" pinfunction="C" pintype="passive"/>
+      <node ref="U104" pin="14" pinfunction="SigIn" pintype="input"/>
+    </net>
+    <net code="41" name="Net-(P101-Pad1)">
+      <node ref="P101" pin="1" pinfunction="Pin_1" pintype="passive"/>
+      <node ref="U105" pin="19" pinfunction="UDPI" pintype="passive"/>
+    </net>
+    <net code="42" name="Net-(Q101-Pad1)">
+      <node ref="Q101" pin="1" pinfunction="G" pintype="input"/>
+      <node ref="Q102" pin="3" pinfunction="D" pintype="passive"/>
+      <node ref="R109" pin="2" pintype="passive"/>
+    </net>
+    <net code="43" name="Net-(Q101-Pad3)">
+      <node ref="Q101" pin="3" pinfunction="D" pintype="passive"/>
+      <node ref="R110" pin="2" pintype="passive"/>
+    </net>
+    <net code="44" name="Net-(R104-Pad1)">
+      <node ref="R103" pin="2" pintype="passive"/>
+      <node ref="R104" pin="1" pintype="passive"/>
+      <node ref="R106" pin="2" pintype="passive"/>
+      <node ref="U103" pin="4" pinfunction="-" pintype="input"/>
+    </net>
+    <net code="45" name="Net-(R104-Pad2)">
+      <node ref="R104" pin="2" pintype="passive"/>
+      <node ref="U104" pin="13" pinfunction="PC2" pintype="tri_state"/>
+    </net>
+    <net code="46" name="Net-(R105-Pad1)">
+      <node ref="R105" pin="1" pintype="passive"/>
+      <node ref="U104" pin="11" pinfunction="R1" pintype="input"/>
+    </net>
+    <net code="47" name="Net-(R107-Pad1)">
+      <node ref="R107" pin="1" pintype="passive"/>
+      <node ref="U104" pin="12" pinfunction="R2" pintype="input"/>
+    </net>
+    <net code="48" name="Net-(R108-Pad1)">
+      <node ref="R108" pin="1" pintype="passive"/>
+      <node ref="U105" pin="8" pinfunction="PD2" pintype="bidirectional"/>
+    </net>
+    <net code="49" name="Net-(U101-Pad3)">
+      <node ref="U101" pin="3" pinfunction="IN+" pintype="input"/>
+      <node ref="U105" pin="24" pinfunction="PA2" pintype="bidirectional"/>
+    </net>
+    <net code="50" name="Net-(U101-Pad4)">
+      <node ref="U101" pin="4" pinfunction="IN-" pintype="input"/>
+      <node ref="U104" pin="4" pinfunction="FOUT" pintype="output"/>
+      <node ref="U106" pin="4" pinfunction="1~{CLK}B" pintype="input"/>
+      <node ref="W103" pin="1" pinfunction="Pin_1" pintype="passive"/>
+    </net>
+    <net code="51" name="Net-(U104-Pad5)">
+      <node ref="U104" pin="5" pinfunction="Inh" pintype="input"/>
+      <node ref="U105" pin="23" pinfunction="PA1" pintype="bidirectional"/>
+    </net>
+    <net code="52" name="Net-(U105-Pad22)">
+      <node ref="U105" pin="22" pinfunction="PA0/EXTCLK" pintype="bidirectional"/>
+      <node ref="X101" pin="2" pinfunction="OUT" pintype="output"/>
+    </net>
+    <net code="53" name="Net-(U106-Pad1)">
+      <node ref="U106" pin="1" pinfunction="1~{CLK}A" pintype="input"/>
+      <node ref="U106" pin="7" pinfunction="1QD" pintype="output"/>
+    </net>
+    <net code="54" name="Net-(U106-Pad12)">
+      <node ref="U106" pin="12" pinfunction="2~{CLK}B" pintype="input"/>
+      <node ref="U106" pin="3" pinfunction="1QA" pintype="output"/>
+    </net>
+    <net code="55" name="Net-(U106-Pad15)">
+      <node ref="U106" pin="15" pinfunction="2~{CLK}A" pintype="input"/>
+      <node ref="U106" pin="9" pinfunction="2QD" pintype="output"/>
+    </net>
+    <net code="56" name="Net-(U107-Pad1)">
+      <node ref="U107" pin="1" pinfunction="1~{CLK}A" pintype="input"/>
+      <node ref="U107" pin="7" pinfunction="1QD" pintype="output"/>
+    </net>
+    <net code="57" name="Net-(U107-Pad15)">
+      <node ref="U107" pin="15" pinfunction="2~{CLK}A" pintype="input"/>
+      <node ref="U107" pin="9" pinfunction="2QD" pintype="output"/>
+    </net>
+    <net code="58" name="Vbat">
+      <node ref="R110" pin="1" pintype="passive"/>
+      <node ref="R111" pin="2" pintype="passive"/>
+      <node ref="U105" pin="6" pinfunction="PD0/AIN0" pintype="bidirectional"/>
+    </net>
+    <net code="59" name="unconnected-(J111-Pad1)">
+      <node ref="J111" pin="1" pinfunction="1" pintype="passive+no_connect"/>
+    </net>
+    <net code="60" name="unconnected-(J111-Pad2)">
+      <node ref="J111" pin="2" pinfunction="2" pintype="passive+no_connect"/>
+    </net>
+    <net code="61" name="unconnected-(J111-Pad3)">
+      <node ref="J111" pin="3" pinfunction="3" pintype="passive+no_connect"/>
+    </net>
+    <net code="62" name="unconnected-(J111-Pad4)">
+      <node ref="J111" pin="4" pinfunction="4" pintype="passive+no_connect"/>
+    </net>
+    <net code="63" name="unconnected-(J111-Pad5)">
+      <node ref="J111" pin="5" pinfunction="5" pintype="passive+no_connect"/>
+    </net>
+    <net code="64" name="unconnected-(J111-Pad7)">
+      <node ref="J111" pin="7" pinfunction="7" pintype="passive+no_connect"/>
+    </net>
+    <net code="65" name="unconnected-(P101-Pad3)">
+      <node ref="P101" pin="3" pinfunction="Pin_3" pintype="passive+no_connect"/>
+    </net>
+    <net code="66" name="unconnected-(P101-Pad4)">
+      <node ref="P101" pin="4" pinfunction="Pin_4" pintype="passive+no_connect"/>
+    </net>
+    <net code="67" name="unconnected-(P101-Pad5)">
+      <node ref="P101" pin="5" pinfunction="Pin_5" pintype="passive+no_connect"/>
+    </net>
+    <net code="68" name="unconnected-(U101-Pad1)">
+      <node ref="U101" pin="1" pinfunction="NC" pintype="no_connect"/>
+    </net>
+    <net code="69" name="unconnected-(U105-Pad7)">
+      <node ref="U105" pin="7" pinfunction="PD1" pintype="bidirectional+no_connect"/>
+    </net>
+    <net code="70" name="unconnected-(U105-Pad10)">
+      <node ref="U105" pin="10" pinfunction="PD4" pintype="bidirectional+no_connect"/>
+    </net>
+    <net code="71" name="unconnected-(U105-Pad11)">
+      <node ref="U105" pin="11" pinfunction="PD5" pintype="bidirectional+no_connect"/>
+    </net>
+    <net code="72" name="unconnected-(U105-Pad13)">
+      <node ref="U105" pin="13" pinfunction="PD7" pintype="bidirectional+no_connect"/>
+    </net>
+    <net code="73" name="unconnected-(U105-Pad16)">
+      <node ref="U105" pin="16" pinfunction="PF0/XTAL32k1" pintype="input+no_connect"/>
+    </net>
+    <net code="74" name="unconnected-(U105-Pad17)">
+      <node ref="U105" pin="17" pinfunction="PF1/XTAL32k2" pintype="bidirectional+no_connect"/>
+    </net>
+    <net code="75" name="unconnected-(U105-Pad18)">
+      <node ref="U105" pin="18" pinfunction="PF6/~{RESET}" pintype="bidirectional+no_connect"/>
+    </net>
+    <net code="76" name="unconnected-(U105-Pad27)">
+      <node ref="U105" pin="27" pinfunction="PA5" pintype="bidirectional+no_connect"/>
+    </net>
+    <net code="77" name="unconnected-(U105-Pad28)">
+      <node ref="U105" pin="28" pinfunction="PA6" pintype="bidirectional+no_connect"/>
+    </net>
+    <net code="78" name="unconnected-(U106-Pad5)">
+      <node ref="U106" pin="5" pinfunction="1QB" pintype="output+no_connect"/>
+    </net>
+    <net code="79" name="unconnected-(U106-Pad6)">
+      <node ref="U106" pin="6" pinfunction="1QC" pintype="output+no_connect"/>
+    </net>
+    <net code="80" name="unconnected-(U106-Pad10)">
+      <node ref="U106" pin="10" pinfunction="2QC" pintype="output+no_connect"/>
+    </net>
+    <net code="81" name="unconnected-(U106-Pad11)">
+      <node ref="U106" pin="11" pinfunction="2QB" pintype="output+no_connect"/>
+    </net>
+    <net code="82" name="unconnected-(U107-Pad5)">
+      <node ref="U107" pin="5" pinfunction="1QB" pintype="output+no_connect"/>
+    </net>
+    <net code="83" name="unconnected-(U107-Pad6)">
+      <node ref="U107" pin="6" pinfunction="1QC" pintype="output+no_connect"/>
+    </net>
+    <net code="84" name="unconnected-(U107-Pad10)">
+      <node ref="U107" pin="10" pinfunction="2QC" pintype="output+no_connect"/>
+    </net>
+    <net code="85" name="unconnected-(U107-Pad11)">
+      <node ref="U107" pin="11" pinfunction="2QB" pintype="output+no_connect"/>
+    </net>
+    <net code="86" name="unconnected-(X101-Pad1)">
+      <node ref="X101" pin="1" pinfunction="NC" pintype="no_connect"/>
+    </net>
+  </nets>
+</export>
