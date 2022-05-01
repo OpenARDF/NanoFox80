@@ -68,6 +68,6 @@ Ref,Val,Package,PosX,PosY,Rot,Side
 "W101","TP2","Measurement_Point_ScopeProbe_Round-SMD-2sides-Pad_Small",63.810000,31.210000,0.000000,top
 "W102","TP3","Measurement_Point_ScopeProbe_Round-SMD-2sides-Pad_Small",87.020000,16.270000,-90.000000,top
 "W103","TP1","Measurement_Point_ScopeProbe_Round-SMD-2sides-Pad_Small",49.330000,21.940000,-90.000000,top
-"W308","CONN_01X01","Pin_Header_Straight_1x01",75.700000,2.852500,0.000000,top
 "W308","CONN_01X01","Pin_Header_Straight_1x01",22.030000,33.812500,0.000000,top
+"W308","CONN_01X01","Pin_Header_Straight_1x01",75.700000,2.852500,0.000000,top
 "X101","SIT1566AC TCO","Oscillator_SMD_SiTime_SIT1566AC-4Pin_BGA",37.645000,23.650000,0.000000,top
