@@ -2,7 +2,7 @@
 <export version="E">
   <design>
     <source>/Users/Charles/Documents/GitHub/NanoFox80/KiCad/NanoFox80/NanoFox80.kicad_sch</source>
-    <date>Tuesday, May 03, 2022 at 09:37:46 PM</date>
+    <date>Wednesday, May 04, 2022 at 09:15:46 AM</date>
     <tool>Eeschema (6.0.4-0)</tool>
     <sheet number="1" name="/" tstamps="/">
       <title_block>
@@ -784,40 +784,39 @@
       <tstamps>4e311d93-5f40-4ddc-a18b-bc90d30fc613</tstamps>
     </comp>
     <comp ref="Q101">
-      <value>BSS84T116</value>
-      <footprint>Package_TO_SOT_SMD:SOT-23</footprint>
-      <datasheet>http://assets.nexperia.com/documents/data-sheet/BSS84.pdf</datasheet>
+      <value>BSS84W-7-F</value>
+      <footprint>Package_TO_SOT_SMD:SOT-323_SC-70</footprint>
       <fields>
-        <field name="Description">MOSFET P-CH 60V 230MA SST3</field>
-        <field name="Digi-Key Part No.">846-BSS84T116CT-ND</field>
-        <field name="Manufacturer">Rohm Semiconductor</field>
-        <field name="Manufacturer PN">BSS84T116</field>
+        <field name="Description">MOSFET P-CH 50V 130MA SOT323</field>
+        <field name="Digi-Key Part No.">BSS84W-FDICT-ND</field>
+        <field name="Manufacturer">Diodes Incorporated</field>
+        <field name="Manufacturer PN">BSS84W-7-F</field>
       </fields>
-      <libsource lib="Transistor_FET" part="BSS84T116" description="-0.18A Id, -60V Vds, P-Channel MOSFET, SOT-23"/>
-      <property name="Digi-Key Part No." value="846-BSS84T116CT-ND"/>
-      <property name="Manufacturer" value="Rohm Semiconductor"/>
-      <property name="Manufacturer PN" value="BSS84T116"/>
-      <property name="Description" value="MOSFET P-CH 60V 230MA SST3"/>
+      <libsource lib="Transistor_FET" part="BSS84" description="-0.13A Id, -50V Vds, P-Channel MOSFET, SOT-23"/>
+      <property name="Digi-Key Part No." value="BSS84W-FDICT-ND"/>
+      <property name="Manufacturer" value="Diodes Incorporated"/>
+      <property name="Manufacturer PN" value="BSS84W-7-F"/>
+      <property name="Description" value="MOSFET P-CH 50V 130MA SOT323"/>
       <property name="Sheetname" value=""/>
       <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
       <sheetpath names="/" tstamps="/"/>
-      <tstamps>a295d13a-ff5b-4b53-92ad-a66323f160b9</tstamps>
+      <tstamps>06bbe3d7-7cbc-4293-aa1a-7cb3a9e9e8b9</tstamps>
     </comp>
     <comp ref="Q102">
-      <value>BSS138</value>
-      <footprint>Package_TO_SOT_SMD:SOT-23</footprint>
-      <datasheet>https://www.onsemi.com/pub/Collateral/BSS138-D.PDF</datasheet>
+      <value>BSS138W-7-F</value>
+      <footprint>Package_TO_SOT_SMD:SOT-323_SC-70</footprint>
+      <datasheet>https://www.diodes.com/assets/Datasheets/BSS84W.pdf</datasheet>
       <fields>
-        <field name="Description">MOSFET N-CH 50V 220MA SOT23-3</field>
-        <field name="Digi-Key Part No.">BSS138CT-ND</field>
-        <field name="Manufacturer">onsemi</field>
-        <field name="Manufacturer PN">BSS138</field>
+        <field name="Description">MOSFET P-CH 50V 130MA SOT323</field>
+        <field name="Digi-Key Part No.">BSS84W-FDICT-ND</field>
+        <field name="Manufacturer">Diodes Incorporated</field>
+        <field name="Manufacturer PN">BSS84W-7-F</field>
       </fields>
       <libsource lib="Transistor_FET" part="BSS138" description="50V Vds, 0.22A Id, N-Channel MOSFET, SOT-23"/>
-      <property name="Digi-Key Part No." value="BSS138CT-ND"/>
-      <property name="Manufacturer" value="onsemi"/>
-      <property name="Manufacturer PN" value="BSS138"/>
-      <property name="Description" value="MOSFET N-CH 50V 220MA SOT23-3"/>
+      <property name="Digi-Key Part No." value="BSS84W-FDICT-ND"/>
+      <property name="Manufacturer" value="Diodes Incorporated"/>
+      <property name="Manufacturer PN" value="BSS84W-7-F"/>
+      <property name="Description" value="MOSFET P-CH 50V 130MA SOT323"/>
       <property name="Sheetname" value=""/>
       <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
       <sheetpath names="/" tstamps="/"/>
@@ -1787,21 +1786,21 @@
         <pin num="3" name="D" type="passive"/>
       </pins>
     </libpart>
-    <libpart lib="Transistor_FET" part="BSS84T116">
-      <description>-0.18A Id, -60V Vds, P-Channel MOSFET, SOT-23</description>
-      <docs>http://www.vishay.com/docs/70209/70209.pdf</docs>
+    <libpart lib="Transistor_FET" part="BSS84">
+      <description>-0.13A Id, -50V Vds, P-Channel MOSFET, SOT-23</description>
+      <docs>http://assets.nexperia.com/documents/data-sheet/BSS84.pdf</docs>
       <footprints>
         <fp>SOT?23*</fp>
       </footprints>
       <fields>
         <field name="Reference">Q</field>
-        <field name="Value">BSS84T116</field>
+        <field name="Value">BSS84</field>
         <field name="Footprint">Package_TO_SOT_SMD:SOT-23</field>
-        <field name="Datasheet">http://www.vishay.com/docs/70209/70209.pdf</field>
+        <field name="Datasheet">http://assets.nexperia.com/documents/data-sheet/BSS84.pdf</field>
       </fields>
       <pins>
-        <pin num="1" name="S" type="passive"/>
-        <pin num="2" name="G" type="input"/>
+        <pin num="1" name="G" type="input"/>
+        <pin num="2" name="S" type="passive"/>
         <pin num="3" name="D" type="passive"/>
       </pins>
     </libpart>
@@ -1884,7 +1883,7 @@
       <node ref="BT101" pin="2" pinfunction="+" pintype="passive"/>
       <node ref="C103" pin="2" pintype="passive"/>
       <node ref="C118" pin="2" pintype="passive"/>
-      <node ref="Q101" pin="1" pinfunction="S" pintype="passive"/>
+      <node ref="Q101" pin="2" pinfunction="S" pintype="passive"/>
       <node ref="R109" pin="1" pintype="passive"/>
       <node ref="U102" pin="1" pinfunction="VIN" pintype="power_in"/>
       <node ref="U102" pin="3" pinfunction="ON/~{OFF}" pintype="input"/>
@@ -2133,36 +2132,36 @@
       <node ref="P101" pin="1" pinfunction="Pin_1" pintype="passive"/>
       <node ref="U105" pin="19" pinfunction="UDPI" pintype="passive"/>
     </net>
-    <net code="45" name="Net-(Q102-Pad3)">
-      <node ref="Q101" pin="2" pinfunction="G" pintype="input"/>
+    <net code="45" name="Net-(Q101-Pad1)">
+      <node ref="Q101" pin="1" pinfunction="G" pintype="input"/>
       <node ref="Q102" pin="3" pinfunction="D" pintype="passive"/>
       <node ref="R109" pin="2" pintype="passive"/>
     </net>
-    <net code="46" name="Net-(R103-Pad2)">
+    <net code="46" name="Net-(Q101-Pad3)">
+      <node ref="Q101" pin="3" pinfunction="D" pintype="passive"/>
+      <node ref="R110" pin="2" pintype="passive"/>
+    </net>
+    <net code="47" name="Net-(R103-Pad2)">
       <node ref="R103" pin="2" pintype="passive"/>
       <node ref="R104" pin="1" pintype="passive"/>
       <node ref="R106" pin="2" pintype="passive"/>
       <node ref="U103" pin="4" pinfunction="-" pintype="input"/>
     </net>
-    <net code="47" name="Net-(R104-Pad2)">
+    <net code="48" name="Net-(R104-Pad2)">
       <node ref="R104" pin="2" pintype="passive"/>
       <node ref="U104" pin="13" pinfunction="PC2" pintype="tri_state"/>
     </net>
-    <net code="48" name="Net-(R105-Pad1)">
+    <net code="49" name="Net-(R105-Pad1)">
       <node ref="R105" pin="1" pintype="passive"/>
       <node ref="U104" pin="11" pinfunction="R1" pintype="input"/>
     </net>
-    <net code="49" name="Net-(R107-Pad1)">
+    <net code="50" name="Net-(R107-Pad1)">
       <node ref="R107" pin="1" pintype="passive"/>
       <node ref="U104" pin="12" pinfunction="R2" pintype="input"/>
     </net>
-    <net code="50" name="Net-(R108-Pad1)">
+    <net code="51" name="Net-(R108-Pad1)">
       <node ref="R108" pin="1" pintype="passive"/>
       <node ref="U105" pin="8" pinfunction="PD2" pintype="bidirectional"/>
-    </net>
-    <net code="51" name="Net-(R110-Pad2)">
-      <node ref="Q101" pin="3" pinfunction="D" pintype="passive"/>
-      <node ref="R110" pin="2" pintype="passive"/>
     </net>
     <net code="52" name="Net-(U101-Pad3)">
       <node ref="U101" pin="3" pinfunction="IN+" pintype="input"/>

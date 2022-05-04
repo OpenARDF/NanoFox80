@@ -21,8 +21,8 @@ JP101 JP102 JP103 JP104 JP105 ,SolderJumper_3_Bridged12,5,Jumper:SolderJumper-3_
 JP106 ,SolderJumper_2_Bridged,1,Jumper:SolderJumper-2_P1.3mm_Bridged_RoundedPad1.0x1.5mm,, , , , , , 
 L101 ,8uH,1,Transformer_THT:Autotransformer_Toroid_1Tap_Horizontal_D14.0mm_Amidon-T50,,FT-50-67 or FT-82-67,FT-50-67 (Amidon), ,<a href="http://www.amidoncorp.com/ft-50A-43/">Link</a>,TH,TH
 P101 ,ISP/PDI,1,Connector_PinHeader_2.54mm:PinHeader_2x03_P2.54mm_Vertical_SMD,, ,609-3487-1-ND, ,<a href="https://www.digikey.com/products/en?keywords=609-3487-1-ND">Link</a>,Amphenol ICC (FCI),95278-101A06LF
-Q101 ,BSS84T116,1,Package_TO_SOT_SMD:SOT-23,,MOSFET P-CH 60V 230MA SST3,846-BSS84T116CT-ND, , ,Rohm Semiconductor,BSS84T116
-Q102 ,BSS138,1,Package_TO_SOT_SMD:SOT-23,,MOSFET N-CH 50V 220MA SOT23-3,BSS138CT-ND, , ,onsemi,BSS138
+Q101 ,BSS84W-7-F,1,Package_TO_SOT_SMD:SOT-323_SC-70,,MOSFET P-CH 50V 130MA SOT323,BSS84W-FDICT-ND, , ,Diodes Incorporated,BSS84W-7-F
+Q102 ,BSS138W-7-F,1,Package_TO_SOT_SMD:SOT-323_SC-70,,MOSFET P-CH 50V 130MA SOT323,BSS84W-FDICT-ND, , ,Diodes Incorporated,BSS84W-7-F
 R101 R102 ,200k,2,Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder,,RES SMD 200K OHM 1% 1/8W 0805,RHM200KAHCT-ND, , ,Rohm Semiconductor,KTR10EZPF2003
 R103 R107 ,np,2,Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder,, , , , , , 
 R104 R109 R112 ,100k,3,Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder,,RES 100K OHM 0.1% 1/8W 0805,2019-RN73H2ATTD1003B25CT-ND, , ,KOA Speer Electronics  Inc.,RN73H2ATTD1003B25
