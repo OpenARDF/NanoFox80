@@ -1,7 +1,7 @@
 Ref,Value,QTY PER,Footprint,Description,Digi-Key Part No.,LCSC Part Number,Link,Manufacturer,Manufacturer PN,
 AE101 ,Antenna_Shield,1,Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical,, , , , , , 
 BT101 ,6-12V,1,Connector_PinSocket_2.54mm:PinSocket_1x02_P2.54mm_Vertical,, , , , , , 
-C101 C102 C111 C112 C113 C116 C117 ,470nF,7,Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder,,CAP CER 0.47UF 100V X7S 0805,445-5203-1-ND, , ,TDK Corporation,C2012X7S2A474K125AB
+C101 C102 C106 C111 C112 C113 C116 C117 C122 C123 ,470nF,10,Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder,,CAP CER 0.47UF 100V X7S 0805,445-5203-1-ND, , ,TDK Corporation,C2012X7S2A474K125AB
 C103 C104 C118 C119 ,10uF,4,Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder,,CAP CER 10UF 10V X7R 0805,1276-1764-1-ND, , ,Samsung Electro-Mechanics,CL21B106KPQNNNE
 C105 ,220pF,1,Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder,,CAP CER 220PF 200V C0G/NP0 0805,478-1274-1-ND, , ,KYOCERA AVX,08052A221JAT2A
 C107 C120 ,10nF,2,Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder,,CAP CER 10000PF 50V X7R 0805,1276-1015-1-ND, , ,Samsung Electro-Mechanics,CL21B103KBANNNC
@@ -11,21 +11,21 @@ C114 ,67pF,1,Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder,,CAP CER 
 C115 ,560nF,1,Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder,,CAP CER 0.56UF 50V X7R 0805,399-C0805C564K5RAC7800CT-ND, , ,KEMET,C0805C564K5RAC7800
 D101 ,LED_Filled,1,LED_SMD:LED_APDA1806SECK,,LED RED CLEAR SMD RIGHT ANGLE,754-2329-1-ND, , ,Kingbright,APDA1806SECK/J3-PRV
 D102 ,SMV1253-079LF,1,Diode_SMD:D_SC-80,,DIODE VAR HYPRABRUPT JUNC TUNING,863-SMV1253-079LFCT-ND, , ,Skyworks Solutions Inc.,SMV1253-079LF
-D103 D104 ,CG0603MLC-05LECT-ND,2,Resistor_SMD:R_0805_2012Metric,,VARISTOR 0603,CG0603MLC-05LECT-ND,C316054,<a href="https://www.digikey.com/products/en?keywords=CG0603MLC-05LECT-ND">Link</a>,Bourns Inc.,CG0603MLC-05LE
-J101 J104 J105 J106 J107 J109 J112 J113 J114 ,Conn_01x02,9,Connector_PinSocket_2.54mm:PinSocket_1x02_P2.54mm_Vertical,, , , , , , 
+FB101 ,FerriteBead_Small,1,Inductor_SMD:Ferrite_Bead_NFZ32BW881_Reflow,,FERRITE BEAD 880 OHM 2SMD 1LN,490-9310-1-ND, , ,Murata Electronics,NFZ32BW881HN10L
+J101 J104 J105 J106 J107 J109 J112 J113 J114 J115 ,Conn_01x02,10,Connector_PinSocket_2.54mm:PinSocket_1x02_P2.54mm_Vertical,, , , , , , 
 J102 ,Conn_01x02,1,Connector_PinSocket_2.54mm:PinSocket_1x02_P2.54mm_Vertical,, ,np, ,np,np, 
 J103 J108 ,Conn_01x01,2,Connector_PinSocket_2.54mm:PinSocket_1x01_P2.54mm_Vertical,, , , , , , 
 J110 ,I2C,1,Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54_Nonpolarized,, , , , , , 
 J111 ,DB9 Female,1,Connector_Dsub:DSUB-9_Female_EdgeMount_P2.77mm,, ,609-1525-ND, ,<a href="https://www.digikey.com/products/en?keywords=609-1525-ND">Link</a>,TH,TH
 JP101 JP102 JP103 JP104 JP105 ,SolderJumper_3_Bridged12,5,Jumper:SolderJumper-3_P1.3mm_Bridged12_RoundedPad1.0x1.5mm_NumberLabels,, , , , , , 
 JP106 ,SolderJumper_2_Bridged,1,Jumper:SolderJumper-2_P1.3mm_Bridged_RoundedPad1.0x1.5mm,, , , , , , 
-L101 ,8uH,1,Transformer_THT:Autotransformer_ZS1052-AC,,TH,FT50A-43 (Amidon), ,<a href="http://www.amidoncorp.com/ft-50A-43/">Link</a>,TH,TH
+L101 ,8uH,1,Transformer_THT:Autotransformer_Toroid_1Tap_Horizontal_D14.0mm_Amidon-T50,,FT-50-67 or FT-82-67,FT-50-67 (Amidon), ,<a href="http://www.amidoncorp.com/ft-50A-43/">Link</a>,TH,TH
 P101 ,ISP/PDI,1,Connector_PinHeader_2.54mm:PinHeader_2x03_P2.54mm_Vertical_SMD,, ,609-3487-1-ND, ,<a href="https://www.digikey.com/products/en?keywords=609-3487-1-ND">Link</a>,Amphenol ICC (FCI),95278-101A06LF
-Q101 ,BSS84,1,Package_TO_SOT_SMD:SOT-23,,MOSFET P-CH 60V 230MA SST3,846-BSS84T116CT-ND, , ,Rohm Semiconductor,BSS84T116
+Q101 ,BSS84T116,1,Package_TO_SOT_SMD:SOT-23,,MOSFET P-CH 60V 230MA SST3,846-BSS84T116CT-ND, , ,Rohm Semiconductor,BSS84T116
 Q102 ,BSS138,1,Package_TO_SOT_SMD:SOT-23,,MOSFET N-CH 50V 220MA SOT23-3,BSS138CT-ND, , ,onsemi,BSS138
 R101 R102 ,200k,2,Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder,,RES SMD 200K OHM 1% 1/8W 0805,RHM200KAHCT-ND, , ,Rohm Semiconductor,KTR10EZPF2003
 R103 R107 ,np,2,Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder,, , , , , , 
-R104 R109 ,100k,2,Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder,,RES 100K OHM 0.1% 1/8W 0805,2019-RN73H2ATTD1003B25CT-ND, , ,KOA Speer Electronics  Inc.,RN73H2ATTD1003B25
+R104 R109 R112 ,100k,3,Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder,,RES 100K OHM 0.1% 1/8W 0805,2019-RN73H2ATTD1003B25CT-ND, , ,KOA Speer Electronics  Inc.,RN73H2ATTD1003B25
 R105 ,22k,1,Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder,,RES SMD 22K OHM 1% 1/8W 0805,A106059CT-ND, , ,TE Connectivity Passive Product,CRG0805F22K
 R106 ,15.8k,1,Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder,,RES 15.8K OHM 1% 1/8W 0805,RMCF0805FT15K8CT-ND, , ,Stackpole Electronics Inc,RMCF0805FT15K8
 R108 ,1k,1,Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder,,RES 1K OHM 1% 1/4W 0805,RNCP0805FTD1K00CT-ND, , ,Stackpole Electronics Inc,RNCP0805FTD1K00
@@ -34,12 +34,12 @@ R111 ,12.4k,1,Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder,,RES 12.4
 SW101 ,SW_SPST,1,Button_Switch_SMD:SW_SPST_B3U-3000P-B,,SWITCH TACTILE SPST-NO 0.05A 12V,SW1256CT-ND, , ,Omron Electronics Inc-EMC Div,B3U-3000P-B
 U101 ,UCC27517DBVR,1,Package_TO_SOT_SMD:SOT-23-5,,IC GATE DRVR LOW-SIDE SOT23-5,296-39527-1-ND, , ,Texas Instruments,UCC27517DBVR
 U102 ,LP2985-3.3,1,Package_TO_SOT_SMD:SOT-23-5,,IC REG LINEAR 3.3V 150MA SOT23-5,296-18479-1-ND, , ,Texas Instruments,LP2985A-33DBVR
-U103 ,OPA197,1,Package_TO_SOT_SMD:SOT-23-5,,IC OPAMP GP 1 CIRCUIT 8VSSOP,296-44109-1-ND, , ,Texas Instruments,OPA197IDGKT
+U103 ,LMV721M5,1,Package_TO_SOT_SMD:SOT-23-5,,IC OPAMP GP 1 CIRCUIT SOT23-5,LMV721M5/NOPBCT-ND, ,https://www.digikey.com/en/products/detail/texas-instruments/LMV721M5-NOPB/364402,Texas Instruments,LMV721M5/NOPB
 U104 ,74HC4046,1,Package_SO:SOIC-16W_5.3x10.2mm_P1.27mm,,IC PLL CMOS LOGIC W/VCO HS 16SO,SN74LV4046ANS-ND,C1535861,https://www.digikey.com/products/en?keywords=SN74LV4046ANS-ND,Texas Instruments,SN74LV4046ANS
 U105 ,AVR128DA28,1,Package_SO:SOIC-28W_7.5x17.9mm_P1.27mm,,IC MCU 8BIT 128KB FLASH 28SOIC,150-AVR128DA28T-E/SOCT-ND, , ,Microchip Technology,AVR128DA28T-E/SO
-U106 ,74HC390,1,Package_SO:SOIC-16W_5.3x10.2mm_P1.27mm,,IC COUNTER DUAL 4STAGE 16SOIC,MC74HC390ADR2GOSCT-N, , ,onsemi,MC74HC390ADR2G
-U107 ,74HC390,1,Package_SO:SOIC-16W_5.3x10.2mm_P1.27mm,,DECADE COUNTER  HC/UH SERIES,2156-MC74HC390AFEL-ND, , ,onsemi,MC74HC390AFEL
+U106 U107 ,74HC390,2,Package_SO:SOIC-16W_5.3x10.2mm_P1.27mm,,IC DUAL DECADE RIP CNTR 16SOIC,296-33078-5-ND, , ,Texas Instruments,CD74HC390M
 U108 ,LP2985-5.0,1,Package_TO_SOT_SMD:SOT-23-5,,IC REG LINEAR 5V 150MA SOT23-5,296-20717-1-ND, , ,Texas Instruments,LP2985-50DBVR
+U109 ,TXB0102DCU,1,Package_SO:VSSOP-8_2.4x2.1mm_P0.5mm,,IC TRNSLTR BIDIRECTIONAL US8,296-32601-1-ND, , ,Texas Instruments,TXB0102DCUT
 W101 ,TP2,1,Measurement:Measurement_Point_ScopeProbe_Round-SMD-2sides-Pad_Small,, , , , , , 
 W102 ,TP3,1,Measurement:Measurement_Point_ScopeProbe_Round-SMD-2sides-Pad_Small,, , , , , , 
 W103 ,TP1,1,Measurement:Measurement_Point_ScopeProbe_Round-SMD-2sides-Pad_Small,, , , , , , 
