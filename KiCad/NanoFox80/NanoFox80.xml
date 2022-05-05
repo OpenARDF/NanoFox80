@@ -2,7 +2,7 @@
 <export version="E">
   <design>
     <source>/Users/Charles/Documents/GitHub/NanoFox80/KiCad/NanoFox80/NanoFox80.kicad_sch</source>
-    <date>Wednesday, May 04, 2022 at 09:15:46 AM</date>
+    <date>Wednesday, May 04, 2022 at 09:39:12 PM</date>
     <tool>Eeschema (6.0.4-0)</tool>
     <sheet number="1" name="/" tstamps="/">
       <title_block>
@@ -805,18 +805,18 @@
     <comp ref="Q102">
       <value>BSS138W-7-F</value>
       <footprint>Package_TO_SOT_SMD:SOT-323_SC-70</footprint>
-      <datasheet>https://www.diodes.com/assets/Datasheets/BSS84W.pdf</datasheet>
+      <datasheet>https://www.diodes.com/assets/Datasheets/BSS138W.pdf</datasheet>
       <fields>
-        <field name="Description">MOSFET P-CH 50V 130MA SOT323</field>
-        <field name="Digi-Key Part No.">BSS84W-FDICT-ND</field>
+        <field name="Description">MOSFET N-CH 50V 200MA SOT323</field>
+        <field name="Digi-Key Part No.">BSS138W-FDICT-ND</field>
         <field name="Manufacturer">Diodes Incorporated</field>
-        <field name="Manufacturer PN">BSS84W-7-F</field>
+        <field name="Manufacturer PN">BSS138W-7-F</field>
       </fields>
       <libsource lib="Transistor_FET" part="BSS138" description="50V Vds, 0.22A Id, N-Channel MOSFET, SOT-23"/>
-      <property name="Digi-Key Part No." value="BSS84W-FDICT-ND"/>
+      <property name="Digi-Key Part No." value="BSS138W-FDICT-ND"/>
       <property name="Manufacturer" value="Diodes Incorporated"/>
-      <property name="Manufacturer PN" value="BSS84W-7-F"/>
-      <property name="Description" value="MOSFET P-CH 50V 130MA SOT323"/>
+      <property name="Manufacturer PN" value="BSS138W-7-F"/>
+      <property name="Description" value="MOSFET N-CH 50V 200MA SOT323"/>
       <property name="Sheetname" value=""/>
       <property name="Sheetfile" value="NanoFox80.kicad_sch"/>
       <sheetpath names="/" tstamps="/"/>
