@@ -4,6 +4,12 @@
 
   (paper "A4")
 
+  (title_block
+    (title "NanoFox80 Foxoring Transmitter")
+    (date "2022-07-01")
+    (rev "0.4")
+  )
+
   (lib_symbols
     (symbol "74xGxx:74HC1G08" (pin_names (offset 0.762)) (in_bom yes) (on_board yes)
       (property "Reference" "U202" (id 0) (at 0 1.27 0)
