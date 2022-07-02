@@ -74,7 +74,7 @@ int8_t TIMER_0_init()
 			 | 0 << TCA_SINGLE_CMP2_bp /* Compare 2 Interrupt: disabled */
 			 | 1 << TCA_SINGLE_OVF_bp; /* Overflow Interrupt: enabled */
 
-	TCA0.SINGLE.PER = 6760; /* Period: 0xffff */
+	TCA0.SINGLE.PER = 6760; /* Period */
 
 	TCA0.SINGLE.CTRLA = TCA_SINGLE_CLKSEL_DIV1_gc /* System Clock */
 			 | 1 << TCA_SINGLE_ENABLE_bp /* Module Enable: enable */
