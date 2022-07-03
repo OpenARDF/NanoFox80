@@ -253,13 +253,6 @@ void system_init()
 	// Set pin direction to output
 
 	PORTA_set_pin_level(7, false);
-	ENABLE_Vdiv_set_level(
-	// <y> Initial level
-	// <id> pad_initial_level
-	// <false"> Low
-	// <true"> High
-	true);
-
 	PORTA_set_pin_dir(7, PORT_DIR_OUT);
 
 	/* PORT setting on PD2 */
