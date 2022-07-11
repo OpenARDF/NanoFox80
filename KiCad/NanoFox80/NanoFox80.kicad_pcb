@@ -3493,9 +3493,6 @@
   )
 
   (gr_rect (start 80 56) (end 170 93) (layer "Edge.Cuts") (width 0.1) (fill none) (tstamp ec888ac4-0ee1-4143-9135-f22c778450e6))
-  (gr_text "FT-50-67\nFT-82-67" (at 158.25 58.69) (layer "B.SilkS") (tstamp 0089fa82-50a3-4003-8580-f18055c670f5)
-    (effects (font (size 1 1) (thickness 0.15)) (justify mirror))
-  )
   (gr_text "NanoFox80\nRev: 10-July-2022" (at 96.11 64.54) (layer "B.SilkS") (tstamp 53fa107d-a47c-4f88-aa41-fee5ce99a007)
     (effects (font (size 1.5 1.5) (thickness 0.3)) (justify mirror))
   )
