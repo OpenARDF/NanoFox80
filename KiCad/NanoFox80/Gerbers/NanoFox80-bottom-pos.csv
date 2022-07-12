@@ -1,3 +1,5 @@
 Ref,Val,Package,PosX,PosY,Rot,Side
 "J111","DB9 Female","DSUB-9_Female_EdgeMount_P2.77mm",-2.010000,18.500000,90.000000,bottom
-"L101","8uH","Autotransformer_Toroid_1Tap_Horizontal_D14.0mm_Amidon-T50",-81.720000,14.570000,90.000000,bottom
+"L101","8uH","Autotransformer_Toroid_1Tap_Horizontal_D14.0mm_Amidon-T50",-78.587500,15.125000,90.000000,bottom
+"MOD1","AdaFruit Charger","PinHeader_1x04_P2.54mm_Vertical",-22.550000,3.120000,90.000000,bottom
+"MOD201","HUZZAH_ESP8266_Breakout","Adafruit_HUZZAH_ESP8266_Breakout_SM",-58.980000,18.360000,90.000000,bottom
