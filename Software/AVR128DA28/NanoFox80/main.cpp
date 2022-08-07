@@ -369,7 +369,6 @@ void handle_1sec_tasks(void)
 					}
 
 					g_event_commenced = true;
-//						LEDS.blink(LEDS_GREEN_BLINK_FAST);
 					LEDS.blink(LEDS_RED_OFF);
 				}
 			}
@@ -479,7 +478,6 @@ ISR(TCB0_INT_vect)
 
 						if(key)
 						{
-// 							powerToTransmitter(ON);
 							LEDS.setRed(ON);
 						}
 					}
@@ -498,7 +496,6 @@ ISR(TCB0_INT_vect)
 					key = OFF;
 					keyTransmitter(OFF);
 					LEDS.setRed(OFF);
-// 					powerToTransmitter(OFF);
 					g_last_status_code = STATUS_CODE_EVENT_STARTED_WAITING_FOR_TIME_SLOT;
 				}
 			}
@@ -682,14 +679,16 @@ ISR(PORTD_PORT_vect)
 
 void powerDown3V3(void)
 {
-// 	powerToTransmitter(OFF); /* Turn off power to final FET */
-	PORTA_set_pin_level(V3V3_PWR_ENABLE, LOW);	
+	PORTA_set_pin_level(V3V3_PWR_ENABLE, LOW);
+	PORTA_set_pin_level(RF_OUT_ENABLE, LOW);
+	PORTD_set_pin_level(VDIV_ENABLE, LOW);
 }
 
 void powerUp3V3(void)
 {
-// 	powerToTransmitter(OFF); /* Turn off power to final FET */
+	PORTA_set_pin_level(RF_OUT_ENABLE, LOW);
 	PORTA_set_pin_level(V3V3_PWR_ENABLE, HIGH);	
+	PORTD_set_pin_level(VDIV_ENABLE, HIGH);
 }
 
 #include "dac0.h"
@@ -742,7 +741,7 @@ int main(void)
 
 	if(g_hardware_error & (HARDWARE_NO_RTC | HARDWARE_NO_SI5351 ))
 	{
-		LEDS.blink(LEDS_RED_AND_GREEN_BLINK_FAST_OVERRIDE_ALL); /* LEDs blink an error signal */
+		LEDS.blink(LEDS_RED_BLINK_FAST); /* LEDs blink an error signal */
 	}
 	else
 	{
@@ -755,6 +754,9 @@ int main(void)
 			LEDS.blink(LEDS_RED_ON_CONSTANT);
 		}
 	}	
+	
+	sb_send_string(HELP_TEXT_TXT);
+	sb_send_NewPrompt();
 
 	while (1) {
 		handleLinkBusMsgs();
@@ -790,11 +792,11 @@ int main(void)
 
 			if(g_event_enabled)
 			{
-				LEDS.blink(LEDS_GREEN_BLINK_FAST);
+				LEDS.blink(LEDS_RED_BLINK_SLOW);
 			}
 			else
 			{
-				LEDS.blink(LEDS_GREEN_ON_CONSTANT);
+				LEDS.blink(LEDS_RED_ON_CONSTANT);
 			}
 			
 			if(g_WiFi_shutdown_seconds)
@@ -900,14 +902,13 @@ int main(void)
 				
 				if(g_event_enabled)
 				{
-					LEDS.blink(LEDS_GREEN_BLINK_FAST);
+					LEDS.blink(LEDS_RED_BLINK_SLOW);
 				}
 				else
 				{
-					LEDS.blink(LEDS_GREEN_ON_CONSTANT);
+					LEDS.blink(LEDS_RED_ON_CONSTANT);
 				}
 				
-				LEDS.blink(LEDS_RED_OFF);
  				linkbus_enable();
 				g_wifi_enable_delay = 2; /* Ensure WiFi is enabled and countdown is reset */
 			}
@@ -1054,31 +1055,29 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 			}
 			break;
 			
-			case SB_MESSAGE_TX_POWER:
+			case SB_MESSAGE_ANT_TUNE:
 			{
-				static uint16_t pwr_mW;
+				static uint16_t setting;
 
 				if(sb_buff->fields[SB_FIELD1][0])
 				{
-					EC ec;
-
-					pwr_mW = (uint16_t)atoi(sb_buff->fields[SB_FIELD1]);
+					setting = (uint16_t)atoi(sb_buff->fields[SB_FIELD1]);
 					
-					if(pwr_mW <= MAX_RF_POWER_MW)
+					if(setting <= 1023)
 					{
-						ec = txSetParameters(&pwr_mW, NULL);
-						if(ec)
-						{
-							g_last_error_code = ec;
-						}
+						DAC0_setVal(setting);
+						sprintf(g_tempStr, "DAC=%u\n", setting);
+					}
+					else
+					{
+						sprintf(g_tempStr, "err\n");
 					}
 			
-					sprintf(g_tempStr, "PWR=%u mW\n", txGetPowerMw());
 					sb_send_string(g_tempStr);
 				}
 				else
 				{
-					sprintf(g_tempStr, "PWR=%u mW\n", txGetPowerMw());
+					sprintf(g_tempStr, "err\n");
 					sb_send_string(g_tempStr);
 				}
 			}
@@ -1358,9 +1357,16 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 
 // 				sprintf(g_tempStr, "T=%dC\n", g_temperature);
 // 				sb_send_string(g_tempStr);
-// 
-// 				sprintf(g_tempStr, "V=%d.%02dV\n", g_voltage / 100, g_voltage % 100);
-// 				sb_send_string(g_tempStr);
+
+				float bat = (float)g_lastConversionResult[EXTERNAL_BATTERY_VOLTAGE];
+				bat *= 12.;
+				bat *= 0.00059;
+				
+				char txt[6];
+				dtostrf(bat, 4, 1, txt);
+				txt[5] = '\0';
+  				sprintf(g_tempStr, "Bat =%s Volts\n", txt);
+ 				sb_send_string(g_tempStr);
 			}
 			break;
 
@@ -1447,14 +1453,12 @@ void __attribute__((optimize("O0"))) handleLinkBusMsgs()
 					
 						if(c == '[')
 						{
-// 							powerToTransmitter(ON);
 							LEDS.blink(LEDS_RED_ON_CONSTANT);
 							txKeyDown(ON);
 						}
 						else if(c == ']')
 						{
 							txKeyDown(OFF);
-// 							powerToTransmitter(OFF);
 							LEDS.blink(LEDS_RED_OFF);
 						}
 						else if(c == '^') /* Prevent sleep shutdown */
@@ -1635,11 +1639,11 @@ void __attribute__((optimize("O0"))) handleLinkBusMsgs()
 									
 									if(g_event_enabled)
 									{
-										LEDS.blink(LEDS_GREEN_BLINK_FAST);
+										LEDS.blink(LEDS_RED_BLINK_SLOW);
 									}
 									else
 									{
-										LEDS.blink(LEDS_GREEN_ON_CONSTANT);
+										LEDS.blink(LEDS_RED_ON_CONSTANT);
 									}								
 								}
 								else
@@ -1967,10 +1971,6 @@ void __attribute__((optimize("O0"))) handleLinkBusMsgs()
 				g_tempStr[5] = '\0';
 
 				lb_broadcast_str(g_tempStr, "!BAT");
-
-				/* The system clock gets re-initialized whenever a battery message is received. This
-				 * is just to ensure the two stay closely in sync while the user interface is active */
-//				set_system_time(ds3231_get_epoch(NULL));    /* update system clock */
 			}
 			break;
 
@@ -2286,7 +2286,6 @@ EC activateEventUsingCurrentSettings(SC* statusCode)
 	return( ERROR_CODE_NO_ERROR);
 }
 
-
 EC hw_init()
 {
 	return ERROR_CODE_NO_ERROR;
@@ -2294,16 +2293,6 @@ EC hw_init()
 
 EC rtc_init()
 {	
-	PORTC_set_pin_pull_mode(3, PORT_PULL_UP);
-	PORTC_set_pin_pull_mode(2, PORT_PULL_UP);
-	
-//	ds3231_init();
-		
-// 	if(ds3231_1s_sqw(ON))
-// 	{
-// 		return ERROR_CODE_RTC_NONRESPONSIVE;
-// 	}
-	
 	return ERROR_CODE_NO_ERROR;
 }
 
@@ -2323,11 +2312,9 @@ void suspendEvent()
 	g_on_the_air = 0;           /*  stop transmitting */
 	g_event_commenced = false;  /* get things stopped immediately */
 	keyTransmitter(OFF);
-// 	powerToTransmitter(OFF);
 	bool repeat = false;
 	makeMorse((char*)"\0", &repeat, null);  /* reset makeMorse */
 	LEDS.blink(LEDS_RED_OFF);
-	LEDS.blink(LEDS_GREEN_ON_CONSTANT);
 }
 
 

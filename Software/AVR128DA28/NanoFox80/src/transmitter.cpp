@@ -27,10 +27,10 @@
 #include <stdlib.h>
 #include <avr/eeprom.h>
 #include "transmitter.h"
-#include "i2c.h"    /* DAC on 80m VGA of Rev X1 Receiver board */
-#include "dac0.h"
-#include "binio.h"
-#include "port.h"
+// #include "i2c.h"    /* DAC on 80m VGA of Rev X1 Receiver board */
+// #include "dac0.h"
+// #include "binio.h"
+// #include "port.h"
 
 extern volatile AntConnType g_antenna_connect_state;
 
@@ -281,7 +281,7 @@ void final_drain_voltage(bool state);
 		bool err;
 		
 		fet_driver(OFF);		
-		DAC0_init();
+//		DAC0_init();
 
 		if((err = si5351_init(SI5351_CRYSTAL_LOAD_6PF, 0)))
 		{
