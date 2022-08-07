@@ -166,7 +166,7 @@ void updateAntennaStatus(void);
 void powerDown3V3(void);
 void powerUp3V3(void);
 char* convertEpochToTimeString(time_t epoch, char* buf, size_t size);
-time_t RTC_String2Epoch(bool *error, char *datetime);
+time_t String2Epoch(bool *error, char *datetime);
 
 
 /*******************************/
@@ -479,7 +479,7 @@ ISR(TCB0_INT_vect)
 
 						if(key)
 						{
-							powerToTransmitter(ON);
+// 							powerToTransmitter(ON);
 							LEDS.setRed(ON);
 						}
 					}
@@ -498,7 +498,7 @@ ISR(TCB0_INT_vect)
 					key = OFF;
 					keyTransmitter(OFF);
 					LEDS.setRed(OFF);
-					powerToTransmitter(OFF);
+// 					powerToTransmitter(OFF);
 					g_last_status_code = STATUS_CODE_EVENT_STARTED_WAITING_FOR_TIME_SLOT;
 				}
 			}
@@ -519,7 +519,7 @@ ISR(TCB0_INT_vect)
 						key = OFF;
 						keyTransmitter(OFF);
 						LEDS.setRed(OFF);
-						powerToTransmitter(OFF);
+// 						powerToTransmitter(OFF);
 					}
 				
 					codeInc = g_code_throttle;
@@ -552,7 +552,7 @@ ISR(TCB0_INT_vect)
 							}
 						}
 
-						powerToTransmitter(!charFinished);
+// 						powerToTransmitter(!charFinished);
 						keyTransmitter(key);
 						LEDS.setRed(key);
 						codeInc = g_code_throttle;
@@ -682,13 +682,14 @@ ISR(PORTD_PORT_vect)
 
 void powerDown3V3(void)
 {
-	powerToTransmitter(OFF); /* Turn off power to final FET */
+// 	powerToTransmitter(OFF); /* Turn off power to final FET */
 	PORTA_set_pin_level(V3V3_PWR_ENABLE, LOW);	
 }
 
 void powerUp3V3(void)
 {
-	powerToTransmitter(OFF); /* Turn off power to final FET */
+// 	powerToTransmitter(OFF); /* Turn off power to final FET */
+	PORTA_set_pin_level(V3V3_PWR_ENABLE, HIGH);	
 }
 
 #include "dac0.h"
@@ -888,10 +889,9 @@ int main(void)
  			}
  
 			/* Re-enable BOD? */
-			
+			powerUp3V3();
 			g_sleeping = false;
 			atmel_start_init();
-			powerUp3V3();
 			init_transmitter();
 			
 			if((g_awakenedBy == AWAKENED_BY_BUTTONPRESS) || (g_awakenedBy == AWAKENED_BY_ANTENNA) || (g_awakenedBy == AWAKENED_BY_POWERUP))
@@ -1140,7 +1140,7 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
  						g_event_enabled = false;					/* Disable an event currently underway */
  						startEventUsingRTC();
 					}
-					else if(sb_buff->fields[SB_FIELD1][0] == '3')  /* Start the event immediately with a transmissions starting now */
+					else if(sb_buff->fields[SB_FIELD1][0] == '3')  /* Start the event immediately with transmissions starting now */
 					{
  						setupForFox(NULL, START_TRANSMISSIONS_NOW);
 					}
@@ -1246,61 +1246,45 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 					{
 						strncpy(g_tempStr, sb_buff->fields[SB_FIELD2], 12);
 						g_tempStr[12] = '\0';               /* truncate to no more than 12 characters */
-// 						time_t now = time(null);
-//  						time_t t = validateTimeString(g_tempStr, &now, -g_utc_offset);
-//  
-//  						if(t)
-//  						{
-// 							bool result = ds3231_set_date_time_arducon(g_tempStr, RTC_CLOCK);
-// 							
-// 							if(result)
-// 							{
-// 								sprintf(g_tempStr, TEXT_RTC_NOT_RESPONDING_TXT);
-// 							}
-// 							else
-// 							{
-// 								char t[50];
-// 								set_system_time(ds3231_get_epoch(null));
-//  								sprintf(g_tempStr, "Time: %s\n", convertEpochToTimeString(now, t, 50));
-//  								setupForFox(NULL, START_NOTHING);   /* Avoid timing problems if an event is already active */
-// 							}
-//  						}
+ 						time_t now = time(null);
+  						time_t t = validateTimeString(g_tempStr, &now, -g_utc_offset);
+  
+  						if(t)
+  						{
+							char txt[50];
+ 							set_system_time(t);
+  							sprintf(g_tempStr, "Time: %s\n", convertEpochToTimeString(now, txt, 50));
+  							setupForFox(NULL, START_NOTHING);   /* Avoid timing problems if an event is already active */
+ 						}
 					}
 					else
 					{
-							EC result = ERROR_CODE_NO_ERROR;
-// 							ds3231_get_epoch(&result);
-							 
-							if(result)
-							{
-								sprintf(g_tempStr, TEXT_RTC_NOT_RESPONDING_TXT);
-							}
-							else
-							{
-								char t[50];
-								sprintf(g_tempStr, "Time:   %s\n", convertEpochToTimeString(now, t, 50));
-								sb_send_string(g_tempStr);
-								sprintf(g_tempStr, "Start:  %s\n", convertEpochToTimeString(g_event_start_epoch, t, 50));
-								sb_send_string(g_tempStr);
-								sprintf(g_tempStr, "Finish: %s\n", convertEpochToTimeString(g_event_finish_epoch, t, 50));
-								sb_send_string(g_tempStr);
+						char t[50];
+						sprintf(g_tempStr, "Time:   %s\n", convertEpochToTimeString(now, t, 50));
+						sb_send_string(g_tempStr);
+						sprintf(g_tempStr, "Start:  %s\n", convertEpochToTimeString(g_event_start_epoch, t, 50));
+						sb_send_string(g_tempStr);
+						sprintf(g_tempStr, "Finish: %s\n", convertEpochToTimeString(g_event_finish_epoch, t, 50));
+						sb_send_string(g_tempStr);
+						
+						g_use_rtc_for_startstop = true;
 
- 								ConfigurationState_t cfg = clockConfigurationCheck();
+ 						ConfigurationState_t cfg = clockConfigurationCheck();
  
- 								if((cfg != WAITING_FOR_START) && (cfg != EVENT_IN_PROGRESS))
- 								{
- 									reportConfigErrors();
- 								}
- 								else
- 								{
- 									reportTimeTill(now, g_event_start_epoch, "Starts in: ", "In progress\n");
- 									reportTimeTill(g_event_start_epoch, g_event_finish_epoch, "Lasts: ", NULL);
- 									if(g_event_start_epoch < now)
- 									{
- 										reportTimeTill(now, g_event_finish_epoch, "Time Remaining: ", NULL);
- 									}
- 								}
-							}
+ 						if((cfg != WAITING_FOR_START) && (cfg != EVENT_IN_PROGRESS))
+ 						{
+							g_use_rtc_for_startstop = false;
+ 							reportConfigErrors();
+ 						}
+ 						else
+ 						{
+ 							reportTimeTill(now, g_event_start_epoch, "Starts in: ", "In progress\n");
+ 							reportTimeTill(g_event_start_epoch, g_event_finish_epoch, "Lasts: ", NULL);
+ 							if(g_event_start_epoch < now)
+ 							{
+ 								reportTimeTill(now, g_event_finish_epoch, "Time Remaining: ", NULL);
+ 							}
+ 						}
 					}
 
 					doprint = true;
@@ -1341,10 +1325,10 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 					sprintf(g_tempStr, "Finish: %s\n", convertEpochToTimeString(g_event_finish_epoch, t, 50));
  					doprint = true;
 				}
-// 				else if(sb_buff->fields[SB_FIELD1][0] == '*')  /* Sync seconds to zero */
-// 				{
+ 				else if(sb_buff->fields[SB_FIELD1][0] == '*')  /* Sync seconds to zero */
+ 				{
 //  					ds3231_sync2nearestMinute();
-// 				}
+ 				}
 
 				if(doprint)
 				{
@@ -1463,14 +1447,14 @@ void __attribute__((optimize("O0"))) handleLinkBusMsgs()
 					
 						if(c == '[')
 						{
-							powerToTransmitter(ON);
+// 							powerToTransmitter(ON);
 							LEDS.blink(LEDS_RED_ON_CONSTANT);
 							txKeyDown(ON);
 						}
 						else if(c == ']')
 						{
 							txKeyDown(OFF);
-							powerToTransmitter(OFF);
+// 							powerToTransmitter(OFF);
 							LEDS.blink(LEDS_RED_OFF);
 						}
 						else if(c == '^') /* Prevent sleep shutdown */
@@ -2339,7 +2323,7 @@ void suspendEvent()
 	g_on_the_air = 0;           /*  stop transmitting */
 	g_event_commenced = false;  /* get things stopped immediately */
 	keyTransmitter(OFF);
-	powerToTransmitter(OFF);
+// 	powerToTransmitter(OFF);
 	bool repeat = false;
 	makeMorse((char*)"\0", &repeat, null);  /* reset makeMorse */
 	LEDS.blink(LEDS_RED_OFF);
@@ -2374,7 +2358,7 @@ void startEventNow(EventActionSource_t activationSource)
 		}
 		else                                                                                                                        /*if((conf == EVENT_IN_PROGRESS) */
 		{
-			setupForFox(NULL, START_EVENT_WITH_STARTFINISH_TIMES);                                                                  /* Let the RTC start the event */
+			setupForFox(NULL, START_EVENT_NOW);                                                                  /* Let the RTC start the event */
 		}
 	}
 	else                                                                                                                            /* PUSHBUTTON */
@@ -2698,7 +2682,7 @@ void setupForFox(Fox_t* fox, EventAction_t action)
  		g_event_enabled = false;
 		keyTransmitter(OFF);
 		LEDS.setRed(OFF);
-		powerToTransmitter(OFF);
+// 		powerToTransmitter(OFF);
 	}
 	else if(action == START_EVENT_NOW)
 	{
@@ -2709,7 +2693,6 @@ void setupForFox(Fox_t* fox, EventAction_t action)
 // 		g_event_enabled = true;						/* get things running immediately */
 
 		EC result = ERROR_CODE_NO_ERROR;
-//		set_system_time(ds3231_get_epoch(&result));
 		time_t now = time(null);
 		
 		if(result == ERROR_CODE_NO_ERROR)
@@ -2797,7 +2780,7 @@ time_t validateTimeString(char* str, time_t* epochVar, int8_t offsetHours)
 
 	if((len == 12) && (only_digits(str)))
 	{
-		time_t ep = RTC_String2Epoch(NULL, str);    /* String format "YYMMDDhhmmss" */
+		time_t ep = String2Epoch(NULL, str);    /* String format "YYMMDDhhmmss" */
 
 		ep += (HOUR * offsetHours);
 
@@ -3026,7 +3009,7 @@ char* convertEpochToTimeString(time_t epoch, char* buf, size_t size)
 
 /* Returns the UNIX epoch value for the character string passed in datetime. If datetime is null then it returns
 the UNIX epoch for the time held in the DS3231 RTC. If error is not null then it holds 1 if an error occurred */
-time_t RTC_String2Epoch(bool *error, char *datetime)
+time_t String2Epoch(bool *error, char *datetime)
 {
 	time_t epoch = 0;
 	uint8_t data[7] = { 0, 0, 0, 0, 0, 0, 0 };

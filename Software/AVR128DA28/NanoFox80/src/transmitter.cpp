@@ -121,36 +121,36 @@ void final_drain_voltage(bool state);
 
 	void final_drain_voltage(bool state)
 	{
-		g_drain_voltage_enabled = state;
-
-		if(state == ON)
-		{
-			if(!g_rf_output_inhibited)
-			{
-				PORTA_set_pin_level(V3V3_PWR_ENABLE, HIGH);
-			}
-		}
-		else
-		{
-			PORTA_set_pin_level(V3V3_PWR_ENABLE, LOW);
-		}
+// 		g_drain_voltage_enabled = state;
+// 
+// 		if(state == ON)
+// 		{
+// 			if(!g_rf_output_inhibited)
+// 			{
+// 				PORTA_set_pin_level(V3V3_PWR_ENABLE, HIGH);
+// 			}
+// 		}
+// 		else
+// 		{
+// 			PORTA_set_pin_level(V3V3_PWR_ENABLE, LOW);
+// 		}
 	}
 
 	
 	void inhibitRFOutput(bool inhibit)
 	{
-		g_rf_output_inhibited = inhibit;
-		
-		if(inhibit)
-		{
-			PORTA_set_pin_level(V3V3_PWR_ENABLE, LOW);
-		}
-		else
-		{
-			uint16_t pwr_mW = g_80m_power_level_mW;
-			txSetParameters(&pwr_mW, NULL);
-			PORTA_set_pin_level(V3V3_PWR_ENABLE, g_final_output_setting);
-		}
+// 		g_rf_output_inhibited = inhibit;
+// 		
+// 		if(inhibit)
+// 		{
+// 			PORTA_set_pin_level(V3V3_PWR_ENABLE, LOW);
+// 		}
+// 		else
+// 		{
+// 			uint16_t pwr_mW = g_80m_power_level_mW;
+// 			txSetParameters(&pwr_mW, NULL);
+// 			PORTA_set_pin_level(V3V3_PWR_ENABLE, g_final_output_setting);
+// 		}
 	}
 
 	bool keyTransmitter(bool on)
@@ -218,32 +218,32 @@ void final_drain_voltage(bool state);
 
 			if(power <= MAX_TX_POWER_80M_MW)
 			{
-				uint16_t drainVoltageDAC;
-				code = txMilliwattsToSettings(&power, &drainVoltageDAC);
-				err = (code == ERROR_CODE_SW_LOGIC_ERROR);
-
-				g_tx_power_is_zero = (power == 0);
-
-				if(!err)
-				{
+// 				uint16_t drainVoltageDAC;
+// 				code = txMilliwattsToSettings(&power, &drainVoltageDAC);
+// 				err = (code == ERROR_CODE_SW_LOGIC_ERROR);
+// 
+// 				g_tx_power_is_zero = (power == 0);
+// 
+// 				if(!err)
+// 				{
 					g_80m_power_level_mW = power;
 					
-					if(g_antenna_connect_state != ANT_CONNECTED)
-					{
-						inhibitRFOutput(true);
-						g_tx_power_is_zero = true;
-						err = true;
-						code = ERROR_CODE_NO_ANTENNA_PREVENTS_POWER_SETTING;
-					}
+// 					if(g_antenna_connect_state != ANT_CONNECTED)
+// 					{
+// 						inhibitRFOutput(true);
+// 						g_tx_power_is_zero = true;
+// 						err = true;
+// 						code = ERROR_CODE_NO_ANTENNA_PREVENTS_POWER_SETTING;
+// 					}
 
-					DAC0_setVal(drainVoltageDAC);
+//					DAC0_setVal(drainVoltageDAC);
 
-					if(g_tx_power_is_zero || (drainVoltageDAC == 0))
-					{
-						final_drain_voltage(OFF);
-						fet_driver(ON);
-					}
-				}
+// 					if(g_tx_power_is_zero || (drainVoltageDAC == 0))
+// 					{
+// 						final_drain_voltage(OFF);
+// 						fet_driver(ON);
+// 					}
+// 				}
 
 				*power_mW = power;
 			}
@@ -258,7 +258,7 @@ void final_drain_voltage(bool state);
 		{
 			if(setEnabled != NULL)
 			{
-				powerToTransmitter(*setEnabled);
+//				powerToTransmitter(*setEnabled);
 			}
 		}
 
