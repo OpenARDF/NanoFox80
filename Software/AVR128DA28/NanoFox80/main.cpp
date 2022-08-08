@@ -1121,6 +1121,32 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 				}
 			}
 			break;
+			
+			case SB_MESSAGE_KEY:
+			{
+				if(sb_buff->fields[SB_FIELD1][0])
+				{
+					if(sb_buff->fields[SB_FIELD1][0] == '0')    
+					{
+						LEDS.setRed(OFF);
+ 						keyTransmitter(OFF);
+					}
+					else if(sb_buff->fields[SB_FIELD1][0] == '1')  
+					{
+// 						g_event_enabled = false;
+ 						stopEventNow(PROGRAMMATIC);
+						LEDS.setRed(ON);
+ 						keyTransmitter(ON);
+					}
+				}
+				else
+				{
+					LEDS.setRed(OFF);
+ 					keyTransmitter(OFF);
+				}
+
+			}
+			break;
 
 			case SB_MESSAGE_SYNC:
 			{
@@ -1132,6 +1158,7 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 					}
 					else if(sb_buff->fields[SB_FIELD1][0] == '1')  /* Start the event, re-syncing to a start time of now - same as a button press */
 					{
+						LEDS.setRed(OFF);
  						startEventNow(PROGRAMMATIC);
 					}
 					else if(sb_buff->fields[SB_FIELD1][0] == '2')  /* Start the event at the programmed start time */
@@ -1245,14 +1272,13 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 					{
 						strncpy(g_tempStr, sb_buff->fields[SB_FIELD2], 12);
 						g_tempStr[12] = '\0';               /* truncate to no more than 12 characters */
- 						time_t now = time(null);
-  						time_t t = validateTimeString(g_tempStr, &now, -g_utc_offset);
+  						time_t t = validateTimeString(g_tempStr, null, -g_utc_offset);
   
   						if(t)
   						{
 							char txt[50];
  							set_system_time(t);
-  							sprintf(g_tempStr, "Time: %s\n", convertEpochToTimeString(now, txt, 50));
+  							sprintf(g_tempStr, "Time: %s\n", convertEpochToTimeString(t, txt, 50));
   							setupForFox(NULL, START_NOTHING);   /* Avoid timing problems if an event is already active */
  						}
 					}
