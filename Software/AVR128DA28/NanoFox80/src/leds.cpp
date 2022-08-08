@@ -11,7 +11,7 @@
 
 #define FAST_ON 25
 #define FAST_OFF 25
-#define SLOW_ON 500
+#define SLOW_ON 25
 #define SLOW_OFF 500
 #define BRIEF_ON 25
 #define BRIEF_OFF 150

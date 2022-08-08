@@ -244,7 +244,6 @@ void USART1_initialization(uint32_t baud)
 /* configure the pins and initialize the registers */
 void USART0_initialization(uint32_t baud)
 {
-
 	// Set Rx pin direction to input
 	PA5_set_dir(PORT_DIR_IN);
 	PA5_set_pull_mode(PORT_PULL_OFF);
@@ -260,6 +259,7 @@ void USART0_initialization(uint32_t baud)
 void serialbus_init(uint32_t baud, USART_Number_t usart)
 {
 	memset((SerialbusRxBuffer*)rx_buffer, 0, sizeof(*(SerialbusRxBuffer*)rx_buffer));
+	serialbus_end_tx();
 
 	for(int bufferIndex=0; bufferIndex<SERIALBUS_NUMBER_OF_TX_MSG_BUFFERS; bufferIndex++)
 	{

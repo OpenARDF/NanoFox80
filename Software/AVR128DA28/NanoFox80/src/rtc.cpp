@@ -47,7 +47,8 @@ void RTC_init(void)
     RTC.INTCTRL = 0x01;
 
     //RUNSTDBY disabled; PRESCALER DIV1; CORREN disabled; RTCEN enabled; 
-    RTC.CTRLA = 0x01;
+    RTC.CTRLA = 0x81;
+	RTC.DBGCTRL = 0x01; /* Run in debug mode */
     
     while (RTC.PITSTATUS > 0) { /* Wait for all register to be synchronized */
     }

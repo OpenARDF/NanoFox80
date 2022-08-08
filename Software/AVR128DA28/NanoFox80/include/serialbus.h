@@ -85,7 +85,8 @@ typedef enum
 //	SB_MESSAGE_TX_POWER = 'P' * 100 + 'W' * 10 + 'R',			/* Transmit power */
 	SB_MESSAGE_TX_FREQ = 'F' * 100 + 'R' * 10 + 'E',			/* Transmit frequency */
 	SB_MESSAGE_ANT_TUNE = 'T' * 100 + 'U' *10 + 'N',			/* Tune antenna */    
-	SB_MESSAGE_KEY = 'K' *100 + 'E' * 10 + 'Y',					/* Key on/off */
+	SB_MESSAGE_KEY = 'K' * 100 + 'E' * 10 + 'Y',				/* Key on/off */
+	SB_MESSAGE_SLP = 'S' * 100 + 'L' * 10 + 'P',				/* Sleep */
 
 	SB_INVALID_MESSAGE = MAX_UINT16								/* This value must never overlap a valid message ID */
 } SBMessageID;
