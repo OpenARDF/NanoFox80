@@ -963,6 +963,10 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 			g_wifi_enable_delay = 2;
 			LEDS.resume();
 		}
+		else
+		{
+			g_WiFi_shutdown_seconds = 240;
+		}
 		
 		SBMessageID msg_id = sb_buff->id;
 
