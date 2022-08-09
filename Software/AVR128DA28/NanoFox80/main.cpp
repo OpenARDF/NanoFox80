@@ -705,6 +705,8 @@ int main(void)
 	time_t now = time(null);
 	while((util_delay_ms(2000)) && (now == time(null)));
 	
+	sprintf(g_tempStr, "\n\nNanoFox80 SW Ver: %s\n", (char *)SW_REVISION);
+	sb_send_string(g_tempStr);
 	sb_send_string(TEXT_RESET_OCCURRED_TXT);
 	
 	if(now == time(null))
@@ -791,13 +793,20 @@ int main(void)
 			
 			LEDS.blink(LEDS_RED_OFF);
 
-			if(g_event_enabled)
+			if(g_hardware_error & (HARDWARE_NO_RTC | HARDWARE_NO_SI5351 ))
 			{
-				LEDS.blink(LEDS_RED_BLINK_SLOW);
+				LEDS.blink(LEDS_RED_BLINK_FAST);
 			}
 			else
 			{
-				LEDS.blink(LEDS_RED_ON_CONSTANT);
+				if(g_event_enabled)
+				{
+					LEDS.blink(LEDS_RED_BLINK_SLOW);
+				}
+				else
+				{
+					LEDS.blink(LEDS_RED_ON_CONSTANT);
+				}
 			}
 			
 			if(g_WiFi_shutdown_seconds)
