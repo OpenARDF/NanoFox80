@@ -49,14 +49,8 @@ static void VREF0_init(void);
 static void ADC0_init(bool freerun);
 static void ADC0_SYSTEM_init(bool freerun);
 static void ADC0_SYSTEM_shutdown(void);
-
-typedef enum {
-	ADC_NOT_INITIALIZED,
-	ADC_FREE_RUN_INITIALIZED,
-	ADC_SINGLE_CONVERSION_INITIALIZED
-	} ADC_Init_t;
 	
-static ADC_Init_t g_adc_initialization = ADC_NOT_INITIALIZED;
+ADC_Init_t g_adc_initialization = ADC_NOT_INITIALIZED;
 
 void ADC0_setADCChannel(ADC_Active_Channel_t chan)
 {

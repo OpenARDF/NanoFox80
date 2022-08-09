@@ -43,6 +43,7 @@
 #endif  /* ATMEL_STUDIO_7 */
 
 /* Global Variables */
+volatile uint16_t g_serial_timeout_ticks = 200;
 USART_Number_t g_serialbus_usart_number = USART_NOT_SET;
 static volatile bool g_bus_disabled = true;
 static const char crlf[] = "\n";
@@ -416,12 +417,15 @@ bool sb_send_string(char* str)
 		buf[lengthToSend] = '\0';
 		err = serialbus_send_text(buf);
 		
+		g_serial_timeout_ticks = 200;
 		if(!err)
 		{
-			while(serialbusTxInProgress())
+			while(serialbusTxInProgress() && g_serial_timeout_ticks)
 			{
 				;
 			}
+			
+			if(!g_serial_timeout_ticks) err = true;
 		}
 
 		lengthSent += lengthToSend;
@@ -445,7 +449,9 @@ void sb_send_value(uint16_t value, char* label)
 	{
 		;
 	}
-	while(!err && serialbusTxInProgress())
+	
+	g_serial_timeout_ticks = 200;
+	while(!err && serialbusTxInProgress() && g_serial_timeout_ticks)
 	{
 		;
 	}

@@ -35,6 +35,12 @@ typedef enum {
 	ADCShutdown
 } ADC_Active_Channel_t;
 
+typedef enum {
+	ADC_NOT_INITIALIZED,
+	ADC_FREE_RUN_INITIALIZED,
+	ADC_SINGLE_CONVERSION_INITIALIZED
+} ADC_Init_t;
+
 void ADC0_setADCChannel(ADC_Active_Channel_t chan);
 void ADC0_startConversion(void);
 bool ADC0_conversionDone(void);

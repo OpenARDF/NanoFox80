@@ -27,6 +27,9 @@
 #include "port.h"
 #include "defs.h"
 #include "atmel_start_pins.h"
+#include "adc.h"
+
+extern ADC_Init_t g_adc_initialization;
 
 // default constructor
 binio::binio()
@@ -38,28 +41,6 @@ binio::~binio()
 {
 } //~binio
 
-
-/**
-
-*/
-// ISR(PORTA_PORT_vect)
-// {
-// 	static int count = 0;
-// 	
-// 	if(PORTA.INTFLAGS & (1 << RTC_SQW))
-// 	{
-// 		count++;
-// 	}
-// 	
-// 	if(PORTA.INTFLAGS & (1 << ANT_CONNECT_INT))
-// 	{
-// 		count++;
-// 	}	
-// 	
-// 	LED_toggle_GREEN_level();
-// 	
-// 	PORTA.INTFLAGS = 0xFF; /* Clear all flags */
-// }
 
 void BINIO_init(void)
 {
@@ -106,6 +87,8 @@ void BINIO_init(void)
 	PORTD_set_pin_dir(SWITCH, PORT_DIR_IN);
 	PORTD_set_pin_pull_mode(SWITCH, PORT_PULL_UP);
 	PORTD_pin_set_isc(SWITCH, PORT_ISC_BOTHEDGES_gc);
+	
+	g_adc_initialization = ADC_NOT_INITIALIZED; /* Reset ADC configuration */
 
 	/* PORTF *************************************************************************************/
 // 	PORTF_set_pin_dir(X32KHZ_SQUAREWAVE, PORT_DIR_OFF);	

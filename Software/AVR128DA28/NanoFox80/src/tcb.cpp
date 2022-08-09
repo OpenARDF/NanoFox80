@@ -26,6 +26,7 @@
 
 static uint32_t g_ms_counter = 0;
 extern volatile uint16_t g_i2c0_timeout_ticks;
+extern volatile uint16_t g_serial_timeout_ticks;
 
 /**
  * \brief Initialize tcb interface
@@ -182,6 +183,7 @@ ISR(TCB2_INT_vect)
 	if(TCB2.INTFLAGS & TCB_CAPT_bm)
 	{
 		if(g_i2c0_timeout_ticks) g_i2c0_timeout_ticks--;
+		if(g_serial_timeout_ticks) g_serial_timeout_ticks--;
 	}
 	
 	TCB2.INTFLAGS = (TCB_CAPT_bm | TCB_OVF_bm);

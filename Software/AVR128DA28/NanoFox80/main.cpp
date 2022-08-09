@@ -566,11 +566,9 @@ ISR(TCB0_INT_vect)
   		if(!conversionInProcess)
   		{
  			/* Note: countdowns will pause while a conversion is in process. Conversions are so fast that this should not be an issue though. */
- 
- 			volatile uint8_t i; /* volatile to prevent optimization performing undefined behavior */
  			indexConversionInProcess = -1;
  
- 			for(i = 0; i < NUMBER_OF_POLLED_ADC_CHANNELS; i++)
+ 			for(uint8_t i = 0; i < NUMBER_OF_POLLED_ADC_CHANNELS; i++)
  			{
  				if(g_adcCountdownCount[i])
  				{
@@ -622,7 +620,7 @@ Handle switch closure interrupts
 */
 ISR(PORTD_PORT_vect)
 {
-	uint8_t x = PORTD.INTFLAGS;
+	uint8_t x = VPORTD.INTFLAGS;
 	if(x & (1 << SWITCH))
 	{
 		if(g_sleeping)
@@ -670,7 +668,7 @@ ISR(PORTD_PORT_vect)
 		g_switch_closed_count = 0;
 	}
 	
-	PORTD.INTFLAGS = 0xFF; /* Clear all flags */
+	VPORTD.INTFLAGS = 0xFF; /* Clear all flags */
 }
 
 
@@ -887,75 +885,68 @@ int main(void)
 		 ******************************/
 		if(g_go_to_sleep_now)
 		{
-			LEDS.blink(LEDS_OFF);
-			wifi_reset(ON);
- 			linkbus_disable();	
-			serialbus_disable();
-			wifi_power(OFF);
-			shutdown_transmitter();	
-			powerDown3V3();
-			
-			g_waiting_for_next_event = false;
-
-			SLPCTRL_set_sleep_mode(SLPCTRL_SMODE_STDBY_gc);		
-			g_sleeping = true;
-			
-			/* Disable BOD? */
-			
- 			while(g_go_to_sleep_now)
- 			{
-				DISABLE_INTERRUPTS();
-				sleep_enable();
-				ENABLE_INTERRUPTS();
-				sleep_cpu();  /* Sleep occurs here */
-				sleep_disable();
- 			}
- 
-			/* Re-enable BOD? */
-			g_sleeping = false;
-			atmel_start_init();
-			powerUp3V3();
-			while(util_delay_ms(2000));
-			init_transmitter();
-			
-			if((g_awakenedBy == AWAKENED_BY_BUTTONPRESS) || (g_awakenedBy == AWAKENED_BY_ANTENNA) || (g_awakenedBy == AWAKENED_BY_POWERUP))
-			{	
-				LEDS.reset();
-				
-				if(g_event_enabled)
-				{
-					LEDS.blink(LEDS_RED_BLINK_SLOW);
-				}
-				else
-				{
-					LEDS.blink(LEDS_RED_ON_CONSTANT);
-				}
-				
- 				linkbus_enable();
-				g_wifi_enable_delay = 2; /* Ensure WiFi is enabled and countdown is reset */
-			}
-			else if(g_awakenedBy == AWAKENED_BY_CLOCK)
+			if(g_sleepType == DO_NOT_SLEEP)
 			{
-				if(!g_event_enabled)
-				{
-					g_start_event = eventEnabled(); /* Start any event stored in EEPROM */
-				
-					if(!g_start_event)
-					{
- 						linkbus_enable();
-						g_wifi_enable_delay = 2; /* Ensure WiFi is enabled and countdown is reset */
-					}
-				}
-				else
-				{
-					if(g_sleepType == SLEEP_UNTIL_START_TIME)
-					{
-						g_sleepType = DO_NOT_SLEEP;
-					}
-				}
+				sb_send_string(TEXT_NOT_SLEEPING_TXT);
+				g_go_to_sleep_now = false;
 			}
+			else
+			{
+				LEDS.blink(LEDS_OFF);
+				wifi_reset(ON);
+ 				linkbus_disable();	
+				serialbus_disable();
+				wifi_power(OFF);
+				shutdown_transmitter();	
+				powerDown3V3();
+			
+				g_waiting_for_next_event = false;
 
- 			g_last_status_code = STATUS_CODE_RETURNED_FROM_SLEEP;
+				SLPCTRL_set_sleep_mode(SLPCTRL_SMODE_STDBY_gc);		
+				g_sleeping = true;
+			
+				/* Disable BOD? */
+			
+ 				while(g_go_to_sleep_now)
+ 				{
+					DISABLE_INTERRUPTS();
+					sleep_enable();
+					ENABLE_INTERRUPTS();
+					sleep_cpu();  /* Sleep occurs here */
+					sleep_disable();
+ 				}
+ 
+				/* Re-enable BOD? */
+				g_sleeping = false;
+				atmel_start_init();
+				powerUp3V3();
+				while(util_delay_ms(2000));
+				init_transmitter();
+			
+				if((g_awakenedBy == AWAKENED_BY_BUTTONPRESS) || (g_awakenedBy == AWAKENED_BY_ANTENNA) || (g_awakenedBy == AWAKENED_BY_POWERUP))
+				{	
+					LEDS.reset();
+				
+					if(g_event_enabled)
+					{
+						LEDS.blink(LEDS_RED_BLINK_SLOW);
+					}
+					else
+					{
+						LEDS.blink(LEDS_RED_ON_CONSTANT);
+					}
+				
+					g_wifi_enable_delay = 2; /* Ensure WiFi is enabled and countdown is reset */
+				}
+// 				else if(g_awakenedBy == AWAKENED_BY_CLOCK)
+// 				{
+// 					g_start_event = true;
+// 				}
+
+				g_start_event = true;
+
+ 				g_last_status_code = STATUS_CODE_RETURNED_FROM_SLEEP;
+			}
 		}
 	}
 }
@@ -1125,6 +1116,10 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 					if(sb_buff->fields[SB_FIELD1][0] == '0')    
 					{
 						g_sleepType = DO_NOT_SLEEP;
+					}
+					else if (sb_buff->fields[SB_FIELD1][0] == '1')
+					{
+						g_event_enabled = eventEnabled(); // Set sleep type based on current event settings
 					}
 					else
 					{
@@ -1446,8 +1441,7 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 // 				sb_send_string(g_tempStr);
 
 				float bat = (float)g_lastConversionResult[EXTERNAL_BATTERY_VOLTAGE];
-				bat *= 12.;
-				bat *= 0.00059;
+				bat *= 0.00705;
 				
 				char txt[6];
 				dtostrf(bat, 4, 1, txt);
