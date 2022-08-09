@@ -622,7 +622,8 @@ Handle switch closure interrupts
 */
 ISR(PORTD_PORT_vect)
 {
-	if(PORTD.INTFLAGS & (1 << SWITCH))
+	uint8_t x = PORTD.INTFLAGS;
+	if(x & (1 << SWITCH))
 	{
 		if(g_sleeping)
 		{
@@ -702,6 +703,7 @@ int main(void)
 	wifi_power(ON);
 	
 	/* Check that the RTC is running */
+	set_system_time(0);
 	time_t now = time(null);
 	while((util_delay_ms(2000)) && (now == time(null)));
 	
@@ -886,10 +888,11 @@ int main(void)
 		if(g_go_to_sleep_now)
 		{
 			LEDS.blink(LEDS_OFF);
- 			linkbus_disable();	
-			shutdown_transmitter();	
 			wifi_reset(ON);
+ 			linkbus_disable();	
+			serialbus_disable();
 			wifi_power(OFF);
+			shutdown_transmitter();	
 			powerDown3V3();
 			
 			g_waiting_for_next_event = false;
@@ -1117,7 +1120,21 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 			
 			case SB_MESSAGE_SLP:
 			{
-				g_go_to_sleep_now = true;
+				if(sb_buff->fields[SB_FIELD1][0])
+				{
+					if(sb_buff->fields[SB_FIELD1][0] == '0')    
+					{
+						g_sleepType = DO_NOT_SLEEP;
+					}
+					else
+					{
+						g_go_to_sleep_now = true;
+					}
+				}
+				else
+				{
+					g_go_to_sleep_now = true;
+				}
 			}
 			break;
 				
@@ -3055,7 +3072,16 @@ time_t epoch_from_ltm(tm *ltm)
 char* convertEpochToTimeString(time_t epoch, char* buf, size_t size)
  {
    struct tm  ts;
-	time_t t = epoch - THIRTY_YEARS;
+	time_t t;
+	
+	if(epoch >= THIRTY_YEARS)
+	{
+		t = epoch - THIRTY_YEARS;
+	}
+	else
+	{
+		t = 0;
+	}
 
     // Format time, "ddd dd-mon-yyyy hh:mm:ss zzz"
     ts = *localtime(&t);
