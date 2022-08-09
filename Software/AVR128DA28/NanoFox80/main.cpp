@@ -1184,6 +1184,7 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 				else
 				{
 					LEDS.setRed(OFF);
+					LEDS.resume();
  					keyTransmitter(OFF);
 					startEventNow(PROGRAMMATIC);
 				}

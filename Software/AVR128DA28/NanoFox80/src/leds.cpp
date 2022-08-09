@@ -146,6 +146,8 @@ void leds::setRed(bool on)
 {
 	if(g_override) return;
 
+	TCB1.INTCTRL &= ~TCB_CAPT_bm;   /* Capture or Timeout: disabled */
+
 	if(on)
 	{
 		if(led_timeout_count)
@@ -162,6 +164,8 @@ void leds::setRed(bool on)
 void leds::setGreen(bool on)
 {
 	if(g_override) return;
+
+	TCB1.INTCTRL &= ~TCB_CAPT_bm;   /* Capture or Timeout: disabled */
 
 	if(on)
 	{
