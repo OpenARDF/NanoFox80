@@ -899,6 +899,7 @@ int main(void)
 				wifi_power(OFF);
 				shutdown_transmitter();	
 				powerDown3V3();
+				system_sleep_config();
 			
 				g_waiting_for_next_event = false;
 
@@ -909,6 +910,8 @@ int main(void)
 			
  				while(g_go_to_sleep_now)
  				{
+					set_sleep_mode(SLEEP_MODE_STANDBY);
+//					set_sleep_mode(SLEEP_MODE_PWR_DOWN);
 					DISABLE_INTERRUPTS();
 					sleep_enable();
 					ENABLE_INTERRUPTS();
@@ -916,6 +919,7 @@ int main(void)
 					sleep_disable();
  				}
  
+				CLKCTRL_init();
 				/* Re-enable BOD? */
 				g_sleeping = false;
 				atmel_start_init();
