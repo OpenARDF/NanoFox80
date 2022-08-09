@@ -33,7 +33,7 @@
 
 /******************************************************
  * Set the text that gets displayed to the user */
-#define SW_REVISION "0.4"
+#define SW_REVISION "0.45"
 
 //#define TRANQUILIZE_WATCHDOG
 
@@ -253,6 +253,8 @@ typedef uint16_t BatteryLevel;  /* in milliVolts */
 #define TEXT_RTC_NOT_RESPONDING_TXT (char*)"Error: No response from clock hardware\n"
 #define TEXT_TX_NOT_RESPONDING_TXT (char*)"Error: No response from transmit hardware\n"
 #define TEXT_WIFI_NOT_DETECTED_TXT (char*)"Warning: WiFi hardware not detected\n"
+#define TEXT_RESET_OCCURRED_TXT (char*)"Warning: CPU Reset! Need to set clock\n"
+#define TEXT_NOT_SLEEPING_TXT (char*)"NanoFox is not sleeping\n"
 #define MINIMUM_EPOCH ((time_t)1609459200)  /* 1 Jan 2021 00:00:00 */
 #define SECONDS_24H 86400
 

@@ -34,6 +34,7 @@
 #define WIFI_MODULE_DETECT 3
 #define V3V3_PWR_ENABLE 2
 #define RF_OUT_ENABLE 1
+#define unusedA0 0
 
 /* PORTC *************************************************************************************/
 #define SI5351_SCL 3
@@ -42,10 +43,10 @@
 #define SERIAL_TX 0
 
 /* PORTD *************************************************************************************/
-// #define unused 7
+#define unusedD7 7
 #define DAC_OUTPUT 6
-// #define unused 5
-// #define unused 4
+#define unusedD5 5
+#define unusedD4 4
 #define SWITCH 3
 #define LED_RED 2
 #define LED_GREEN 2
@@ -53,7 +54,9 @@
 #define VBAT_IN 0
 
 /* PORTF *************************************************************************************/
+#define unusedF6 6
 #define X32KHZ_SQUAREWAVE 0
+#define unusedF1 1
 
 
 void BINIO_init(void);

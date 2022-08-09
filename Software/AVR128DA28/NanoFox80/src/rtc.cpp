@@ -26,10 +26,12 @@
 
 #include "defs.h"
 #include "rtc.h"
+#include "tcb.h"
 
 void RTC_init(void)
 {
-    while (RTC.STATUS > 0) { /* Wait for all registers to be synchronized */
+	util_delay_ms(0);
+    while ((RTC.STATUS > 0) && util_delay_ms(500)) { /* Wait for all registers to be synchronized */
     }
     //Compare 
     RTC.CMP = 0x00;
@@ -47,9 +49,11 @@ void RTC_init(void)
     RTC.INTCTRL = 0x01;
 
     //RUNSTDBY disabled; PRESCALER DIV1; CORREN disabled; RTCEN enabled; 
-    RTC.CTRLA = 0x01;
+    RTC.CTRLA = 0x81;
+	RTC.DBGCTRL = 0x01; /* Run in debug mode */
     
-    while (RTC.PITSTATUS > 0) { /* Wait for all register to be synchronized */
+	util_delay_ms(0);
+    while ((RTC.PITCTRLA > 0) && util_delay_ms(500)) { /* Wait for all registers to be synchronized */
     }
     //PI disabled; 
     RTC.PITINTCTRL = 0x00;    
@@ -57,7 +61,8 @@ void RTC_init(void)
 
 void RTC_init_backup(void)
 {
-    while (RTC.STATUS > 0) { /* Wait for all registers to be synchronized */
+	util_delay_ms(0);
+    while ((RTC.STATUS > 0) && util_delay_ms(500)) { /* Wait for all registers to be synchronized */
     }
     //Compare 
     RTC.CMP = 0x00;
@@ -77,7 +82,8 @@ void RTC_init_backup(void)
     //RUNSTDBY disabled; PRESCALER DIV1; CORREN disabled; RTCEN enabled; 
     RTC.CTRLA = 0x01;
     
-    while (RTC.PITSTATUS > 0) { /* Wait for all register to be synchronized */
+	util_delay_ms(0);
+    while ((RTC.PITCTRLA > 0) && util_delay_ms(500)) { /* Wait for all registers to be synchronized */
     }
     //PI disabled; 
     RTC.PITINTCTRL = 0x00;    

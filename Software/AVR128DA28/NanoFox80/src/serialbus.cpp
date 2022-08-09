@@ -43,6 +43,7 @@
 #endif  /* ATMEL_STUDIO_7 */
 
 /* Global Variables */
+volatile uint16_t g_serial_timeout_ticks = 200;
 USART_Number_t g_serialbus_usart_number = USART_NOT_SET;
 static volatile bool g_bus_disabled = true;
 static const char crlf[] = "\n";
@@ -244,7 +245,6 @@ void USART1_initialization(uint32_t baud)
 /* configure the pins and initialize the registers */
 void USART0_initialization(uint32_t baud)
 {
-
 	// Set Rx pin direction to input
 	PA5_set_dir(PORT_DIR_IN);
 	PA5_set_pull_mode(PORT_PULL_OFF);
@@ -260,6 +260,7 @@ void USART0_initialization(uint32_t baud)
 void serialbus_init(uint32_t baud, USART_Number_t usart)
 {
 	memset((SerialbusRxBuffer*)rx_buffer, 0, sizeof(*(SerialbusRxBuffer*)rx_buffer));
+	serialbus_end_tx();
 
 	for(int bufferIndex=0; bufferIndex<SERIALBUS_NUMBER_OF_TX_MSG_BUFFERS; bufferIndex++)
 	{
@@ -416,12 +417,15 @@ bool sb_send_string(char* str)
 		buf[lengthToSend] = '\0';
 		err = serialbus_send_text(buf);
 		
+		g_serial_timeout_ticks = 200;
 		if(!err)
 		{
-			while(serialbusTxInProgress())
+			while(serialbusTxInProgress() && g_serial_timeout_ticks)
 			{
 				;
 			}
+			
+			if(!g_serial_timeout_ticks) err = true;
 		}
 
 		lengthSent += lengthToSend;
@@ -445,7 +449,9 @@ void sb_send_value(uint16_t value, char* label)
 	{
 		;
 	}
-	while(!err && serialbusTxInProgress())
+	
+	g_serial_timeout_ticks = 200;
+	while(!err && serialbusTxInProgress() && g_serial_timeout_ticks)
 	{
 		;
 	}

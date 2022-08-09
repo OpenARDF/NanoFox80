@@ -266,6 +266,7 @@ void USART0_initialization(uint32_t baud)
 void linkbus_init(uint32_t baud, USART_Number_t usart)
 {
 	memset(rx_buffer, 0, sizeof(rx_buffer));
+	linkbus_end_tx();
 
 	for(int bufferIndex=0; bufferIndex<LINKBUS_NUMBER_OF_TX_MSG_BUFFERS; bufferIndex++)
 	{

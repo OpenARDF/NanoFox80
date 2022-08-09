@@ -369,7 +369,7 @@ void handle_1sec_tasks(void)
 					}
 
 					g_event_commenced = true;
-					LEDS.blink(LEDS_RED_OFF);
+					LEDS.reset();
 				}
 			}
 		}
@@ -378,47 +378,44 @@ void handle_1sec_tasks(void)
 		/**************************************
 		* Delay before re-enabling linkbus receive
 		***************************************/
-		if(!(g_hardware_error | HARDWARE_NO_WIFI))
+		if(g_wifi_enable_delay)
 		{
-			if(g_wifi_enable_delay)
-			{
-				g_wifi_enable_delay--;
+			g_wifi_enable_delay--;
 
-				if(!g_wifi_enable_delay)
-				{
-					wifi_power(ON);     /* power on WiFi */
-					wifi_reset(OFF);    /* bring WiFi out of reset */
-					g_WiFi_shutdown_seconds = 120;
-				}
+			if(!g_wifi_enable_delay)
+			{
+				wifi_power(ON);     /* power on WiFi */
+				wifi_reset(OFF);    /* bring WiFi out of reset */
+				g_WiFi_shutdown_seconds = 120;
 			}
-			else
+		}
+		else
+		{
+			if(g_shutting_down_wifi || (!g_check_for_next_event && !g_waiting_for_next_event))
 			{
-				if(g_shutting_down_wifi || (!g_check_for_next_event && !g_waiting_for_next_event))
+				if(g_WiFi_shutdown_seconds)
 				{
-					if(g_WiFi_shutdown_seconds)
-					{
-						g_WiFi_shutdown_seconds--;
+					g_WiFi_shutdown_seconds--;
 
-						if(!g_WiFi_shutdown_seconds && !g_enable_manual_transmissions)
-						{
-							g_wifi_ready = false;
-							wifi_reset(ON);     /* put WiFi into reset */
-							wifi_power(OFF);    /* power off WiFi */
-							g_shutting_down_wifi = false;
-							g_wifi_active = false;
+					if(!g_WiFi_shutdown_seconds && !g_enable_manual_transmissions)
+					{
+						g_wifi_ready = false;
+						wifi_reset(ON);     /* put WiFi into reset */
+						wifi_power(OFF);    /* power off WiFi */
+						g_shutting_down_wifi = false;
+						g_wifi_active = false;
 							
-							if(g_sleepType != DO_NOT_SLEEP)
-							{
-								g_go_to_sleep_now = true;								
-							}
+ 						if(g_sleepType != DO_NOT_SLEEP)
+						{
+							g_go_to_sleep_now = true;								
 						}
 					}
 				}
+			}
 
-				if(g_wifi_active)
-				{
-					g_report_seconds = true;
-				}
+			if(g_wifi_active)
+			{
+				g_report_seconds = true;
 			}
 		}
 	}
@@ -516,7 +513,6 @@ ISR(TCB0_INT_vect)
 						key = OFF;
 						keyTransmitter(OFF);
 						LEDS.setRed(OFF);
-// 						powerToTransmitter(OFF);
 					}
 				
 					codeInc = g_code_throttle;
@@ -570,11 +566,9 @@ ISR(TCB0_INT_vect)
   		if(!conversionInProcess)
   		{
  			/* Note: countdowns will pause while a conversion is in process. Conversions are so fast that this should not be an issue though. */
- 
- 			volatile uint8_t i; /* volatile to prevent optimization performing undefined behavior */
  			indexConversionInProcess = -1;
  
- 			for(i = 0; i < NUMBER_OF_POLLED_ADC_CHANNELS; i++)
+ 			for(uint8_t i = 0; i < NUMBER_OF_POLLED_ADC_CHANNELS; i++)
  			{
  				if(g_adcCountdownCount[i])
  				{
@@ -626,7 +620,8 @@ Handle switch closure interrupts
 */
 ISR(PORTD_PORT_vect)
 {
-	if(PORTD.INTFLAGS & (1 << SWITCH))
+	uint8_t x = VPORTD.INTFLAGS;
+	if(x & (1 << SWITCH))
 	{
 		if(g_sleeping)
 		{
@@ -673,7 +668,7 @@ ISR(PORTD_PORT_vect)
 		g_switch_closed_count = 0;
 	}
 	
-	PORTD.INTFLAGS = 0xFF; /* Clear all flags */
+	VPORTD.INTFLAGS = 0xFF; /* Clear all flags */
 }
 
 
@@ -706,13 +701,19 @@ int main(void)
 	wifi_power(ON);
 	
 	/* Check that the RTC is running */
+	set_system_time(0);
 	time_t now = time(null);
 	while((util_delay_ms(2000)) && (now == time(null)));
+	
+	sprintf(g_tempStr, "\n\nNanoFox80 SW Ver: %s\n", (char *)SW_REVISION);
+	sb_send_string(g_tempStr);
+	sb_send_string(TEXT_RESET_OCCURRED_TXT);
 	
 	if(now == time(null))
 	{
 		g_hardware_error |= (int)HARDWARE_NO_RTC;
 		RTC_init_backup();
+		sb_send_string(TEXT_RTC_NOT_RESPONDING_TXT);	
 	}
 	
 	if(wifiPresent())
@@ -727,6 +728,7 @@ int main(void)
 		g_wifi_enable_delay = 0;
 		g_WiFi_shutdown_seconds = 0;
 		g_hardware_error |= (int)HARDWARE_NO_WIFI;
+		sb_send_string(TEXT_WIFI_NOT_DETECTED_TXT);	
 	}
 	
 	if(init_transmitter() != ERROR_CODE_NO_ERROR)
@@ -734,6 +736,7 @@ int main(void)
 		if(!txIsInitialized())
 		{
 			g_hardware_error |= (int)HARDWARE_NO_SI5351;
+			sb_send_string(TEXT_TX_NOT_RESPONDING_TXT);	
 		}
 	}
 	
@@ -790,13 +793,20 @@ int main(void)
 			
 			LEDS.blink(LEDS_RED_OFF);
 
-			if(g_event_enabled)
+			if(g_hardware_error & (HARDWARE_NO_RTC | HARDWARE_NO_SI5351 ))
 			{
-				LEDS.blink(LEDS_RED_BLINK_SLOW);
+				LEDS.blink(LEDS_RED_BLINK_FAST);
 			}
 			else
 			{
-				LEDS.blink(LEDS_RED_ON_CONSTANT);
+				if(g_event_enabled)
+				{
+					LEDS.blink(LEDS_RED_BLINK_SLOW);
+				}
+				else
+				{
+					LEDS.blink(LEDS_RED_ON_CONSTANT);
+				}
 			}
 			
 			if(g_WiFi_shutdown_seconds)
@@ -834,17 +844,25 @@ int main(void)
 		
 		if(g_check_for_next_event)
 		{
-			if(g_wifi_ready)
+			if(g_hardware_error & (int)HARDWARE_NO_WIFI)
 			{
 				g_check_for_next_event = false;
-				g_waiting_for_next_event = true;
-				sprintf(g_tempStr, "%u", g_last_status_code);
-				lb_send_msg(LINKBUS_MSG_REPLY, LB_MESSAGE_ESP_LABEL, (char*)"1");
-				g_sleepType = SLEEP_FOREVER;	
-			}
-			else if(!g_WiFi_shutdown_seconds && !g_wifi_enable_delay)
-			{
 				g_wifi_enable_delay = 1;
+			}
+			else
+			{
+				if(g_wifi_ready)
+				{
+					g_check_for_next_event = false;
+					g_waiting_for_next_event = true;
+					sprintf(g_tempStr, "%u", g_last_status_code);
+					lb_send_msg(LINKBUS_MSG_REPLY, LB_MESSAGE_ESP_LABEL, (char*)"1");
+					g_sleepType = SLEEP_FOREVER;	
+				}
+				else if(!g_WiFi_shutdown_seconds && !g_wifi_enable_delay)
+				{
+					g_wifi_enable_delay = 1;
+				}
 			}
 		}
 		
@@ -867,66 +885,72 @@ int main(void)
 		 ******************************/
 		if(g_go_to_sleep_now)
 		{
-			LEDS.blink(LEDS_OFF);
- 			linkbus_disable();	
-			shutdown_transmitter();	
-			wifi_reset(ON);
-			wifi_power(OFF);
-			powerDown3V3();
-			
-			g_waiting_for_next_event = false;
-
-			SLPCTRL_set_sleep_mode(SLPCTRL_SMODE_STDBY_gc);		
-			g_sleeping = true;
-			
-			/* Disable BOD? */
-			
- 			while(g_go_to_sleep_now)
- 			{
-				DISABLE_INTERRUPTS();
-				sleep_enable();
-				ENABLE_INTERRUPTS();
-				sleep_cpu();  /* Sleep occurs here */
-				sleep_disable();
- 			}
- 
-			/* Re-enable BOD? */
-			powerUp3V3();
-			g_sleeping = false;
-			atmel_start_init();
-			init_transmitter();
-			
-			if((g_awakenedBy == AWAKENED_BY_BUTTONPRESS) || (g_awakenedBy == AWAKENED_BY_ANTENNA) || (g_awakenedBy == AWAKENED_BY_POWERUP))
-			{	
-				LEDS.reset();
-				
-				if(g_event_enabled)
-				{
-					LEDS.blink(LEDS_RED_BLINK_SLOW);
-				}
-				else
-				{
-					LEDS.blink(LEDS_RED_ON_CONSTANT);
-				}
-				
- 				linkbus_enable();
-				g_wifi_enable_delay = 2; /* Ensure WiFi is enabled and countdown is reset */
-			}
-			else if(g_awakenedBy == AWAKENED_BY_CLOCK)
+			if(g_sleepType == DO_NOT_SLEEP)
 			{
-				if(!g_event_enabled)
-				{
-					g_start_event = eventEnabled(); /* Start any event stored in EEPROM */
-				
-					if(!g_start_event)
-					{
- 						linkbus_enable();
-						g_wifi_enable_delay = 2; /* Ensure WiFi is enabled and countdown is reset */
-					}
-				}
+				sb_send_string(TEXT_NOT_SLEEPING_TXT);
+				g_go_to_sleep_now = false;
 			}
+			else
+			{
+				LEDS.blink(LEDS_OFF);
+				wifi_reset(ON);
+ 				linkbus_disable();	
+				serialbus_disable();
+				wifi_power(OFF);
+				shutdown_transmitter();	
+				powerDown3V3();
+				system_sleep_config();
+			
+				g_waiting_for_next_event = false;
 
- 			g_last_status_code = STATUS_CODE_RETURNED_FROM_SLEEP;
+				SLPCTRL_set_sleep_mode(SLPCTRL_SMODE_STDBY_gc);		
+				g_sleeping = true;
+			
+				/* Disable BOD? */
+			
+ 				while(g_go_to_sleep_now)
+ 				{
+					set_sleep_mode(SLEEP_MODE_STANDBY);
+//					set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+					DISABLE_INTERRUPTS();
+					sleep_enable();
+					ENABLE_INTERRUPTS();
+					sleep_cpu();  /* Sleep occurs here */
+					sleep_disable();
+ 				}
+ 
+				CLKCTRL_init();
+				/* Re-enable BOD? */
+				g_sleeping = false;
+				atmel_start_init();
+				powerUp3V3();
+				while(util_delay_ms(2000));
+				init_transmitter();
+			
+				if((g_awakenedBy == AWAKENED_BY_BUTTONPRESS) || (g_awakenedBy == AWAKENED_BY_ANTENNA) || (g_awakenedBy == AWAKENED_BY_POWERUP))
+				{	
+					LEDS.reset();
+				
+					if(g_event_enabled)
+					{
+						LEDS.blink(LEDS_RED_BLINK_SLOW);
+					}
+					else
+					{
+						LEDS.blink(LEDS_RED_ON_CONSTANT);
+					}
+				
+					g_wifi_enable_delay = 2; /* Ensure WiFi is enabled and countdown is reset */
+				}
+// 				else if(g_awakenedBy == AWAKENED_BY_CLOCK)
+// 				{
+// 					g_start_event = true;
+// 				}
+
+				g_start_event = true;
+
+ 				g_last_status_code = STATUS_CODE_RETURNED_FROM_SLEEP;
+			}
 		}
 	}
 }
@@ -938,6 +962,16 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 
 	while((sb_buff = nextFullSBRxBuffer()))
 	{
+		if(!g_WiFi_shutdown_seconds)
+		{
+			g_wifi_enable_delay = 2;
+			LEDS.resume();
+		}
+		else
+		{
+			g_WiFi_shutdown_seconds = 240;
+		}
+		
 		SBMessageID msg_id = sb_buff->id;
 
 		switch(msg_id)
@@ -1082,6 +1116,30 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 				}
 			}
 			break;
+			
+			case SB_MESSAGE_SLP:
+			{
+				if(sb_buff->fields[SB_FIELD1][0])
+				{
+					if(sb_buff->fields[SB_FIELD1][0] == '0')    
+					{
+						g_sleepType = DO_NOT_SLEEP;
+					}
+					else if (sb_buff->fields[SB_FIELD1][0] == '1')
+					{
+						g_event_enabled = eventEnabled(); // Set sleep type based on current event settings
+					}
+					else
+					{
+						g_go_to_sleep_now = true;
+					}
+				}
+				else
+				{
+					g_go_to_sleep_now = true;
+				}
+			}
+			break;
 				
 			case SB_MESSAGE_TX_FREQ:
 			{
@@ -1128,21 +1186,27 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 				{
 					if(sb_buff->fields[SB_FIELD1][0] == '0')    
 					{
+ 						stopEventNow(PROGRAMMATIC);
 						LEDS.setRed(OFF);
  						keyTransmitter(OFF);
 					}
 					else if(sb_buff->fields[SB_FIELD1][0] == '1')  
 					{
-// 						g_event_enabled = false;
  						stopEventNow(PROGRAMMATIC);
 						LEDS.setRed(ON);
  						keyTransmitter(ON);
+					}
+					else
+					{
+						sb_send_string((char*)"err\n");
 					}
 				}
 				else
 				{
 					LEDS.setRed(OFF);
+					LEDS.resume();
  					keyTransmitter(OFF);
+					startEventNow(PROGRAMMATIC);
 				}
 
 			}
@@ -1279,7 +1343,7 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 							char txt[50];
  							set_system_time(t);
   							sprintf(g_tempStr, "Time: %s\n", convertEpochToTimeString(t, txt, 50));
-  							setupForFox(NULL, START_NOTHING);   /* Avoid timing problems if an event is already active */
+  							setupForFox(NULL, START_EVENT_WITH_STARTFINISH_TIMES);   /* Start the event if one is configured */
  						}
 					}
 					else
@@ -1385,8 +1449,7 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 // 				sb_send_string(g_tempStr);
 
 				float bat = (float)g_lastConversionResult[EXTERNAL_BATTERY_VOLTAGE];
-				bat *= 12.;
-				bat *= 0.00059;
+				bat *= 0.00705;
 				
 				char txt[6];
 				dtostrf(bat, 4, 1, txt);
@@ -1632,6 +1695,7 @@ void __attribute__((optimize("O0"))) handleLinkBusMsgs()
 								g_event_commenced = true;                   /* get things running immediately */
 								g_event_enabled = true;                     /* get things running immediately */
 								g_last_status_code = STATUS_CODE_EVENT_STARTED_NOW_TRANSMITTING;
+								LEDS.reset();
 							}
 							else
 							{
@@ -2296,6 +2360,7 @@ EC activateEventUsingCurrentSettings(SC* statusCode)
 			}
 
 			g_event_commenced = true;
+			LEDS.reset();
 		}
 		else    /* start time is in the future */
 		{
@@ -2473,7 +2538,6 @@ void setupForFox(Fox_t* fox, EventAction_t action)
 	g_event_enabled = false;
 	g_event_commenced = false;
 	LEDS.setRed(OFF);
-// 	set_system_time(ds3231_get_epoch(null));
 
 	switch(g_fox)
 	{
@@ -2695,7 +2759,6 @@ void setupForFox(Fox_t* fox, EventAction_t action)
  		g_event_enabled = false;
 		keyTransmitter(OFF);
 		LEDS.setRed(OFF);
-// 		powerToTransmitter(OFF);
 	}
 	else if(action == START_EVENT_NOW)
 	{
@@ -2743,6 +2806,7 @@ void setupForFox(Fox_t* fox, EventAction_t action)
  		g_use_rtc_for_startstop = false;
  		g_event_enabled = true;
 // 		g_initialize_fox_transmissions = INIT_EVENT_STARTING_NOW;
+		LEDS.reset();
 	}
 	else         /* if(action == START_EVENT_WITH_STARTFINISH_TIMES) */
 	{
@@ -3010,7 +3074,16 @@ time_t epoch_from_ltm(tm *ltm)
 char* convertEpochToTimeString(time_t epoch, char* buf, size_t size)
  {
    struct tm  ts;
-	time_t t = epoch - THIRTY_YEARS;
+	time_t t;
+	
+	if(epoch >= THIRTY_YEARS)
+	{
+		t = epoch - THIRTY_YEARS;
+	}
+	else
+	{
+		t = 0;
+	}
 
     // Format time, "ddd dd-mon-yyyy hh:mm:ss zzz"
     ts = *localtime(&t);

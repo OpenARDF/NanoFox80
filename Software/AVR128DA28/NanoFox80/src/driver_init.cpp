@@ -62,7 +62,7 @@ void system_init()
 	BOD_init();
 }
 
-void system_sleep()
+void system_sleep_config()
 {
 	mcu_init();
 
@@ -75,6 +75,36 @@ void system_sleep()
 	LED_set_RED_level(OFF);
 	LED_set_GREEN_dir(PORT_DIR_OUT);
 	LED_set_GREEN_level(OFF);
+	
+	PORTA_set_pin_dir(unusedA0, PORT_DIR_OUT);
+	PORTA_set_pin_level(unusedA0, LOW);
+	PORTA_set_pin_dir(WIFI_MODULE_DETECT, PORT_DIR_OUT);
+	PORTA_set_pin_level(WIFI_MODULE_DETECT, LOW);
+	PORTA_set_pin_dir(TO_WIFI_RX, PORT_DIR_OUT);
+	PORTA_set_pin_level(TO_WIFI_RX, LOW);
+	PORTA_set_pin_dir(TO_WIFI_TX, PORT_DIR_OUT);
+	PORTA_set_pin_level(TO_WIFI_TX, LOW);
 
+	PORTC_set_pin_dir(SERIAL_TX, PORT_DIR_OUT);
+	PORTC_set_pin_level(SERIAL_TX, LOW);
+	PORTC_set_pin_dir(SERIAL_RX, PORT_DIR_OUT);
+	PORTC_set_pin_level(SERIAL_RX, LOW);
+
+	PORTC_set_pin_dir(SI5351_SDA, PORT_DIR_OUT);
+	PORTC_set_pin_level(SI5351_SDA, LOW);
+	PORTC_set_pin_dir(SI5351_SCL, PORT_DIR_OUT);
+	PORTC_set_pin_level(SI5351_SCL, LOW);
+	
+	PORTD_set_pin_dir(unusedD4, PORT_DIR_OUT);
+	PORTD_set_pin_level(unusedD4, LOW);
+	PORTD_set_pin_dir(unusedD5, PORT_DIR_OUT);
+	PORTD_set_pin_level(unusedD5, LOW);
+	PORTD_set_pin_dir(unusedD7, PORT_DIR_OUT);
+	PORTD_set_pin_level(unusedD7, LOW);
+
+	PORTF_set_pin_dir(unusedF1, PORT_DIR_OUT);
+	PORTF_set_pin_level(unusedF1, LOW);
+	PORTF_set_pin_dir(unusedF6, PORT_DIR_OUT);
+	PORTF_set_pin_level(unusedF6, LOW);
 }
 

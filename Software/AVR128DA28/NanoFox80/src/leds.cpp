@@ -11,10 +11,10 @@
 
 #define FAST_ON 25
 #define FAST_OFF 25
-#define SLOW_ON 500
+#define SLOW_ON 25
 #define SLOW_OFF 500
-#define BRIEF_ON 25
-#define BRIEF_OFF 150
+#define BRIEF_ON 15
+#define BRIEF_OFF 50
 #define LED_TIMEOUT 60000
 
 static volatile Blink_t lastBlinkSetting = LEDS_OFF;
@@ -146,6 +146,8 @@ void leds::setRed(bool on)
 {
 	if(g_override) return;
 
+	TCB1.INTCTRL &= ~TCB_CAPT_bm;   /* Capture or Timeout: disabled */
+
 	if(on)
 	{
 		if(led_timeout_count)
@@ -162,6 +164,8 @@ void leds::setRed(bool on)
 void leds::setGreen(bool on)
 {
 	if(g_override) return;
+
+	TCB1.INTCTRL &= ~TCB_CAPT_bm;   /* Capture or Timeout: disabled */
 
 	if(on)
 	{
