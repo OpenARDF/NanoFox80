@@ -24,6 +24,7 @@
  * rtc.cpp
  */
 
+#include <ccp.h>
 #include "defs.h"
 #include "rtc.h"
 #include "tcb.h"
@@ -48,7 +49,7 @@ void RTC_init(void)
     //CMP disabled; OVF enabled; 
     RTC.INTCTRL = 0x01;
 
-    //RUNSTDBY disabled; PRESCALER DIV1; CORREN disabled; RTCEN enabled; 
+    //RUNSTDBY enabled; PRESCALER DIV1; CORREN disabled; RTCEN enabled; 
     RTC.CTRLA = 0x81;
 	RTC.DBGCTRL = 0x01; /* Run in debug mode */
     
@@ -61,6 +62,9 @@ void RTC_init(void)
 
 void RTC_init_backup(void)
 {
+	ccp_write_io((void *)&(CLKCTRL.OSC32KCTRLA),
+	 		1 << CLKCTRL_RUNSTDBY_bp /* Run standby: enabled */);
+	
 	util_delay_ms(0);
     while ((RTC.STATUS > 0) && util_delay_ms(500)) { /* Wait for all registers to be synchronized */
     }
@@ -80,7 +84,8 @@ void RTC_init_backup(void)
     RTC.INTCTRL = 0x01;
 
     //RUNSTDBY disabled; PRESCALER DIV1; CORREN disabled; RTCEN enabled; 
-    RTC.CTRLA = 0x01;
+    RTC.CTRLA = 0x81;
+	RTC.DBGCTRL = 0x01; /* Run in debug mode */
     
 	util_delay_ms(0);
     while ((RTC.PITCTRLA > 0) && util_delay_ms(500)) { /* Wait for all registers to be synchronized */

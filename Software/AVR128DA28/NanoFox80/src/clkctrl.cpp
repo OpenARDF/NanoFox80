@@ -32,13 +32,13 @@
 int8_t CLKCTRL_init()
 {
 	ccp_write_io((void *)&(CLKCTRL.XOSC32KCTRLA),CLKCTRL_CSUT_1K_gc /* 1k cycles */
-			| 1 << CLKCTRL_ENABLE_bp   /* Enable: enabled */
-			| 1 << CLKCTRL_RUNSTDBY_bp /* Run standby: enabled */
-			| 1 << CLKCTRL_SEL_bp      /* Select external clock: XTAL32K1 input only */
-			| 0 << CLKCTRL_LPMODE_bp /* Low-Power Mode: disabled */);
+	| 1 << CLKCTRL_ENABLE_bp   /* Enable: enabled */
+	| 1 << CLKCTRL_RUNSTDBY_bp /* Run standby: enabled */
+	| 1 << CLKCTRL_SEL_bp      /* Select external clock: XTAL32K1 input only */
+	| 0 << CLKCTRL_LPMODE_bp /* Low-Power Mode: disabled */);
 
 	// 	ccp_write_io((void *)&(CLKCTRL.OSC32KCTRLA),
-	// 			| 1 << CLKCTRL_RUNSTDBY_bp /* Run standby: enabled */);
+	// 			1 << CLKCTRL_RUNSTDBY_bp /* Run standby: enabled */);
 
 	// ccp_write_io((void*)&(CLKCTRL.MCLKCTRLB),CLKCTRL_PDIV_2X_gc /* 2 */
 	//		 | 0 << CLKCTRL_PEN_bp /* Prescaler enable: disabled */);
@@ -48,8 +48,8 @@ int8_t CLKCTRL_init()
 	//		 | 0 << CLKCTRL_SOURCE_bp /* Select Source for PLL: disabled */);
 
 	ccp_write_io((void*)&(CLKCTRL.OSCHFCTRLA),CLKCTRL_FRQSEL_24M_gc /* 4 */
-			 | 1 << CLKCTRL_AUTOTUNE_bp /* Auto-Tune enable: disabled */
-			 | 0 << CLKCTRL_RUNSTDBY_bp /* Run standby: disabled */);
+	| 1 << CLKCTRL_AUTOTUNE_bp /* Auto-Tune enable: disabled */
+	| 0 << CLKCTRL_RUNSTDBY_bp /* Run standby: disabled */);
 
 	// ccp_write_io((void*)&(CLKCTRL.MCLKCTRLA),CLKCTRL_CLKSEL_OSCHF_gc /* Internal high-frequency oscillator */
 	//		 | 0 << CLKCTRL_CLKOUT_bp /* System clock out: disabled */);

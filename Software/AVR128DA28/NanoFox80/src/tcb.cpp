@@ -170,7 +170,9 @@ bool util_delay_ms(uint32_t delayValue)
 
 ISR(TCA0_OVF_vect)
 {
-	if(TCA0.SINGLE.INTFLAGS & TCB_CAPT_bm)
+	uint8_t x = TCA0.SINGLE.INTFLAGS;
+	
+	if(x & TCB_CAPT_bm)
 	{
 		if(g_ms_counter) g_ms_counter--;
 	}
@@ -180,7 +182,9 @@ ISR(TCA0_OVF_vect)
 
 ISR(TCB2_INT_vect)
 {
-	if(TCB2.INTFLAGS & TCB_CAPT_bm)
+	uint8_t x = TCB2.INTFLAGS;
+	
+	if(x & TCB_CAPT_bm)
 	{
 		if(g_i2c0_timeout_ticks) g_i2c0_timeout_ticks--;
 		if(g_serial_timeout_ticks) g_serial_timeout_ticks--;

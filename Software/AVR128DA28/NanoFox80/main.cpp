@@ -188,7 +188,9 @@ void reportConfigErrors(void);
 
 ISR(RTC_CNT_vect)
 {
-    if (RTC.INTFLAGS & RTC_OVF_bm )
+	uint8_t x = RTC.INTFLAGS;
+	
+    if (x & RTC_OVF_bm )
     {
         system_tick();
 		handle_1sec_tasks();
@@ -427,7 +429,9 @@ Periodic tasks not requiring precise timing. Rate = 300 Hz
 */
 ISR(TCB0_INT_vect)
 {
-    if(TCB0.INTFLAGS & TCB_CAPT_bm)
+	uint8_t x = TCB0.INTFLAGS;
+	
+    if(x & TCB_CAPT_bm)
     {
 		static bool conversionInProcess = false;
 		static int8_t indexConversionInProcess = 0;
@@ -621,6 +625,7 @@ Handle switch closure interrupts
 ISR(PORTD_PORT_vect)
 {
 	uint8_t x = VPORTD.INTFLAGS;
+	
 	if(x & (1 << SWITCH))
 	{
 		if(g_sleeping)
@@ -701,7 +706,7 @@ int main(void)
 	wifi_power(ON);
 	
 	/* Check that the RTC is running */
-	set_system_time(0);
+	set_system_time(YEAR_2000_EPOCH);
 	time_t now = time(null);
 	while((util_delay_ms(2000)) && (now == time(null)));
 	
@@ -2967,7 +2972,7 @@ ConfigurationState_t clockConfigurationCheck(void)
 {
 	time_t now = time(null);
 	
-	if((g_event_finish_epoch < MINIMUM_EPOCH) || (g_event_start_epoch < MINIMUM_EPOCH) || (now < MINIMUM_EPOCH))
+	if((g_event_finish_epoch <= MINIMUM_EPOCH) || (g_event_start_epoch <= MINIMUM_EPOCH) || (now <= MINIMUM_EPOCH))
 	{
 		return(CONFIGURATION_ERROR);
 	}
@@ -3011,7 +3016,7 @@ void reportConfigErrors(void)
 		sb_send_string(TEXT_SET_ID_TXT);
 	}
 
-	if(now < MINIMUM_EPOCH) /* Current time is invalid */
+	if(now <= MINIMUM_EPOCH) /* Current time is invalid */
 	{
 		sb_send_string(TEXT_SET_TIME_TXT);
 	}
@@ -3079,10 +3084,6 @@ char* convertEpochToTimeString(time_t epoch, char* buf, size_t size)
 	if(epoch >= THIRTY_YEARS)
 	{
 		t = epoch - THIRTY_YEARS;
-	}
-	else
-	{
-		t = 0;
 	}
 
     // Format time, "ddd dd-mon-yyyy hh:mm:ss zzz"

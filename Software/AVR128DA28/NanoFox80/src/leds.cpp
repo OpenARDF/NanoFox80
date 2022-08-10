@@ -42,11 +42,13 @@ leds::~leds()
 /* LED enunciation timer interrupt */
 ISR(TCB1_INT_vect)
 {
+	uint8_t x = TCB1.INTFLAGS;
+	
 	if(led_timeout_count || g_override)
 	{
 		led_timeout_count--;
 		
-		if(TCB1.INTFLAGS & TCB_CAPT_bm)
+		if(x & TCB_CAPT_bm)
 		{
 			if(red_blink_count)
 			{

@@ -33,7 +33,7 @@
 
 /******************************************************
  * Set the text that gets displayed to the user */
-#define SW_REVISION "0.45"
+#define SW_REVISION "0.46"
 
 //#define TRANQUILIZE_WATCHDOG
 
@@ -256,6 +256,7 @@ typedef uint16_t BatteryLevel;  /* in milliVolts */
 #define TEXT_RESET_OCCURRED_TXT (char*)"Warning: CPU Reset! Need to set clock\n"
 #define TEXT_NOT_SLEEPING_TXT (char*)"NanoFox is not sleeping\n"
 #define MINIMUM_EPOCH ((time_t)1609459200)  /* 1 Jan 2021 00:00:00 */
+#define YEAR_2000_EPOCH ((time_t)946684800)  /* 1 Jan 2000 00:00:00 */
 #define SECONDS_24H 86400
 
 typedef enum
