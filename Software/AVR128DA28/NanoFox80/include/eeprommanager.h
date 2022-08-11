@@ -52,6 +52,11 @@ struct EE_prom
 	int16_t on_air_seconds; /* 77 */
 	int16_t ID_period_seconds; /* 79 */
 	int16_t intra_cycle_delay_time; /* 81 */
+	uint16_t event_setting; /* 83 */
+	uint32_t foxoring_frequencyA; /* 85 */
+	uint32_t foxoring_frequencyB; /* 89 */
+	uint32_t foxoring_frequencyC; /* 93 */	
+	uint16_t foxoring_fox_setting; /* 97 */
 };
 
 typedef enum
@@ -72,7 +77,12 @@ typedef enum
 	Off_Air_Seconds = 75,
 	On_Air_Seconds = 77,
 	ID_Period_Seconds = 79,
-	Intra_Cycle_Delay_Seconds = 81
+	Intra_Cycle_Delay_Seconds = 81,
+	Event_setting = 83,
+	Foxoring_FrequencyA = 85,
+	Foxoring_FrequencyB = 89,
+	Foxoring_FrequencyC = 93,
+	Foxoring_fox_setting = 97
 } EE_var_t;
 
 class EepromManager

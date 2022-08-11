@@ -33,7 +33,7 @@
 
 /******************************************************
  * Set the text that gets displayed to the user */
-#define SW_REVISION "0.47"
+#define SW_REVISION "0.48"
 
 //#define TRANQUILIZE_WATCHDOG
 
@@ -205,7 +205,7 @@ typedef uint16_t BatteryLevel;  /* in milliVolts */
 
 /******************************************************
  * EEPROM definitions */
-#define EEPROM_INITIALIZED_FLAG 0x00CE
+#define EEPROM_INITIALIZED_FLAG 0x00D1
 #define EEPROM_UNINITIALIZED 0x00
 
 #define EEPROM_STATION_ID_DEFAULT "FOXBOX"
@@ -241,6 +241,11 @@ typedef uint16_t BatteryLevel;  /* in milliVolts */
 #define EEPROM_FINISH_EPOCH_DEFAULT 0
 #define EEPROM_UTC_OFFSET_DEFAULT 0
 #define EEPROM_FOX_SETTING_DEFAULT FOX_1
+#define EEPROM_EVENT_SETTING_DEFAULT EVENT_FOXORING
+#define EEPROM_FOXORING_FREQUENCYA_DEFAULT 3530000
+#define EEPROM_FOXORING_FREQUENCYB_DEFAULT 3550000
+#define EEPROM_FOXORING_FREQUENCYC_DEFAULT 3570000
+#define EEPROM_FOXORING_FOX_SETTING_DEFAULT FOXORING_EVENT_FOXA
 #define TEXT_SET_TIME_TXT (char*)"CLK T YYMMDDhhmmss <- Set current time\n"
 #define TEXT_SET_START_TXT (char*)"CLK S YYMMDDhhmmss <- Set start time\n"
 #define TEXT_SET_FINISH_TXT (char*)"CLK F YYMMDDhhmmss <- Set finish time\n"
@@ -258,6 +263,7 @@ typedef uint16_t BatteryLevel;  /* in milliVolts */
 #define TEXT_CURRENT_SETTINGS_TXT (char*)"\n   === NanoFox Settings ===\n"
 #define MINIMUM_EPOCH ((time_t)1609459200)  /* 1 Jan 2021 00:00:00 */
 #define YEAR_2000_EPOCH ((time_t)946684800)  /* 1 Jan 2000 00:00:00 */
+#define FOREVER_EPOCH ((time_t)4796712000) /* 1 Jan 2122 00:00:00 */
 #define SECONDS_24H 86400
 
 typedef enum
@@ -336,12 +342,21 @@ typedef enum
 	SPRINT_F3,
 	SPRINT_F4,
 	SPRINT_F5,
-	INVALID_FOX
+	INVALID_FOX,
+	FOXORING_EVENT_FOXA,
+	FOXORING_EVENT_FOXB,
+	FOXORING_EVENT_FOXC
 	#if SUPPORT_TEMP_AND_VOLTAGE_REPORTING
 	,
 	REPORT_BATTERY
 	#endif // SUPPORT_TEMP_AND_VOLTAGE_REPORTING
 } Fox_t;
+
+typedef enum
+{
+	EVENT_NONE,
+	EVENT_FOXORING
+} Event_t;
 
 #define QUAD_MASK 0xC0
 #define QUAD_A 7

@@ -65,6 +65,12 @@ extern volatile int8_t g_utc_offset;
 extern uint8_t g_unlockCode[];
 extern uint32_t g_rtty_offset;
 
+extern volatile Event_t g_event;
+extern volatile Frequency_Hz g_foxoring_frequencyA;
+extern volatile Frequency_Hz g_foxoring_frequencyB;
+extern volatile Frequency_Hz g_foxoring_frequencyC;
+extern volatile Fox_t g_foxoring_fox;
+
 extern char g_messages_text[][MAX_PATTERN_TEXT_LENGTH + 1];
 extern uint32_t g_80m_frequency;
 extern volatile time_t g_event_start_epoch;
@@ -203,7 +209,37 @@ void EepromManager::updateEEPROMVar(EE_var_t v, void* val)
 
 		case Fox_setting:
 		{
-			avr_eeprom_write_byte(Fox_setting, *(uint8_t*)val);
+			avr_eeprom_write_word(Fox_setting, *(uint16_t*)val);
+		}
+		break;
+		
+		case Event_setting:
+		{
+			avr_eeprom_write_word(Event_setting, *(uint16_t*)val);
+		}
+		break;
+		
+		case Foxoring_FrequencyA:
+		{
+			avr_eeprom_write_dword(Foxoring_FrequencyA, *(uint32_t*)val);
+		}
+		break;
+		
+		case Foxoring_FrequencyB:
+		{
+			avr_eeprom_write_dword(Foxoring_FrequencyB, *(uint32_t*)val);
+		}
+		break;
+		
+		case Foxoring_FrequencyC:
+		{
+			avr_eeprom_write_dword(Foxoring_FrequencyC, *(uint32_t*)val);
+		}
+		break;
+
+		case Foxoring_fox_setting:
+		{
+			avr_eeprom_write_word(Foxoring_fox_setting, *(uint16_t*)val);
 		}
 		break;
 
@@ -284,6 +320,31 @@ void EepromManager::saveAllEEPROM(void)
 	if(g_fox != eeprom_read_byte(&(EepromManager::ee_vars.fox_setting)))
 	{
 		updateEEPROMVar(Fox_setting, (void*)&g_fox);
+	}
+	
+	if(g_event != eeprom_read_word(&(EepromManager::ee_vars.event_setting)))
+	{
+		updateEEPROMVar(Event_setting, (void*)&g_event);
+	}
+	
+	if(g_foxoring_frequencyA != eeprom_read_dword(&(EepromManager::ee_vars.foxoring_frequencyA)))
+	{
+		updateEEPROMVar(Foxoring_FrequencyA, (void*)&g_foxoring_frequencyA);
+	}
+	
+	if(g_foxoring_frequencyB != eeprom_read_dword(&(EepromManager::ee_vars.foxoring_frequencyB)))
+	{
+		updateEEPROMVar(Foxoring_FrequencyB, (void*)&g_foxoring_frequencyB);
+	}
+	
+	if(g_foxoring_frequencyC != eeprom_read_dword(&(EepromManager::ee_vars.foxoring_frequencyC)))
+	{
+		updateEEPROMVar(Foxoring_FrequencyC, (void*)&g_foxoring_frequencyC);
+	}
+	
+	if(g_foxoring_fox != eeprom_read_word(&(EepromManager::ee_vars.foxoring_fox_setting)))
+	{
+		updateEEPROMVar(Foxoring_fox_setting, (void*)&g_foxoring_fox);
 	}
 	
 	if(g_event_start_epoch != eeprom_read_dword(&(EepromManager::ee_vars.event_start_epoch)))
@@ -379,6 +440,10 @@ bool EepromManager::readNonVols(void)
 	if(initialization_flag == EEPROM_INITIALIZED_FLAG)  /* EEPROM is up to date */
 	{
 		g_id_codespeed = CLAMP(MIN_CODE_SPEED_WPM, eeprom_read_byte(&(EepromManager::ee_vars.id_codespeed)), MAX_CODE_SPEED_WPM);
+		g_event = (Event_t)eeprom_read_word((const uint16_t*)&(EepromManager::ee_vars.event_setting));
+		g_foxoring_frequencyA = CLAMP(TX_MINIMUM_80M_FREQUENCY, eeprom_read_dword(&(EepromManager::ee_vars.foxoring_frequencyA)), TX_MAXIMUM_80M_FREQUENCY);
+		g_foxoring_frequencyB = CLAMP(TX_MINIMUM_80M_FREQUENCY, eeprom_read_dword(&(EepromManager::ee_vars.foxoring_frequencyB)), TX_MAXIMUM_80M_FREQUENCY);
+		g_foxoring_frequencyC = CLAMP(TX_MINIMUM_80M_FREQUENCY, eeprom_read_dword(&(EepromManager::ee_vars.foxoring_frequencyC)), TX_MAXIMUM_80M_FREQUENCY);
 		g_fox = CLAMP(BEACON, (Fox_t)eeprom_read_byte(&(EepromManager::ee_vars.fox_setting)), SPRINT_F5);
 		g_event_start_epoch = eeprom_read_dword(&(EepromManager::ee_vars.event_start_epoch));
 		g_event_finish_epoch = eeprom_read_dword(&(EepromManager::ee_vars.event_finish_epoch));
@@ -450,6 +515,21 @@ bool EepromManager::readNonVols(void)
 
 			g_fox = EEPROM_FOX_SETTING_DEFAULT;
 			avr_eeprom_write_byte(Fox_setting, g_fox);
+			
+			g_event = EEPROM_EVENT_SETTING_DEFAULT;
+			avr_eeprom_write_byte(Event_setting, g_event);
+			
+			g_foxoring_frequencyA = EEPROM_FOXORING_FREQUENCYA_DEFAULT;
+			avr_eeprom_write_dword(Foxoring_FrequencyA, g_foxoring_frequencyA);
+			
+			g_foxoring_frequencyB = EEPROM_FOXORING_FREQUENCYB_DEFAULT;
+			avr_eeprom_write_dword(Foxoring_FrequencyB, g_foxoring_frequencyB);
+			
+			g_foxoring_frequencyC = EEPROM_FOXORING_FREQUENCYC_DEFAULT;
+			avr_eeprom_write_dword(Foxoring_FrequencyC, g_foxoring_frequencyC);
+
+			g_foxoring_fox = EEPROM_FOXORING_FOX_SETTING_DEFAULT;
+			avr_eeprom_write_byte(Foxoring_fox_setting, g_foxoring_fox);
 
 			g_event_start_epoch = EEPROM_START_EPOCH_DEFAULT;
 			avr_eeprom_write_dword(Event_start_epoch, g_event_start_epoch);
