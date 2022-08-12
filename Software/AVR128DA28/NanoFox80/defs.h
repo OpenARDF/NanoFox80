@@ -33,7 +33,7 @@
 
 /******************************************************
  * Set the text that gets displayed to the user */
-#define SW_REVISION "0.48"
+#define SW_REVISION "0.50"
 
 //#define TRANQUILIZE_WATCHDOG
 
@@ -205,12 +205,13 @@ typedef uint16_t BatteryLevel;  /* in milliVolts */
 
 /******************************************************
  * EEPROM definitions */
-#define EEPROM_INITIALIZED_FLAG 0x00D1
+#define EEPROM_INITIALIZED_FLAG 0x00F0
 #define EEPROM_UNINITIALIZED 0x00
 
 #define EEPROM_STATION_ID_DEFAULT "FOXBOX"
 #define EEPROM_PATTERN_TEXT_DEFAULT "PARIS|"
 
+#define EEPROM_MASTER_SETTING_DEFAULT false
 #define EEPROM_START_TIME_DEFAULT 0
 #define EEPROM_FINISH_TIME_DEFAULT 0
 #define EEPROM_EVENT_ENABLED_DEFAULT false
@@ -242,6 +243,11 @@ typedef uint16_t BatteryLevel;  /* in milliVolts */
 #define EEPROM_UTC_OFFSET_DEFAULT 0
 #define EEPROM_FOX_SETTING_DEFAULT FOX_1
 #define EEPROM_EVENT_SETTING_DEFAULT EVENT_FOXORING
+#define EEPROM_FOX_PATTERN_DEFAULT "MOE"
+#define EEPROM_FOX_FREQUENCY_DEFAULT 3550000
+#define EEPROM_FOXORING_FOXA_PATTERN_DEFAULT "MOE"
+#define EEPROM_FOXORING_FOXB_PATTERN_DEFAULT "MOI"
+#define EEPROM_FOXORING_FOXC_PATTERN_DEFAULT "MOS"
 #define EEPROM_FOXORING_FREQUENCYA_DEFAULT 3530000
 #define EEPROM_FOXORING_FREQUENCYB_DEFAULT 3550000
 #define EEPROM_FOXORING_FREQUENCYC_DEFAULT 3570000
@@ -261,6 +267,7 @@ typedef uint16_t BatteryLevel;  /* in milliVolts */
 #define TEXT_RESET_OCCURRED_TXT (char*)"Warning: CPU Reset! Need to set clock\n"
 #define TEXT_NOT_SLEEPING_TXT (char*)"NanoFox is not sleeping\n"
 #define TEXT_CURRENT_SETTINGS_TXT (char*)"\n   === NanoFox Settings ===\n"
+#define TEXT_EVENT_SETTINGS_TXT (char*)"\n    === Event Settings ===\n"
 #define MINIMUM_EPOCH ((time_t)1609459200)  /* 1 Jan 2021 00:00:00 */
 #define YEAR_2000_EPOCH ((time_t)946684800)  /* 1 Jan 2000 00:00:00 */
 #define FOREVER_EPOCH ((time_t)4796712000) /* 1 Jan 2122 00:00:00 */
@@ -342,10 +349,10 @@ typedef enum
 	SPRINT_F3,
 	SPRINT_F4,
 	SPRINT_F5,
-	INVALID_FOX,
 	FOXORING_EVENT_FOXA,
 	FOXORING_EVENT_FOXB,
-	FOXORING_EVENT_FOXC
+	FOXORING_EVENT_FOXC,
+	INVALID_FOX
 	#if SUPPORT_TEMP_AND_VOLTAGE_REPORTING
 	,
 	REPORT_BATTERY
@@ -509,6 +516,9 @@ typedef enum
 typedef enum
 {
 	PATTERN_TEXT,
+	FOXA_PATTERN_TEXT,
+	FOXB_PATTERN_TEXT,
+	FOXC_PATTERN_TEXT,
 	STATION_ID
 } TextIndex;
 

@@ -74,15 +74,12 @@ typedef int16_t Attenuation;
 	
 /**
  */
- EC init_transmitter(void);
+EC init_transmitter(void);
+EC init_transmitter(Frequency_Hz freq);
  
 /** 
  */
  bool txIsInitialized(void);
-
-/**
- */
- EC txSetParameters(uint16_t* power_mW, bool* setEnabled);
 
 /**
  */

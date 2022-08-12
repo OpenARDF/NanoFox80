@@ -205,66 +205,6 @@ void final_drain_voltage(bool state);
 		return g_tx_initialized;
 	}
 
-	EC __attribute__((optimize("O0"))) txSetParameters(uint16_t* power_mW, bool* setEnabled)
-/*	EC txSetParameters(uint16_t* power_mW, bool* setEnabled) */
-	{
-		bool err = false;
-		EC code = ERROR_CODE_NO_ERROR;
-		uint16_t power = 0;
-
-		if(power_mW != null)
-		{
-			power = *power_mW;
-
-			if(power <= MAX_TX_POWER_80M_MW)
-			{
-// 				uint16_t drainVoltageDAC;
-// 				code = txMilliwattsToSettings(&power, &drainVoltageDAC);
-// 				err = (code == ERROR_CODE_SW_LOGIC_ERROR);
-// 
-// 				g_tx_power_is_zero = (power == 0);
-// 
-// 				if(!err)
-// 				{
-					g_80m_power_level_mW = power;
-					
-// 					if(g_antenna_connect_state != ANT_CONNECTED)
-// 					{
-// 						inhibitRFOutput(true);
-// 						g_tx_power_is_zero = true;
-// 						err = true;
-// 						code = ERROR_CODE_NO_ANTENNA_PREVENTS_POWER_SETTING;
-// 					}
-
-//					DAC0_setVal(drainVoltageDAC);
-
-// 					if(g_tx_power_is_zero || (drainVoltageDAC == 0))
-// 					{
-// 						final_drain_voltage(OFF);
-// 						fet_driver(ON);
-// 					}
-// 				}
-
-				*power_mW = power;
-			}
-			else
-			{
-				err = true;
-				code = ERROR_CODE_POWER_LEVEL_NOT_SUPPORTED;
-			}
-		}
-
-		if(!err)
-		{
-			if(setEnabled != NULL)
-			{
-//				powerToTransmitter(*setEnabled);
-			}
-		}
-
-		return(code);
-	}
-
 	void shutdown_transmitter(void)
 	{
 		si5351_shutdown_comms();	
@@ -275,11 +215,17 @@ void final_drain_voltage(bool state);
 		si5351_start_comms();
 	}
 
+	EC init_transmitter(Frequency_Hz freq)
+	{
+		g_80m_frequency = freq;
+		return init_transmitter();
+	}
+	
 	EC init_transmitter(void)
 	{
 		EC code;
 		bool err;
-		
+				
 		fet_driver(OFF);		
 //		DAC0_init();
 
@@ -288,7 +234,7 @@ void final_drain_voltage(bool state);
 			return(ERROR_CODE_RF_OSCILLATOR_ERROR);
 		}
 
-		if((code = si5351_drive_strength(TX_CLOCK_HF_0, SI5351_DRIVE_8MA)))
+		if((code = si5351_drive_strength(TX_CLOCK_HF_0, SI5351_DRIVE_2MA)))
 		{
 			return( code);
 		}
@@ -298,16 +244,10 @@ void final_drain_voltage(bool state);
 			return( code);
 		}
 
-		uint16_t pwr_mW = g_80m_power_level_mW;
-		
 		err = txSetFrequency((Frequency_Hz*)&g_80m_frequency, true);
 		if(!err)
 		{
-			code = txSetParameters(&pwr_mW, NULL);
-			if((code == ERROR_CODE_NO_ERROR) || (code == ERROR_CODE_NO_ANTENNA_PREVENTS_POWER_SETTING))
-			{
-				g_tx_initialized = true;
-			}
+			g_tx_initialized = true;
 		}
 		
 		fet_driver(ON);

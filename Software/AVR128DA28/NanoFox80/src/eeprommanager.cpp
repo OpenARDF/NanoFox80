@@ -46,21 +46,40 @@
  * Use "volatile" for globals shared between ISRs and foreground loop
  ************************************************************************/
 
-const struct EE_prom EEMEM EepromManager::ee_vars =
+const struct EE_prom EEMEM EepromManager::ee_vars
+ =
 {
-	/* .eeprom_initialization_flag = */ 0,
-	/* .event_start_epoch = */ 0,
-	/* .event_finish_epoch = */ 0,
-	/* .stationID_text = */ "\0",
-
-	/* .unlockCode = */ EEPROM_DTMF_UNLOCK_CODE_DEFAULT,
-
-	/* .id_codespeed = */ 0,
-	/* .fox_setting = */ 0,
-	/* .utc_offset = */ 0
+0x00, // 	uint16_t eeprom_initialization_flag; /* 0 */
+0x00000000, // 	time_t event_start_epoch; /* 2 */
+0x00000000,  // 	time_t event_finish_epoch; /* 6 */
+"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",  // 	char stationID_text[MAX_PATTERN_TEXT_LENGTH + 2]; /* 10 */
+"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", // 	char pattern_text[MAX_PATTERN_TEXT_LENGTH + 2]; /* 32 */
+"\0\0\0\0\0\0\0\0\0", // 	uint8_t unlockCode[MAX_UNLOCK_CODE_LENGTH + 2]; /* 54 */
+0x00, // 	uint8_t id_codespeed;  /* 65 */
+0x00, // 	uint8_t fox_setting;  /* 66 */
+0x00, // 	uint8_t utc_offset; /* 67 */
+0x00000000, // 	uint32_t frequency; /* 68 */
+0x00000000, // 	uint32_t rtty_offset; /* 72 */
+0x0000, // 	uint16_t rf_power; /* 76 */
+0x00, // 	uint8_t pattern_codespeed; /* 78 */
+0x0000, // 	int16_t off_air_seconds; /* 79 */
+0x0000, // 	int16_t on_air_seconds; /* 81 */
+0x0000, // 	int16_t ID_period_seconds; /* 83 */
+0x0000, // 	int16_t intra_cycle_delay_time; /* 85 */
+0x00, // 	uint8_t event_setting; /* 87 */
+0x00000000,  // uint32_t foxoring_frequencyA; /* 88 */
+0x00000000,  //	uint32_t foxoring_frequencyB; /* 92 */
+0x00000000,  // uint32_t foxoring_frequencyC; /* 96 */
+0x0000, // 	uint16_t foxoring_fox_setting; /* 100 */
+0x00, // 	uint8_t master_setting; /* 102 */
+"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", // 	char foxA_pattern_text[MAX_PATTERN_TEXT_LENGTH + 2]; /* 103 */
+"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", // 	char foxB_pattern_text[MAX_PATTERN_TEXT_LENGTH + 2]; /* 125 */
+"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0" // 	char foxC_pattern_text[MAX_PATTERN_TEXT_LENGTH + 2]; /* 147 */
 };
 
+extern bool g_isMaster;
 extern volatile Fox_t g_fox;
+extern Frequency_Hz g_frequency;
 extern volatile int8_t g_utc_offset;
 extern uint8_t g_unlockCode[];
 extern uint32_t g_rtty_offset;
@@ -72,7 +91,6 @@ extern volatile Frequency_Hz g_foxoring_frequencyC;
 extern volatile Fox_t g_foxoring_fox;
 
 extern char g_messages_text[][MAX_PATTERN_TEXT_LENGTH + 1];
-extern uint32_t g_80m_frequency;
 extern volatile time_t g_event_start_epoch;
 extern volatile time_t g_event_finish_epoch;
 extern uint16_t g_80m_power_level_mW;
@@ -152,15 +170,17 @@ void EepromManager::updateEEPROMVar(EE_var_t v, void* val)
 		
 		case StationID_text:
 		{
+			int cnt = 0;
 			char* char_addr = (char*)val;
 			char c = *char_addr++;
 			
 			eeprom_addr_t j = (eeprom_addr_t)StationID_text;
 
-			while(c)
+			while(c && (cnt<MAX_PATTERN_TEXT_LENGTH))
 			{
 				avr_eeprom_write_byte(j++, c);
 				c = *char_addr++;
+				cnt++;
 			}
 
 			avr_eeprom_write_byte(j, 0);
@@ -169,15 +189,17 @@ void EepromManager::updateEEPROMVar(EE_var_t v, void* val)
 
 		case Pattern_text:
 		{
+			int cnt = 0;
 			char* char_addr = (char*)val;
 			char c = *char_addr++;
 			
 			eeprom_addr_t j = (eeprom_addr_t)Pattern_text;
 
-			while(c)
+			while(c && (cnt<MAX_PATTERN_TEXT_LENGTH))
 			{
 				avr_eeprom_write_byte(j++, c);
 				c = *char_addr++;
+				cnt++;
 			}
 
 			avr_eeprom_write_byte(j, 0);
@@ -188,13 +210,14 @@ void EepromManager::updateEEPROMVar(EE_var_t v, void* val)
 		{
 			uint8_t* uint8_addr = (uint8_t*)val;
 			uint8_t c = *uint8_addr++;
-			int i = 0;
+			int cnt = 0;
 			uint8_t j = (uint8_t)UnlockCode;
 			
-			while(c && (i < MAX_UNLOCK_CODE_LENGTH))
+			while(c && (cnt < MAX_UNLOCK_CODE_LENGTH))
 			{
 				avr_eeprom_write_byte(j++, c);
 				c = *uint8_addr++;
+				cnt++;
 			}
 
 			avr_eeprom_write_byte(j, 0);
@@ -213,9 +236,15 @@ void EepromManager::updateEEPROMVar(EE_var_t v, void* val)
 		}
 		break;
 		
+		case Master_setting:
+		{
+			avr_eeprom_write_byte(Master_setting, *(uint8_t*)val);
+		}
+		break;
+		
 		case Event_setting:
 		{
-			avr_eeprom_write_word(Event_setting, *(uint16_t*)val);
+			avr_eeprom_write_byte(Event_setting, *(uint8_t*)val);
 		}
 		break;
 		
@@ -239,7 +268,7 @@ void EepromManager::updateEEPROMVar(EE_var_t v, void* val)
 
 		case Foxoring_fox_setting:
 		{
-			avr_eeprom_write_word(Foxoring_fox_setting, *(uint16_t*)val);
+			avr_eeprom_write_word(Foxoring_fox_setting, *(uint8_t*)val);
 		}
 		break;
 
@@ -296,6 +325,64 @@ void EepromManager::updateEEPROMVar(EE_var_t v, void* val)
 			avr_eeprom_write_word(Eeprom_initialization_flag, *(uint16_t*)val);
 		}
 		break;
+		
+		case FoxA_pattern_text:
+		{
+			int cnt = 0;
+			char* char_addr = (char*)val;
+			char c = *char_addr++;
+			
+			eeprom_addr_t j = (eeprom_addr_t)FoxA_pattern_text;
+
+			while(c && (cnt<MAX_PATTERN_TEXT_LENGTH))
+			{
+				avr_eeprom_write_byte(j++, c);
+				c = *char_addr++;
+				cnt++;
+			}
+
+			avr_eeprom_write_byte(j, 0);
+		}
+		break;
+		
+		case FoxB_pattern_text:
+		{
+			int cnt = 0;
+			char* char_addr = (char*)val;
+			char c = *char_addr++;
+			
+			eeprom_addr_t j = (eeprom_addr_t)FoxB_pattern_text;
+
+			while(c && (cnt<MAX_PATTERN_TEXT_LENGTH))
+			{
+				avr_eeprom_write_byte(j++, c);
+				c = *char_addr++;
+				cnt++;
+			}
+
+			avr_eeprom_write_byte(j, 0);
+		}
+		break;
+		
+		case FoxC_pattern_text:
+		{
+			int cnt = 0;
+			char* char_addr = (char*)val;
+			char c = *char_addr++;
+			
+			eeprom_addr_t j = (eeprom_addr_t)FoxC_pattern_text;
+
+			while(c && (cnt<MAX_PATTERN_TEXT_LENGTH))
+			{
+				avr_eeprom_write_byte(j++, c);
+				c = *char_addr++;
+				cnt++;
+			}
+
+			avr_eeprom_write_byte(j, 0);
+		}
+		break;
+
 
 		default:
 		{
@@ -322,7 +409,12 @@ void EepromManager::saveAllEEPROM(void)
 		updateEEPROMVar(Fox_setting, (void*)&g_fox);
 	}
 	
-	if(g_event != eeprom_read_word(&(EepromManager::ee_vars.event_setting)))
+	if(g_isMaster != eeprom_read_byte(&(EepromManager::ee_vars.master_setting)))
+	{
+		updateEEPROMVar(Master_setting, (void*)&g_isMaster);
+	}
+	
+	if(g_event != eeprom_read_byte(&(EepromManager::ee_vars.event_setting)))
 	{
 		updateEEPROMVar(Event_setting, (void*)&g_event);
 	}
@@ -364,7 +456,8 @@ void EepromManager::saveAllEEPROM(void)
 	
 	for(i = 0; i < MAX_PATTERN_TEXT_LENGTH; i++)
 	{
-		if(g_messages_text[STATION_ID][i] != (char)eeprom_read_byte((uint8_t*)(&(EepromManager::ee_vars.stationID_text[i]))))
+		char c = g_messages_text[STATION_ID][i];
+		if(c != (char)eeprom_read_byte((uint8_t*)(&(EepromManager::ee_vars.stationID_text[i]))))
 		{
 			updateEEPROMVar(StationID_text, (void*)g_messages_text[STATION_ID]);
 			break;
@@ -373,7 +466,8 @@ void EepromManager::saveAllEEPROM(void)
 
 	for(i = 0; i < MAX_PATTERN_TEXT_LENGTH; i++)
 	{
-		if(g_messages_text[PATTERN_TEXT][i] != (char)eeprom_read_byte((uint8_t*)(&(EepromManager::ee_vars.pattern_text[i]))))
+		char c = g_messages_text[PATTERN_TEXT][i];
+		if(c != (char)eeprom_read_byte((uint8_t*)(&(EepromManager::ee_vars.pattern_text[i]))))
 		{
 			updateEEPROMVar(Pattern_text, (void*)g_messages_text[PATTERN_TEXT]);
 			break;
@@ -382,16 +476,17 @@ void EepromManager::saveAllEEPROM(void)
 
 	for(i = 0; i < MAX_UNLOCK_CODE_LENGTH; i++)
 	{
-		if(g_unlockCode[i] != (char)eeprom_read_byte((uint8_t*)(&(EepromManager::ee_vars.unlockCode[i]))))
+		char c = g_unlockCode[i];
+		if(c != (char)eeprom_read_byte((uint8_t*)(&(EepromManager::ee_vars.unlockCode[i]))))
 		{
 			updateEEPROMVar(UnlockCode, (void*)g_unlockCode);
 			break;
 		}
 	}
 	
-	if(g_80m_frequency != eeprom_read_dword(&(EepromManager::ee_vars.frequency)))
+	if(g_frequency != eeprom_read_dword(&(EepromManager::ee_vars.frequency)))
 	{
-		updateEEPROMVar(Frequency, (void*)&g_80m_frequency);
+		updateEEPROMVar(Frequency, (void*)&g_frequency);
 	}
 	
 	if(g_rtty_offset != eeprom_read_dword(&(EepromManager::ee_vars.rtty_offset)))
@@ -428,6 +523,39 @@ void EepromManager::saveAllEEPROM(void)
 	{
 		updateEEPROMVar(Intra_Cycle_Delay_Seconds, (void*)&g_intra_cycle_delay_time);
 	}	
+
+	for(i = 0; i < MAX_PATTERN_TEXT_LENGTH; i++)
+	{
+		char c = g_messages_text[FOXA_PATTERN_TEXT][i];
+		
+		if(c != (char)eeprom_read_byte((uint8_t*)(&(EepromManager::ee_vars.foxA_pattern_text[i]))))
+		{
+			updateEEPROMVar(FoxA_pattern_text, (void*)g_messages_text[FOXA_PATTERN_TEXT]);
+			break;
+		}
+	}
+
+	for(i = 0; i < MAX_PATTERN_TEXT_LENGTH; i++)
+	{
+		char c = g_messages_text[FOXB_PATTERN_TEXT][i];
+		
+		if(c != (char)eeprom_read_byte((uint8_t*)(&(EepromManager::ee_vars.foxB_pattern_text[i]))))
+		{
+			updateEEPROMVar(FoxB_pattern_text, (void*)g_messages_text[FOXB_PATTERN_TEXT]);
+			break;
+		}
+	}
+
+	for(i = 0; i < MAX_PATTERN_TEXT_LENGTH; i++)
+	{
+		char c = g_messages_text[FOXC_PATTERN_TEXT][i];
+		
+		if(c != (char)eeprom_read_byte((uint8_t*)(&(EepromManager::ee_vars.foxC_pattern_text[i]))))
+		{
+			updateEEPROMVar(FoxC_pattern_text, (void*)g_messages_text[FOXC_PATTERN_TEXT]);
+			break;
+		}
+	}
 }
 
 
@@ -439,11 +567,13 @@ bool EepromManager::readNonVols(void)
 
 	if(initialization_flag == EEPROM_INITIALIZED_FLAG)  /* EEPROM is up to date */
 	{
+		g_isMaster = (int8_t)eeprom_read_byte(&(EepromManager::ee_vars.master_setting));
 		g_id_codespeed = CLAMP(MIN_CODE_SPEED_WPM, eeprom_read_byte(&(EepromManager::ee_vars.id_codespeed)), MAX_CODE_SPEED_WPM);
-		g_event = (Event_t)eeprom_read_word((const uint16_t*)&(EepromManager::ee_vars.event_setting));
+		g_event = (Event_t)eeprom_read_byte((const uint8_t*)&(EepromManager::ee_vars.event_setting));
 		g_foxoring_frequencyA = CLAMP(TX_MINIMUM_80M_FREQUENCY, eeprom_read_dword(&(EepromManager::ee_vars.foxoring_frequencyA)), TX_MAXIMUM_80M_FREQUENCY);
 		g_foxoring_frequencyB = CLAMP(TX_MINIMUM_80M_FREQUENCY, eeprom_read_dword(&(EepromManager::ee_vars.foxoring_frequencyB)), TX_MAXIMUM_80M_FREQUENCY);
 		g_foxoring_frequencyC = CLAMP(TX_MINIMUM_80M_FREQUENCY, eeprom_read_dword(&(EepromManager::ee_vars.foxoring_frequencyC)), TX_MAXIMUM_80M_FREQUENCY);
+		g_foxoring_fox = CLAMP(FOXORING_EVENT_FOXA, (Fox_t)eeprom_read_byte(&(EepromManager::ee_vars.fox_setting)), FOXORING_EVENT_FOXC);
 		g_fox = CLAMP(BEACON, (Fox_t)eeprom_read_byte(&(EepromManager::ee_vars.fox_setting)), SPRINT_F5);
 		g_event_start_epoch = eeprom_read_dword(&(EepromManager::ee_vars.event_start_epoch));
 		g_event_finish_epoch = eeprom_read_dword(&(EepromManager::ee_vars.event_finish_epoch));
@@ -451,8 +581,10 @@ bool EepromManager::readNonVols(void)
 
 		for(i = 0; i < MAX_PATTERN_TEXT_LENGTH; i++)
 		{
-			g_messages_text[STATION_ID][i] = (char)eeprom_read_byte((uint8_t*)(&(EepromManager::ee_vars.stationID_text[i])));
-			if(!g_messages_text[STATION_ID][i])
+			char c = (char)eeprom_read_byte((uint8_t*)(&(EepromManager::ee_vars.stationID_text[i])));
+			if(c == 255) c= 0;
+			g_messages_text[STATION_ID][i] = c;
+			if(!c)
 			{
 				break;
 			}
@@ -460,8 +592,10 @@ bool EepromManager::readNonVols(void)
 
 		for(i = 0; i < MAX_PATTERN_TEXT_LENGTH; i++)
 		{
-			g_messages_text[PATTERN_TEXT][i] = (char)eeprom_read_byte((uint8_t*)(&(EepromManager::ee_vars.pattern_text[i])));
-			if(!g_messages_text[PATTERN_TEXT][i])
+			char c = (char)eeprom_read_byte((uint8_t*)(&(EepromManager::ee_vars.pattern_text[i])));			
+			if(c==255) c=0;
+			g_messages_text[PATTERN_TEXT][i] = c;
+			if(!c)
 			{
 				break;
 			}
@@ -469,14 +603,16 @@ bool EepromManager::readNonVols(void)
 
 		for(i = 0; i < MAX_UNLOCK_CODE_LENGTH; i++)
 		{
-			g_unlockCode[i] = (char)eeprom_read_byte((uint8_t*)(&(EepromManager::ee_vars.unlockCode[i])));
-			if(!g_unlockCode[i])
+			char c = (char)eeprom_read_byte((uint8_t*)(&(EepromManager::ee_vars.unlockCode[i])));	
+			if(c==255) c=0;
+			g_unlockCode[i] = c;
+			if(!c)
 			{
 				break;
 			}
 		}
 		
-		g_80m_frequency = CLAMP(TX_MINIMUM_80M_FREQUENCY, eeprom_read_dword(&(EepromManager::ee_vars.frequency)), TX_MAXIMUM_80M_FREQUENCY);
+		g_frequency = CLAMP(TX_MINIMUM_80M_FREQUENCY, eeprom_read_dword(&(EepromManager::ee_vars.frequency)), TX_MAXIMUM_80M_FREQUENCY);
 		g_rtty_offset =eeprom_read_dword(&(EepromManager::ee_vars.rtty_offset));
 		g_80m_power_level_mW = CLAMP(MIN_RF_POWER_MW, eeprom_read_word(&(EepromManager::ee_vars.rf_power)), MAX_TX_POWER_80M_MW);
 
@@ -491,6 +627,39 @@ bool EepromManager::readNonVols(void)
 		g_on_air_seconds = CLAMP(0, (int16_t)eeprom_read_word((const uint16_t*)&(EepromManager::ee_vars.on_air_seconds)), 3600);
 		g_ID_period_seconds = CLAMP(0, (int16_t)eeprom_read_word((const uint16_t*)&(EepromManager::ee_vars.ID_period_seconds)), 3600);
 		g_intra_cycle_delay_time = CLAMP(0, (int16_t)eeprom_read_word((const uint16_t*)&(EepromManager::ee_vars.intra_cycle_delay_time)), 3600);
+
+		for(i = 0; i < MAX_PATTERN_TEXT_LENGTH; i++)
+		{
+			char c = (char)eeprom_read_byte((uint8_t*)(&(EepromManager::ee_vars.foxA_pattern_text[i])));
+			if(c==255) c=0;
+			g_messages_text[FOXA_PATTERN_TEXT][i] = c;
+			if(!c)
+			{
+				break;
+			}
+		}
+
+		for(i = 0; i < MAX_PATTERN_TEXT_LENGTH; i++)
+		{
+			char c = (char)eeprom_read_byte((uint8_t*)(&(EepromManager::ee_vars.foxB_pattern_text[i])));
+			if(c==255) c=0;
+			g_messages_text[FOXB_PATTERN_TEXT][i] = c;
+			if(!c)
+			{
+				break;
+			}
+		}
+
+		for(i = 0; i < MAX_PATTERN_TEXT_LENGTH; i++)
+		{
+			char c = (char)eeprom_read_byte((uint8_t*)(&(EepromManager::ee_vars.foxC_pattern_text[i])));
+			if(c==255) c=0;
+			g_messages_text[FOXC_PATTERN_TEXT][i] = c;
+			if(!c)
+			{
+				break;
+			}
+		}
 
 		failure = false;
 	}
@@ -512,12 +681,15 @@ bool EepromManager::readNonVols(void)
 		{
 			g_id_codespeed = EEPROM_ID_CODE_SPEED_DEFAULT;
 			avr_eeprom_write_byte(Id_codespeed, g_id_codespeed);
+			
+			g_isMaster = EEPROM_MASTER_SETTING_DEFAULT;
+			avr_eeprom_write_byte(Master_setting, g_isMaster);
 
 			g_fox = EEPROM_FOX_SETTING_DEFAULT;
 			avr_eeprom_write_byte(Fox_setting, g_fox);
 			
 			g_event = EEPROM_EVENT_SETTING_DEFAULT;
-			avr_eeprom_write_byte(Event_setting, g_event);
+			avr_eeprom_write_byte(Event_setting, (uint8_t)g_event);
 			
 			g_foxoring_frequencyA = EEPROM_FOXORING_FREQUENCYA_DEFAULT;
 			avr_eeprom_write_dword(Foxoring_FrequencyA, g_foxoring_frequencyA);
@@ -529,7 +701,7 @@ bool EepromManager::readNonVols(void)
 			avr_eeprom_write_dword(Foxoring_FrequencyC, g_foxoring_frequencyC);
 
 			g_foxoring_fox = EEPROM_FOXORING_FOX_SETTING_DEFAULT;
-			avr_eeprom_write_byte(Foxoring_fox_setting, g_foxoring_fox);
+			avr_eeprom_write_word(Foxoring_fox_setting, g_foxoring_fox);
 
 			g_event_start_epoch = EEPROM_START_EPOCH_DEFAULT;
 			avr_eeprom_write_dword(Event_start_epoch, g_event_start_epoch);
@@ -543,12 +715,17 @@ bool EepromManager::readNonVols(void)
 			g_messages_text[STATION_ID][0] = '\0';
 			avr_eeprom_write_byte(StationID_text, 0);
 
-			g_messages_text[PATTERN_TEXT][0] = 'M';
-			g_messages_text[PATTERN_TEXT][0] = 'O';
-			g_messages_text[PATTERN_TEXT][0] = '\0';
-			avr_eeprom_write_byte(Pattern_text, 0);
+			uint8_t *v = (uint8_t*)EEPROM_FOX_PATTERN_DEFAULT;
+			i = Pattern_text;
+			for(j = 0; j < strlen(EEPROM_FOX_PATTERN_DEFAULT); j++)
+			{
+				g_messages_text[PATTERN_TEXT][j] = *v;
+				avr_eeprom_write_byte(i++, *v++);
+			}
+			
+			avr_eeprom_write_byte(i, '\0');
 
-			uint8_t *v = (uint8_t*)EEPROM_DTMF_UNLOCK_CODE_DEFAULT;
+			v = (uint8_t*)EEPROM_DTMF_UNLOCK_CODE_DEFAULT;
 			i = UnlockCode;
 			for(j = 0; j < strlen(EEPROM_DTMF_UNLOCK_CODE_DEFAULT); j++)
 			{
@@ -556,14 +733,14 @@ bool EepromManager::readNonVols(void)
 				avr_eeprom_write_byte(i++, *v++);
 			}
 
-			avr_eeprom_write_byte(i, 0);
+			avr_eeprom_write_byte(i, '\0');
 			g_unlockCode[j] = '\0';
 			
-			g_80m_frequency = EEPROM_TX_80M_FREQUENCY_DEFAULT;
-			avr_eeprom_write_dword(Frequency, g_80m_frequency);
+			g_frequency = EEPROM_TX_80M_FREQUENCY_DEFAULT;
+			avr_eeprom_write_dword(Frequency, g_frequency);
 
 			g_rtty_offset = EEPROM_RTTY_OFFSET_FREQUENCY_DEFAULT;
-			avr_eeprom_write_dword(Frequency, g_80m_frequency);
+			avr_eeprom_write_dword(Frequency, g_frequency);
 
 			g_80m_power_level_mW = EEPROM_TX_80M_POWER_MW_DEFAULT;
 			avr_eeprom_write_dword(RF_Power, g_80m_power_level_mW);
@@ -583,6 +760,35 @@ bool EepromManager::readNonVols(void)
 			g_intra_cycle_delay_time = EEPROM_INTRA_CYCLE_DELAY_TIME_DEFAULT;
 			avr_eeprom_write_word(Intra_Cycle_Delay_Seconds, g_intra_cycle_delay_time);
 
+			v = (uint8_t*)EEPROM_FOXORING_FOXA_PATTERN_DEFAULT;
+			i = FoxA_pattern_text;
+			for(j = 0; j < strlen(EEPROM_FOXORING_FOXA_PATTERN_DEFAULT); j++)
+			{
+				g_messages_text[FOXA_PATTERN_TEXT][j] = *v;
+				avr_eeprom_write_byte(i++, *v++);
+			}
+
+			avr_eeprom_write_byte(i, '\0');
+			
+			v = (uint8_t*)EEPROM_FOXORING_FOXB_PATTERN_DEFAULT;
+			i = FoxB_pattern_text;
+			for(j = 0; j < strlen(EEPROM_FOXORING_FOXB_PATTERN_DEFAULT); j++)
+			{
+				g_messages_text[FOXB_PATTERN_TEXT][j] = *v;
+				avr_eeprom_write_byte(i++, *v++);
+			}
+			
+			avr_eeprom_write_byte(i, '\0');
+
+			v = (uint8_t*)EEPROM_FOXORING_FOXC_PATTERN_DEFAULT;
+			i = FoxC_pattern_text;
+			for(j = 0; j < strlen(EEPROM_FOXORING_FOXC_PATTERN_DEFAULT); j++)
+			{
+				g_messages_text[FOXC_PATTERN_TEXT][j] = *v;
+				avr_eeprom_write_byte(i++, *v++);
+			}
+			
+			avr_eeprom_write_byte(i, '\0');
 			/* Done */
 
 			avr_eeprom_write_word(0, EEPROM_INITIALIZED_FLAG);
