@@ -48,9 +48,6 @@ void BINIO_init(void)
  	PORTA_set_pin_dir(RF_OUT_ENABLE, PORT_DIR_OUT);
 	PORTA_set_pin_level(RF_OUT_ENABLE, LOW);
 
- 	PORTA_set_pin_dir(V3V3_PWR_ENABLE, PORT_DIR_OUT);
-	PORTA_set_pin_level(V3V3_PWR_ENABLE, LOW);
-
 	PORTA_set_pin_dir(WIFI_MODULE_DETECT, PORT_DIR_IN); /* Detect presence of Huzzah module */
 	PORTA_set_pin_pull_mode(WIFI_MODULE_DETECT, PORT_PULL_OFF);
 

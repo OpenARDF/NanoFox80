@@ -33,12 +33,12 @@
 
 /******************************************************
  * Set the text that gets displayed to the user */
-#define SW_REVISION "0.50"
+#define SW_REVISION "0.51"
 
 //#define TRANQUILIZE_WATCHDOG
 
-#define PRODUCT_NAME_SHORT "FlexFox ARDF Tx"
-#define PRODUCT_NAME_LONG "FlexFox 80m ARDF Transmitter"
+#define PRODUCT_NAME_SHORT "NanoFox ARDF Tx"
+#define PRODUCT_NAME_LONG "NanoFox 80m ARDF Transmitter"
 
 /*******************************************************/
 
@@ -195,7 +195,7 @@ typedef uint16_t BatteryLevel;  /* in milliVolts */
 #define ANTENNA_DETECT_DEBOUNCE 50
 
 #define NUMBER_OF_ESSENTIAL_EVENT_PARAMETERS 12
-
+#define TEXT_BUFF_SIZE 50
 
 /*******************************************************/
 
@@ -205,7 +205,7 @@ typedef uint16_t BatteryLevel;  /* in milliVolts */
 
 /******************************************************
  * EEPROM definitions */
-#define EEPROM_INITIALIZED_FLAG 0x00F0
+#define EEPROM_INITIALIZED_FLAG 0x00F1
 #define EEPROM_UNINITIALIZED 0x00
 
 #define EEPROM_STATION_ID_DEFAULT "FOXBOX"
@@ -248,14 +248,14 @@ typedef uint16_t BatteryLevel;  /* in milliVolts */
 #define EEPROM_FOXORING_FOXA_PATTERN_DEFAULT "MOE"
 #define EEPROM_FOXORING_FOXB_PATTERN_DEFAULT "MOI"
 #define EEPROM_FOXORING_FOXC_PATTERN_DEFAULT "MOS"
-#define EEPROM_FOXORING_FREQUENCYA_DEFAULT 3530000
+#define EEPROM_FOXORING_FREQUENCYA_DEFAULT 3520000
 #define EEPROM_FOXORING_FREQUENCYB_DEFAULT 3550000
 #define EEPROM_FOXORING_FREQUENCYC_DEFAULT 3570000
 #define EEPROM_FOXORING_FOX_SETTING_DEFAULT FOXORING_EVENT_FOXA
 #define TEXT_SET_TIME_TXT (char*)"CLK T YYMMDDhhmmss <- Set current time\n"
 #define TEXT_SET_START_TXT (char*)"CLK S YYMMDDhhmmss <- Set start time\n"
 #define TEXT_SET_FINISH_TXT (char*)"CLK F YYMMDDhhmmss <- Set finish time\n"
-#define TEXT_SET_ID_TXT (char*)"ID [\"callsign\"] <- Set callsign\n"
+#define TEXT_SET_ID_TXT (char*)"ID \"callsign\" <- Set callsign\n"
 #define TEXT_ERR_FINISH_BEFORE_START_TXT (char*)"Err: Finish before start!\n"
 #define TEXT_ERR_FINISH_IN_PAST_TXT (char*)"Err: Finish in past!\n"
 #define TEXT_ERR_START_IN_PAST_TXT (char*)"Err: Start in past!\n"

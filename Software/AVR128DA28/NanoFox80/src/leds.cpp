@@ -8,6 +8,8 @@
 #include "defs.h"
 #include "atmel_start_pins.h"
 #include "leds.h"
+#include "CircularStringBuff.h"
+#include <string.h>
 
 #define FAST_ON 25
 #define FAST_OFF 25
@@ -16,6 +18,10 @@
 #define BRIEF_ON 15
 #define BRIEF_OFF 50
 #define LED_TIMEOUT 60000
+
+extern volatile bool g_event_enabled;
+extern volatile bool g_enable_manual_transmissions;
+extern CircularStringBuff g_text_buff;
 
 static volatile Blink_t lastBlinkSetting = LEDS_OFF;
 static volatile uint32_t led_timeout_count = 0;
@@ -189,6 +195,28 @@ void leds::resume(void)
 		led_timeout_count = LED_TIMEOUT;
 		TCB1.INTCTRL |= TCB_CAPT_bm;   /* Capture or Timeout: enabled */
 	}
+}
+
+void leds::sendCode(char* str)
+{
+	g_enable_manual_transmissions = false; /* simple thread collision avoidance */
+	
+	if(!str || !strlen(str))
+	{
+		return;
+	}
+
+	g_event_enabled = false; /* Ensure an ongoing event is interrupted */
+				
+	int lenstr = strlen(str);					
+	int i = 0;
+						
+	while(!g_text_buff.full() && i<lenstr && i<TEXT_BUFF_SIZE)
+	{
+		g_text_buff.put(str[i++]);
+	}
+	
+	g_enable_manual_transmissions = true;
 }
 
 void leds::blink(Blink_t blinkMode)

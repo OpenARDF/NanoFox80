@@ -45,6 +45,7 @@ public:
 	void setRed(bool on);
 	void setGreen(bool on);
 	void resume(void);
+	void sendCode(char* str);
 	
 protected:
 private:

@@ -237,9 +237,6 @@
     <Compile Include="include\eeprommanager.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="include\Goertzel.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="include\huzzah.h">
       <SubType>compile</SubType>
     </Compile>
@@ -319,9 +316,6 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\eeprommanager.cpp">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\Goertzel.cpp">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\huzzah.cpp">
