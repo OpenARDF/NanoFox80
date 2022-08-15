@@ -828,7 +828,7 @@ int main(void)
 			else if (g_handle_counted_presses == 2)
 			{
 				sb_send_string((char*)"\n2 presses\n");
-				 stopEventNow(PROGRAMMATIC);
+				suspendEvent();
 			}
 			
 			g_handle_counted_presses = 0;
@@ -2468,7 +2468,7 @@ void suspendEvent()
 	keyTransmitter(OFF);
 	bool repeat = false;
 	makeMorse((char*)"\0", &repeat, null);  /* reset makeMorse */
-	LEDS.blink(LEDS_RED_OFF);
+	LEDS.reset();
 }
 
 
@@ -2859,10 +2859,8 @@ void setupForFox(Fox_t fox, EventAction_t action)
 
 	if(action == START_NOTHING)
 	{
-		g_event_commenced = false;                   /* get things running immediately */
-		g_event_enabled = false;                     /* get things running immediately */
-
- 		g_event_enabled = false;
+		g_event_commenced = false; 
+		g_event_enabled = false;
 		keyTransmitter(OFF);
 		LEDS.setRed(OFF);
 	}
