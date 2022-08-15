@@ -823,7 +823,7 @@ int main(void)
 			if(g_handle_counted_presses == 1)
 			{
 				sb_send_string((char*)"\n1 press\n");
-				startEventNow(PROGRAMMATIC);
+				if(!g_isMaster) startEventNow(PROGRAMMATIC);
 			}
 			else if (g_handle_counted_presses == 2)
 			{
