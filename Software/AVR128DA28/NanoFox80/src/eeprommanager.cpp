@@ -616,12 +616,6 @@ bool EepromManager::readNonVols(void)
 		g_rtty_offset =eeprom_read_dword(&(EepromManager::ee_vars.rtty_offset));
 		g_80m_power_level_mW = CLAMP(MIN_RF_POWER_MW, eeprom_read_word(&(EepromManager::ee_vars.rf_power)), MAX_TX_POWER_80M_MW);
 
-		/* Perform sanity checks */
-		if(g_event_start_epoch && (g_event_finish_epoch <= g_event_start_epoch))
-		{
-			g_event_finish_epoch = g_event_start_epoch + SECONDS_24H;
-		}
-		
 		g_pattern_codespeed = CLAMP(5, eeprom_read_byte((uint8_t*)(&(EepromManager::ee_vars.pattern_codespeed))), 20);
 		g_off_air_seconds = CLAMP(0, (int16_t)eeprom_read_word((const uint16_t*)&(EepromManager::ee_vars.off_air_seconds)), 3600);
 		g_on_air_seconds = CLAMP(0, (int16_t)eeprom_read_word((const uint16_t*)&(EepromManager::ee_vars.on_air_seconds)), 3600);

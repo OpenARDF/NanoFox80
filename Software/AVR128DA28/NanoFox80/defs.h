@@ -33,7 +33,7 @@
 
 /******************************************************
  * Set the text that gets displayed to the user */
-#define SW_REVISION "0.51"
+#define SW_REVISION "0.52"
 
 //#define TRANQUILIZE_WATCHDOG
 
@@ -120,7 +120,13 @@ typedef enum {
 	SLEEP_FOREVER
 	} SleepType;
 	
-	
+
+typedef enum {
+	DO_NOT_ENUNCIATE,
+	LED_AND_RF,
+	LED_ONLY
+	} Enunciation_t;
+
 /*******************************************************/
 
 #ifndef uint16_t_defined

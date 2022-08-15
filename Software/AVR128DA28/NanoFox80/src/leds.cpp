@@ -22,6 +22,7 @@
 extern volatile bool g_event_enabled;
 extern volatile bool g_enable_manual_transmissions;
 extern CircularStringBuff g_text_buff;
+extern Enunciation_t g_enunciator;
 
 static volatile Blink_t lastBlinkSetting = LEDS_OFF;
 static volatile uint32_t led_timeout_count = 0;
@@ -142,6 +143,8 @@ void leds::reset(void)
 {
 	g_override = false;
 	blink(LEDS_OFF);
+	g_text_buff.reset();
+	g_enable_manual_transmissions = false;
 }
 
 
@@ -206,11 +209,11 @@ void leds::sendCode(char* str)
 		return;
 	}
 
-	g_event_enabled = false; /* Ensure an ongoing event is interrupted */
+// 	g_event_enabled = false; /* Ensure an ongoing event is interrupted */
 				
 	int lenstr = strlen(str);					
 	int i = 0;
-						
+
 	while(!g_text_buff.full() && i<lenstr && i<TEXT_BUFF_SIZE)
 	{
 		g_text_buff.put(str[i++]);
