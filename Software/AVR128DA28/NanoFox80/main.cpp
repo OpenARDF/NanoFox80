@@ -1753,7 +1753,7 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 
 			default:
 			{
-				sb_send_string(HELP_TEXT_TXT);
+				if(!g_cloningInProgress) sb_send_string(HELP_TEXT_TXT);
 			}
 			break;
 		}
@@ -3272,6 +3272,8 @@ void reportConfigErrors(void)
 
 void reportSettings(void)
 {
+	if(g_cloningInProgress) return;
+	
 	char buf[50];
 	
 	time_t now = time(null);
