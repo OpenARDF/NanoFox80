@@ -1534,9 +1534,12 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 			{
 				if(sb_buff->fields[SB_FIELD1][0] == 'P')
 				{
-					g_cloningInProgress = true;
-					sb_send_string((char*)"MAS\r");
-					g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
+					if(!g_send_clone_success_countdown)
+					{
+						g_cloningInProgress = true;
+						sb_send_string((char*)"MAS\r");
+						g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
+					}
 				}
 				else if(sb_buff->fields[SB_FIELD1][0] == 'Q')
 				{
