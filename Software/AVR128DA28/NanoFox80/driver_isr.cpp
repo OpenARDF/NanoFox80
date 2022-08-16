@@ -84,6 +84,7 @@ void serial_Rx(uint8_t rx_char)
 	{
 		static uint8_t ignoreCount = 0;
 		rx_char = toupper(rx_char);
+		if(rx_char == '\n') rx_char = '\r';
 
 		if(ignoreCount)
 		{
@@ -101,7 +102,7 @@ void serial_Rx(uint8_t rx_char)
 
 			ignoreCount = 2;        /* throw out the next two characters */
 		}
-		else if(rx_char == 0x0D)    /* Handle carriage return */
+		else if(rx_char == '\r')    /* Handle carriage return */
 		{
 			if(receiving_msg)
 			{
@@ -349,6 +350,7 @@ void linkbus_Rx(uint8_t rx_char)
 	if(buff)
 	{
 		rx_char = toupper(rx_char);
+		if(rx_char == '\n') rx_char = '\r';
 		
 		if(!escapeNext && (rx_char == '\\'))
 		{
@@ -420,7 +422,7 @@ void linkbus_Rx(uint8_t rx_char)
 				escapeNext = false;
 			}
 		}
-		else if(rx_char == 0x0D)    /* Carriage return resets any message in progress */
+		else if(rx_char == '\r')    /* Carriage return resets any message in progress */
 		{
 			buff->id = LB_MESSAGE_EMPTY;
 			charIndex = LINKBUS_MAX_MSG_LENGTH;

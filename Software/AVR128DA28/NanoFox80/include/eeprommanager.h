@@ -42,25 +42,25 @@ struct EE_prom
  	char pattern_text[MAX_PATTERN_TEXT_LENGTH + 2]; /* 32 */
 	uint8_t unlockCode[MAX_UNLOCK_CODE_LENGTH + 2]; /* 54 */
 	uint8_t id_codespeed;  /* 64 */
-	uint16_t fox_setting;  /* 65 */
-	uint8_t utc_offset; /* 67 */
-	uint32_t frequency; /* 68 */
-	uint32_t rtty_offset; /* 72 */
-	uint16_t rf_power; /* 76 */
-	uint8_t pattern_codespeed; /* 78 */
-	int16_t off_air_seconds; /* 79 */
-	int16_t on_air_seconds; /* 81 */
-	int16_t ID_period_seconds; /* 83 */
-	int16_t intra_cycle_delay_time; /* 85 */
-	uint8_t event_setting; /* 87 */
-	uint32_t foxoring_frequencyA; /* 88 */
-	uint32_t foxoring_frequencyB; /* 92 */
-	uint32_t foxoring_frequencyC; /* 96 */	
-	uint16_t foxoring_fox_setting; /* 100 */
-	uint8_t master_setting; /* 102 */
-	char foxA_pattern_text[MAX_PATTERN_TEXT_LENGTH + 2]; /* 103 */
-	char foxB_pattern_text[MAX_PATTERN_TEXT_LENGTH + 2]; /* 125 */
-	char foxC_pattern_text[MAX_PATTERN_TEXT_LENGTH + 2]; /* 147 */
+	uint8_t fox_setting;  /* 65 */
+	uint8_t utc_offset; /* 66 */
+	uint32_t frequency; /* 67 */
+	uint32_t rtty_offset; /* 71 */
+	uint16_t rf_power; /* 75 */
+	uint8_t pattern_codespeed; /* 77 */
+	int16_t off_air_seconds; /* 78 */
+	int16_t on_air_seconds; /* 80 */
+	int16_t ID_period_seconds; /* 82 */
+	int16_t intra_cycle_delay_time; /* 84 */
+	uint8_t event_setting; /* 86 */
+	uint32_t foxoring_frequencyA; /* 87 */
+	uint32_t foxoring_frequencyB; /* 91 */
+	uint32_t foxoring_frequencyC; /* 95 */	
+	uint8_t foxoring_fox_setting; /* 99 */
+	uint8_t master_setting; /* 100 */
+	char foxA_pattern_text[MAX_PATTERN_TEXT_LENGTH + 2]; /* 101 */
+	char foxB_pattern_text[MAX_PATTERN_TEXT_LENGTH + 2]; /* 123 */
+	char foxC_pattern_text[MAX_PATTERN_TEXT_LENGTH + 2]; /* 145 */
 };
 
 typedef enum
@@ -72,25 +72,25 @@ typedef enum
 	Pattern_text = 32, /* 22 bytes */
 	UnlockCode = 54, /* 10 bytes */
 	Id_codespeed = 64, /* 1 byte */
-	Fox_setting = 65, /* 2 bytes */ 
-	Utc_offset = 67, /* 1 byte */
-	Frequency = 68, /* 4 bytes */
-	RTTY_offset = 72, /* 4 bytes */
-	RF_Power = 76, /* 2 bytes */
-	Pattern_Code_Speed = 78, /* 1 byte */
-	Off_Air_Seconds = 79, /* 2 bytes */
-	On_Air_Seconds = 81, /* 2 bytes */
-	ID_Period_Seconds = 83, /* 2 bytes */
-	Intra_Cycle_Delay_Seconds = 85, /* 2 bytes */
-	Event_setting = 87, /* 1 byte */ 
-	Foxoring_FrequencyA = 88,  /* 4 bytes */
-	Foxoring_FrequencyB = 92,  /* 4 bytes */
-	Foxoring_FrequencyC = 96,  /* 4 bytes */
-	Foxoring_fox_setting = 100, /* 2 bytes */ 
-	Master_setting = 102, /* bool: 1 byte */ 
-	FoxA_pattern_text = 103,  /* 22 bytes */
-	FoxB_pattern_text = 125,  /* 22 bytes */
-	FoxC_pattern_text = 147   /* 22 bytes */
+	Fox_setting = 65, /* 1 bytes */ 
+	Utc_offset = 66, /* 1 byte */
+	Frequency = 67, /* 4 bytes */
+	RTTY_offset = 71, /* 4 bytes */
+	RF_Power = 75, /* 2 bytes */
+	Pattern_Code_Speed = 77, /* 1 byte */
+	Off_Air_Seconds = 78, /* 2 bytes */
+	On_Air_Seconds = 80, /* 2 bytes */
+	ID_Period_Seconds = 82, /* 2 bytes */
+	Intra_Cycle_Delay_Seconds = 84, /* 2 bytes */
+	Event_setting = 86, /* 1 byte */ 
+	Foxoring_FrequencyA = 87,  /* 4 bytes */
+	Foxoring_FrequencyB = 91,  /* 4 bytes */
+	Foxoring_FrequencyC = 95,  /* 4 bytes */
+	Foxoring_fox_setting = 99, /* 1 byte */ 
+	Master_setting = 100, /* bool: 1 byte */ 
+	FoxA_pattern_text = 101,  /* 22 bytes */
+	FoxB_pattern_text = 123,  /* 22 bytes */
+	FoxC_pattern_text = 145   /* 22 bytes */
 } EE_var_t;
 
 class EepromManager

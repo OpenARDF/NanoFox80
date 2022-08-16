@@ -102,7 +102,7 @@ static volatile int g_sendID_seconds_countdown = 0;
 static volatile uint16_t g_code_throttle = 50;
 static volatile uint8_t g_WiFi_shutdown_seconds = 120;
 static volatile bool g_report_seconds = false;
-static volatile bool g_wifi_active = true;
+static volatile bool g_wifi_active = false;
 static volatile uint8_t g_wifi_enable_delay = 0;
 static volatile bool g_shutting_down_wifi = false;
 static volatile bool g_wifi_ready = false;
@@ -894,7 +894,7 @@ int main(void)
 				{
 					if(g_send_clone_success_countdown)
 					{
-						LEDS.sendCode((char*)"C ");
+						LEDS.sendCode((char*)"X ");
 					}
 					else
 					{
@@ -1287,7 +1287,7 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 							}
 					
 							g_ee_mgr.saveAllEEPROM();
-							sb_send_string((char*)"FRE\n");
+							sb_send_string((char*)"FRE\r");
 						}
 					}
 					else if(!frequencyVal(sb_buff->fields[SB_FIELD1], &f))
@@ -1349,7 +1349,7 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 					}
 					
 					g_ee_mgr.saveAllEEPROM();
-					sb_send_string((char*)"PAT\n");
+					sb_send_string((char*)"PAT\r");
 				}
 				else
 				{
@@ -1462,29 +1462,37 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 			{
 				if(sb_buff->fields[SB_FIELD1][0])
 				{
-					strcpy(g_tempStr, " "); /* Space before ID gets sent */
-					strcat(g_tempStr, sb_buff->fields[SB_FIELD1]);
-
-					if(sb_buff->fields[SB_FIELD2][0])
+					if((sb_buff->fields[SB_FIELD1][0] == '\"') && (sb_buff->fields[SB_FIELD1][1] == '\"')) /* "" */
 					{
-						strcat(g_tempStr, " ");
-						strcat(g_tempStr, sb_buff->fields[SB_FIELD2]);
+						g_messages_text[STATION_ID][0] = '\0';
 					}
-
-					if(strlen(g_tempStr) <= MAX_PATTERN_TEXT_LENGTH)
+					else
 					{
-						strcpy((char*)g_messages_text[STATION_ID], g_tempStr);
-						g_ee_mgr.updateEEPROMVar(StationID_text, (void*)g_tempStr);
+						strcpy(g_tempStr, " "); /* Add a Space before ID gets sent */
+						strcat(g_tempStr, sb_buff->fields[SB_FIELD1]);
+
+						if(sb_buff->fields[SB_FIELD2][0])
+						{
+							strcat(g_tempStr, " ");
+							strcat(g_tempStr, sb_buff->fields[SB_FIELD2]);
+						}
+
+						if(strlen(g_tempStr) <= MAX_PATTERN_TEXT_LENGTH)
+						{
+							strcpy((char*)g_messages_text[STATION_ID], g_tempStr);
+							g_ee_mgr.updateEEPROMVar(StationID_text, (void*)g_tempStr);
+						}
 					}
 					
 					if(g_cloningInProgress)
 					{
-						sb_send_string((char*)"ID\n");
-						g_ee_mgr.saveAllEEPROM();
+						sb_send_string((char*)"ID\r");
 						g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
 					}
 				}
 
+				g_ee_mgr.saveAllEEPROM();
+				
 				if(g_messages_text[STATION_ID][0])
 				{
 					g_time_needed_for_ID = timeNeededForID();
@@ -1524,11 +1532,17 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 
 			case SB_MESSAGE_MASTER:
 			{
-				if((sb_buff->fields[SB_FIELD1][0] == 'P'))
+				if(sb_buff->fields[SB_FIELD1][0] == 'P')
 				{
 					g_cloningInProgress = true;
-					sb_send_string((char*)"MAS\n");
+					sb_send_string((char*)"MAS\r");
 					g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
+				}
+				else if(sb_buff->fields[SB_FIELD1][0] == 'Q')
+				{
+					g_cloningInProgress = false;
+					g_programming_countdown = 0;
+					g_send_clone_success_countdown = 18000;
 				}
 				else
 				{
@@ -1555,7 +1569,7 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 			{
 				if(g_cloningInProgress)
 				{
-					sb_send_string((char*)"EVT F\n");
+					sb_send_string((char*)"EVT F\r");
 					g_event = EVENT_FOXORING;
 					g_ee_mgr.saveAllEEPROM();
 					g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
@@ -1607,7 +1621,7 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 							 
 							if(g_cloningInProgress)
 							{
-								sprintf(g_tempStr, "CLK T %lu\n", t);
+								sprintf(g_tempStr, "CLK T %lu\r", t);
 								sb_send_string(g_tempStr);
 								g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
 							}
@@ -1640,7 +1654,7 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 							g_event_start_epoch = atol(g_tempStr);
 					
 							g_ee_mgr.saveAllEEPROM();
-							sb_send_string((char*)"CLK\n");
+							sb_send_string((char*)"CLK\r");
 							g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
 						}
 						else
@@ -1678,7 +1692,7 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 							g_event_finish_epoch = atol(g_tempStr);
 							
 							g_ee_mgr.saveAllEEPROM();
-							sb_send_string((char*)"CLK\n");
+							sb_send_string((char*)"CLK\r");
 							g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
 						}
 						else
@@ -3667,7 +3681,7 @@ void handleSerialCloning(void)
 	
 	if(!g_programming_msg_throttle)
 	{
-		sb_send_string((char*)"MAS P\n"); /* Set slave to active cloning state */
+		sb_send_string((char*)"\rMAS P\r"); /* Set slave to active cloning state */
 		g_programming_msg_throttle = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
 	}
 	
@@ -3680,7 +3694,7 @@ void handleSerialCloning(void)
 				msg_id = sb_buff->id;
 				if((msg_id == SB_MESSAGE_MASTER) && !(sb_buff->fields[SB_FIELD1][0]))
 				{
-					sb_send_string((char*)"EVT F\n"); /* Set slave's event to foxoring */
+					sb_send_string((char*)"EVT F\r"); /* Set slave's event to foxoring */
 					g_programming_state = SYNC_Waiting_for_EVT_reply;
 					g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
 				}
@@ -3701,7 +3715,7 @@ void handleSerialCloning(void)
 				{
 					if(sb_buff->fields[SB_FIELD1][0] == 'F')
 					{
-						sprintf(g_tempStr, "CLK T %lu\n", time(null)); /* Set slave's RTC */
+						sprintf(g_tempStr, "CLK T %lu\r", time(null)); /* Set slave's RTC */
 						sb_send_string(g_tempStr);
 						g_programming_state = SYNC_Waiting_for_CLK_T_reply;
 						g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
@@ -3739,16 +3753,16 @@ void handleSerialCloning(void)
 								*ptr2 = '\0';
 								ptr2++;
 								
-								sprintf(g_tempStr, "ID %s %s\n", ptr1, ptr2);
+								sprintf(g_tempStr, "ID %s %s\r", ptr1, ptr2);
 							}
 							else
 							{
-								sprintf(g_tempStr, "ID %s\n", ptr1);
+								sprintf(g_tempStr, "ID %s\r", ptr1);
 							}
 						}
 						else
 						{
-							strcpy(g_tempStr, "ID \"\"\n");
+							strcpy(g_tempStr, "ID \"\"\r");
 						}
  
 						sb_send_string(g_tempStr);
@@ -3767,7 +3781,7 @@ void handleSerialCloning(void)
 				if(msg_id == SB_MESSAGE_SET_STATION_ID)
 				{
 					g_programming_state = SYNC_Waiting_for_PAT_A_reply;
-					sprintf(g_tempStr, "PAT A %s\n", g_messages_text[FOXA_PATTERN_TEXT]);
+					sprintf(g_tempStr, "PAT A %s\r", g_messages_text[FOXA_PATTERN_TEXT]);
 					sb_send_string(g_tempStr);
 					g_programming_msg_throttle = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
 					g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
@@ -3784,7 +3798,7 @@ void handleSerialCloning(void)
 				if(msg_id == SB_MESSAGE_PATTERN)
 				{
 					g_programming_state = SYNC_Waiting_for_PAT_B_reply;
-					sprintf(g_tempStr, "PAT B %s\n", g_messages_text[FOXB_PATTERN_TEXT]);
+					sprintf(g_tempStr, "PAT B %s\r", g_messages_text[FOXB_PATTERN_TEXT]);
 					sb_send_string(g_tempStr);
 					g_programming_msg_throttle = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
 					g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
@@ -3801,7 +3815,7 @@ void handleSerialCloning(void)
 				if(msg_id == SB_MESSAGE_PATTERN)
 				{
 					g_programming_state = SYNC_Waiting_for_PAT_C_reply;
-					sprintf(g_tempStr, "PAT C %s\n", g_messages_text[FOXC_PATTERN_TEXT]);
+					sprintf(g_tempStr, "PAT C %s\r", g_messages_text[FOXC_PATTERN_TEXT]);
 					sb_send_string(g_tempStr);
 					g_programming_msg_throttle = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
 					g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
@@ -3818,7 +3832,7 @@ void handleSerialCloning(void)
 				if(msg_id == SB_MESSAGE_PATTERN)
 				{
 					g_programming_state = SYNC_Waiting_for_FRE_A_reply;
-					sprintf(g_tempStr, "FRE A %lu\n", g_foxoring_frequencyA);
+					sprintf(g_tempStr, "FRE A %lu\r", g_foxoring_frequencyA);
 					sb_send_string(g_tempStr);
 					g_programming_msg_throttle = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
 					g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
@@ -3835,7 +3849,7 @@ void handleSerialCloning(void)
 				if(msg_id == SB_MESSAGE_TX_FREQ)
 				{
 					g_programming_state = SYNC_Waiting_for_FRE_B_reply;
-					sprintf(g_tempStr, "FRE B %lu\n", g_foxoring_frequencyB);
+					sprintf(g_tempStr, "FRE B %lu\r", g_foxoring_frequencyB);
 					sb_send_string(g_tempStr);
 					g_programming_msg_throttle = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
 					g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
@@ -3852,7 +3866,7 @@ void handleSerialCloning(void)
 				if(msg_id == SB_MESSAGE_TX_FREQ)
 				{
 					g_programming_state = SYNC_Waiting_for_FRE_C_reply;
-					sprintf(g_tempStr, "FRE C %lu\n", g_foxoring_frequencyC);
+					sprintf(g_tempStr, "FRE C %lu\r", g_foxoring_frequencyC);
 					sb_send_string(g_tempStr);
 					g_programming_msg_throttle = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
 					g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
@@ -3869,7 +3883,7 @@ void handleSerialCloning(void)
 				if(msg_id == SB_MESSAGE_TX_FREQ)
 				{
 					g_programming_state = SYNC_Waiting_for_CLK_S_reply;
- 					sprintf(g_tempStr, "CLK S %lu\n", g_event_start_epoch);
+ 					sprintf(g_tempStr, "CLK S %lu\r", g_event_start_epoch);
  					sb_send_string(g_tempStr);
 					g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
 				}
@@ -3885,7 +3899,7 @@ void handleSerialCloning(void)
 				if(msg_id == SB_MESSAGE_CLOCK)
 				{
 					g_programming_state = SYNC_Waiting_for_CLK_F_reply;
- 					sprintf(g_tempStr, "CLK F %lu\n", g_event_start_epoch);
+ 					sprintf(g_tempStr, "CLK F %lu\r", g_event_start_epoch);
  					sb_send_string(g_tempStr);
 					g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
 				}
@@ -3900,6 +3914,7 @@ void handleSerialCloning(void)
 				msg_id = sb_buff->id;
 				if(msg_id == SB_MESSAGE_CLOCK)
 				{
+					sb_send_string((char*)"MAS Q\r");
 					g_programming_state = SYNC_Searching_for_slave;
 					g_send_clone_success_countdown = 18000;
 				}

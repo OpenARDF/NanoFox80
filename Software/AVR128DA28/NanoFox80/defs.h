@@ -33,7 +33,7 @@
 
 /******************************************************
  * Set the text that gets displayed to the user */
-#define SW_REVISION "0.53"
+#define SW_REVISION "0.54"
 
 //#define TRANQUILIZE_WATCHDOG
 
@@ -211,7 +211,7 @@ typedef uint16_t BatteryLevel;  /* in milliVolts */
 
 /******************************************************
  * EEPROM definitions */
-#define EEPROM_INITIALIZED_FLAG 0x00F5
+#define EEPROM_INITIALIZED_FLAG 0x00F6
 #define EEPROM_UNINITIALIZED 0x00
 
 #define EEPROM_STATION_ID_DEFAULT "FOXBOX"

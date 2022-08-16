@@ -56,25 +56,25 @@ const struct EE_prom EEMEM EepromManager::ee_vars
 "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", // 	char pattern_text[MAX_PATTERN_TEXT_LENGTH + 2]; /* 32 */
 "\0\0\0\0\0\0\0\0\0", // 	uint8_t unlockCode[MAX_UNLOCK_CODE_LENGTH + 2]; /* 54 */
 0x00, // 	uint8_t id_codespeed;  /* 64 */
-0x0000, // 	uint8_t fox_setting;  /* 65 */
-0x00, // 	uint8_t utc_offset; /* 67 */
-0x00000000, // 	uint32_t frequency; /* 68 */
-0x00000000, // 	uint32_t rtty_offset; /* 72 */
-0x0000, // 	uint16_t rf_power; /* 76 */
-0x00, // 	uint8_t pattern_codespeed; /* 78 */
-0x0000, // 	int16_t off_air_seconds; /* 79 */
-0x0000, // 	int16_t on_air_seconds; /* 81 */
-0x0000, // 	int16_t ID_period_seconds; /* 83 */
-0x0000, // 	int16_t intra_cycle_delay_time; /* 85 */
-0x00, // 	uint8_t event_setting; /* 87 */
-0x00000000,  // uint32_t foxoring_frequencyA; /* 88 */
-0x00000000,  //	uint32_t foxoring_frequencyB; /* 92 */
-0x00000000,  // uint32_t foxoring_frequencyC; /* 96 */
-0x0000, // 	uint16_t foxoring_fox_setting; /* 100 */
-0x00, // 	uint8_t master_setting; /* 102 */
-"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", // 	char foxA_pattern_text[MAX_PATTERN_TEXT_LENGTH + 2]; /* 103 */
-"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", // 	char foxB_pattern_text[MAX_PATTERN_TEXT_LENGTH + 2]; /* 125 */
-"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0" // 	char foxC_pattern_text[MAX_PATTERN_TEXT_LENGTH + 2]; /* 147 */
+0x00, // 	uint8_t fox_setting;  /* 65 */
+0x00, // 	uint8_t utc_offset; /* 66 */
+0x00000000, // 	uint32_t frequency; /* 67 */
+0x00000000, // 	uint32_t rtty_offset; /* 71 */
+0x0000, // 	uint16_t rf_power; /* 75 */
+0x00, // 	uint8_t pattern_codespeed; /* 77 */
+0x0000, // 	int16_t off_air_seconds; /* 78 */
+0x0000, // 	int16_t on_air_seconds; /* 80 */
+0x0000, // 	int16_t ID_period_seconds; /* 82 */
+0x0000, // 	int16_t intra_cycle_delay_time; /* 84 */
+0x00, // 	uint8_t event_setting; /* 86 */
+0x00000000,  // uint32_t foxoring_frequencyA; /* 87 */
+0x00000000,  //	uint32_t foxoring_frequencyB; /* 91 */
+0x00000000,  // uint32_t foxoring_frequencyC; /* 95 */
+0x00, // 	uint16_t foxoring_fox_setting; /* 99 */
+0x00, // 	uint8_t master_setting; /* 100 */
+"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", // 	char foxA_pattern_text[MAX_PATTERN_TEXT_LENGTH + 2]; /* 101 */
+"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", // 	char foxB_pattern_text[MAX_PATTERN_TEXT_LENGTH + 2]; /* 123 */
+"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0" // 	char foxC_pattern_text[MAX_PATTERN_TEXT_LENGTH + 2]; /* 145 */
 };
 
 extern bool g_isMaster;
@@ -232,7 +232,7 @@ void EepromManager::updateEEPROMVar(EE_var_t v, void* val)
 
 		case Fox_setting:
 		{
-			avr_eeprom_write_word(Fox_setting, *(uint16_t*)val);
+			avr_eeprom_write_byte(Fox_setting, *(uint8_t*)val);
 		}
 		break;
 		
@@ -268,7 +268,7 @@ void EepromManager::updateEEPROMVar(EE_var_t v, void* val)
 
 		case Foxoring_fox_setting:
 		{
-			avr_eeprom_write_word(Foxoring_fox_setting, *(uint16_t*)val);
+			avr_eeprom_write_byte(Foxoring_fox_setting, *(uint8_t*)val);
 		}
 		break;
 
@@ -404,10 +404,9 @@ void EepromManager::saveAllEEPROM(void)
 		updateEEPROMVar(Id_codespeed, (void*)&g_id_codespeed);
 	}
 	
-	if(g_fox != eeprom_read_word(&(EepromManager::ee_vars.fox_setting)))
+	if(g_fox != eeprom_read_byte(&(EepromManager::ee_vars.fox_setting)))
 	{
-		uint16_t x = (uint16_t)g_fox;
-		updateEEPROMVar(Fox_setting, (void*)&x);
+		updateEEPROMVar(Fox_setting, (void*)&g_fox);
 	}
 	
 	if(g_isMaster != eeprom_read_byte(&(EepromManager::ee_vars.master_setting)))
@@ -435,10 +434,9 @@ void EepromManager::saveAllEEPROM(void)
 		updateEEPROMVar(Foxoring_FrequencyC, (void*)&g_foxoring_frequencyC);
 	}
 	
-	if(g_foxoring_fox != eeprom_read_word(&(EepromManager::ee_vars.foxoring_fox_setting)))
+	if(g_foxoring_fox != eeprom_read_byte(&(EepromManager::ee_vars.foxoring_fox_setting)))
 	{
-		uint16_t x = (uint16_t)g_foxoring_fox;
-		updateEEPROMVar(Foxoring_fox_setting, (void*)&x);
+		updateEEPROMVar(Foxoring_fox_setting, (void*)&g_foxoring_fox);
 	}
 	
 	if(g_event_start_epoch != eeprom_read_dword(&(EepromManager::ee_vars.event_start_epoch)))
@@ -575,8 +573,8 @@ bool EepromManager::readNonVols(void)
 		g_foxoring_frequencyA = CLAMP(TX_MINIMUM_80M_FREQUENCY, eeprom_read_dword(&(EepromManager::ee_vars.foxoring_frequencyA)), TX_MAXIMUM_80M_FREQUENCY);
 		g_foxoring_frequencyB = CLAMP(TX_MINIMUM_80M_FREQUENCY, eeprom_read_dword(&(EepromManager::ee_vars.foxoring_frequencyB)), TX_MAXIMUM_80M_FREQUENCY);
 		g_foxoring_frequencyC = CLAMP(TX_MINIMUM_80M_FREQUENCY, eeprom_read_dword(&(EepromManager::ee_vars.foxoring_frequencyC)), TX_MAXIMUM_80M_FREQUENCY);
-		g_foxoring_fox = CLAMP(FOXORING_EVENT_FOXA, (Fox_t)eeprom_read_word(&(EepromManager::ee_vars.fox_setting)), FOXORING_EVENT_FOXC);
-		g_fox = CLAMP(BEACON, (Fox_t)eeprom_read_word(&(EepromManager::ee_vars.fox_setting)), SPRINT_F5);
+		g_foxoring_fox = CLAMP(FOXORING_EVENT_FOXA, (Fox_t)eeprom_read_byte(&(EepromManager::ee_vars.fox_setting)), FOXORING_EVENT_FOXC);
+		g_fox = CLAMP(BEACON, (Fox_t)eeprom_read_byte(&(EepromManager::ee_vars.fox_setting)), SPRINT_F5);
 		g_event_start_epoch = eeprom_read_dword(&(EepromManager::ee_vars.event_start_epoch));
 		g_event_finish_epoch = eeprom_read_dword(&(EepromManager::ee_vars.event_finish_epoch));
 		g_utc_offset = (int8_t)eeprom_read_byte(&(EepromManager::ee_vars.utc_offset));
@@ -682,7 +680,7 @@ bool EepromManager::readNonVols(void)
 			avr_eeprom_write_byte(Master_setting, g_isMaster);
 
 			g_fox = EEPROM_FOX_SETTING_DEFAULT;
-			avr_eeprom_write_word(Fox_setting, (uint16_t)g_fox);
+			avr_eeprom_write_byte(Fox_setting, (uint8_t)g_fox);
 			
 			g_event = EEPROM_EVENT_SETTING_DEFAULT;
 			avr_eeprom_write_byte(Event_setting, (uint8_t)g_event);
@@ -697,7 +695,7 @@ bool EepromManager::readNonVols(void)
 			avr_eeprom_write_dword(Foxoring_FrequencyC, g_foxoring_frequencyC);
 
 			g_foxoring_fox = EEPROM_FOXORING_FOX_SETTING_DEFAULT;
-			avr_eeprom_write_word(Foxoring_fox_setting, (uint16_t)g_foxoring_fox);
+			avr_eeprom_write_byte(Foxoring_fox_setting, (uint8_t)g_foxoring_fox);
 
 			g_event_start_epoch = EEPROM_START_EPOCH_DEFAULT;
 			avr_eeprom_write_dword(Event_start_epoch, g_event_start_epoch);
