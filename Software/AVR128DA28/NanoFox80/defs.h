@@ -33,7 +33,7 @@
 
 /******************************************************
  * Set the text that gets displayed to the user */
-#define SW_REVISION "0.52"
+#define SW_REVISION "0.53"
 
 //#define TRANQUILIZE_WATCHDOG
 
@@ -211,7 +211,7 @@ typedef uint16_t BatteryLevel;  /* in milliVolts */
 
 /******************************************************
  * EEPROM definitions */
-#define EEPROM_INITIALIZED_FLAG 0x00F1
+#define EEPROM_INITIALIZED_FLAG 0x00F5
 #define EEPROM_UNINITIALIZED 0x00
 
 #define EEPROM_STATION_ID_DEFAULT "FOXBOX"
@@ -274,7 +274,7 @@ typedef uint16_t BatteryLevel;  /* in milliVolts */
 #define TEXT_NOT_SLEEPING_TXT (char*)"NanoFox is not sleeping\n"
 #define TEXT_CURRENT_SETTINGS_TXT (char*)"\n   === NanoFox Settings ===\n"
 #define TEXT_EVENT_SETTINGS_TXT (char*)"\n    === Event Settings ===\n"
-#define MINIMUM_EPOCH ((time_t)1609459200)  /* 1 Jan 2021 00:00:00 */
+#define MINIMUM_VALID_EPOCH ((time_t)1609459200)  /* 1 Jan 2021 00:00:00 */
 #define YEAR_2000_EPOCH ((time_t)946684800)  /* 1 Jan 2000 00:00:00 */
 #define FOREVER_EPOCH ((time_t)4796712000) /* 1 Jan 2122 00:00:00 */
 #define SECONDS_24H 86400

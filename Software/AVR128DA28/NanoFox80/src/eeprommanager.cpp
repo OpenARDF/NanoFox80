@@ -55,8 +55,8 @@ const struct EE_prom EEMEM EepromManager::ee_vars
 "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",  // 	char stationID_text[MAX_PATTERN_TEXT_LENGTH + 2]; /* 10 */
 "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", // 	char pattern_text[MAX_PATTERN_TEXT_LENGTH + 2]; /* 32 */
 "\0\0\0\0\0\0\0\0\0", // 	uint8_t unlockCode[MAX_UNLOCK_CODE_LENGTH + 2]; /* 54 */
-0x00, // 	uint8_t id_codespeed;  /* 65 */
-0x00, // 	uint8_t fox_setting;  /* 66 */
+0x00, // 	uint8_t id_codespeed;  /* 64 */
+0x0000, // 	uint8_t fox_setting;  /* 65 */
 0x00, // 	uint8_t utc_offset; /* 67 */
 0x00000000, // 	uint32_t frequency; /* 68 */
 0x00000000, // 	uint32_t rtty_offset; /* 72 */
@@ -268,7 +268,7 @@ void EepromManager::updateEEPROMVar(EE_var_t v, void* val)
 
 		case Foxoring_fox_setting:
 		{
-			avr_eeprom_write_word(Foxoring_fox_setting, *(uint8_t*)val);
+			avr_eeprom_write_word(Foxoring_fox_setting, *(uint16_t*)val);
 		}
 		break;
 
@@ -404,9 +404,10 @@ void EepromManager::saveAllEEPROM(void)
 		updateEEPROMVar(Id_codespeed, (void*)&g_id_codespeed);
 	}
 	
-	if(g_fox != eeprom_read_byte(&(EepromManager::ee_vars.fox_setting)))
+	if(g_fox != eeprom_read_word(&(EepromManager::ee_vars.fox_setting)))
 	{
-		updateEEPROMVar(Fox_setting, (void*)&g_fox);
+		uint16_t x = (uint16_t)g_fox;
+		updateEEPROMVar(Fox_setting, (void*)&x);
 	}
 	
 	if(g_isMaster != eeprom_read_byte(&(EepromManager::ee_vars.master_setting)))
@@ -436,7 +437,8 @@ void EepromManager::saveAllEEPROM(void)
 	
 	if(g_foxoring_fox != eeprom_read_word(&(EepromManager::ee_vars.foxoring_fox_setting)))
 	{
-		updateEEPROMVar(Foxoring_fox_setting, (void*)&g_foxoring_fox);
+		uint16_t x = (uint16_t)g_foxoring_fox;
+		updateEEPROMVar(Foxoring_fox_setting, (void*)&x);
 	}
 	
 	if(g_event_start_epoch != eeprom_read_dword(&(EepromManager::ee_vars.event_start_epoch)))
@@ -573,8 +575,8 @@ bool EepromManager::readNonVols(void)
 		g_foxoring_frequencyA = CLAMP(TX_MINIMUM_80M_FREQUENCY, eeprom_read_dword(&(EepromManager::ee_vars.foxoring_frequencyA)), TX_MAXIMUM_80M_FREQUENCY);
 		g_foxoring_frequencyB = CLAMP(TX_MINIMUM_80M_FREQUENCY, eeprom_read_dword(&(EepromManager::ee_vars.foxoring_frequencyB)), TX_MAXIMUM_80M_FREQUENCY);
 		g_foxoring_frequencyC = CLAMP(TX_MINIMUM_80M_FREQUENCY, eeprom_read_dword(&(EepromManager::ee_vars.foxoring_frequencyC)), TX_MAXIMUM_80M_FREQUENCY);
-		g_foxoring_fox = CLAMP(FOXORING_EVENT_FOXA, (Fox_t)eeprom_read_byte(&(EepromManager::ee_vars.fox_setting)), FOXORING_EVENT_FOXC);
-		g_fox = CLAMP(BEACON, (Fox_t)eeprom_read_byte(&(EepromManager::ee_vars.fox_setting)), SPRINT_F5);
+		g_foxoring_fox = CLAMP(FOXORING_EVENT_FOXA, (Fox_t)eeprom_read_word(&(EepromManager::ee_vars.fox_setting)), FOXORING_EVENT_FOXC);
+		g_fox = CLAMP(BEACON, (Fox_t)eeprom_read_word(&(EepromManager::ee_vars.fox_setting)), SPRINT_F5);
 		g_event_start_epoch = eeprom_read_dword(&(EepromManager::ee_vars.event_start_epoch));
 		g_event_finish_epoch = eeprom_read_dword(&(EepromManager::ee_vars.event_finish_epoch));
 		g_utc_offset = (int8_t)eeprom_read_byte(&(EepromManager::ee_vars.utc_offset));
@@ -680,7 +682,7 @@ bool EepromManager::readNonVols(void)
 			avr_eeprom_write_byte(Master_setting, g_isMaster);
 
 			g_fox = EEPROM_FOX_SETTING_DEFAULT;
-			avr_eeprom_write_byte(Fox_setting, g_fox);
+			avr_eeprom_write_word(Fox_setting, (uint16_t)g_fox);
 			
 			g_event = EEPROM_EVENT_SETTING_DEFAULT;
 			avr_eeprom_write_byte(Event_setting, (uint8_t)g_event);
@@ -695,7 +697,7 @@ bool EepromManager::readNonVols(void)
 			avr_eeprom_write_dword(Foxoring_FrequencyC, g_foxoring_frequencyC);
 
 			g_foxoring_fox = EEPROM_FOXORING_FOX_SETTING_DEFAULT;
-			avr_eeprom_write_word(Foxoring_fox_setting, g_foxoring_fox);
+			avr_eeprom_write_word(Foxoring_fox_setting, (uint16_t)g_foxoring_fox);
 
 			g_event_start_epoch = EEPROM_START_EPOCH_DEFAULT;
 			avr_eeprom_write_dword(Event_start_epoch, g_event_start_epoch);
