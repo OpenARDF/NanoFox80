@@ -44,6 +44,8 @@
 
 /* Global Variables */
 extern bool g_isMaster;
+extern bool g_cloningInProgress;
+
 volatile uint16_t g_serial_timeout_ticks = 200;
 USART_Number_t g_serialbus_usart_number = USART_NOT_SET;
 static volatile bool g_bus_disabled = true;
@@ -355,6 +357,8 @@ bool serialbus_send_text(char* text)
 
 void sb_send_NewPrompt(void)
 {
+	if(g_isMaster || g_cloningInProgress) return;
+	
 	if(g_bus_disabled)
 	{
 		return;
@@ -368,6 +372,8 @@ void sb_send_NewPrompt(void)
 
 void sb_send_NewLine(void)
 {
+	if(g_isMaster || g_cloningInProgress) return;
+	
 	if(g_bus_disabled)
 	{
 		return;
@@ -377,6 +383,8 @@ void sb_send_NewLine(void)
 
 void sb_echo_char(uint8_t c)
 {
+	if(g_isMaster || g_cloningInProgress) return;
+	
 	if(g_bus_disabled)
 	{
 		return;

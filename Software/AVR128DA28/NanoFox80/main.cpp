@@ -153,7 +153,7 @@ static volatile uint16_t g_programming_countdown = 0;
 static volatile uint16_t g_programming_msg_throttle = 0;
 static volatile uint16_t g_send_clone_success_countdown = 0;
 static SyncState_t g_programming_state = SYNC_Searching_for_slave;
-static bool g_cloningInProgress = false;
+bool g_cloningInProgress = false;
 Enunciation_t g_enunciator = LED_ONLY;
 
 uint16_t g_Event_Configuration_Check = 0;
