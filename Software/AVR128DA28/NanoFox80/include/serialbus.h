@@ -188,6 +188,7 @@ void sb_echo_char(uint8_t c);
 /**
  */
 bool sb_send_string(char* str);
+bool sb_send_master_string(char* str);
 
 /**
  */

@@ -43,6 +43,7 @@
 #endif  /* ATMEL_STUDIO_7 */
 
 /* Global Variables */
+extern bool g_isMaster;
 volatile uint16_t g_serial_timeout_ticks = 200;
 USART_Number_t g_serialbus_usart_number = USART_NOT_SET;
 static volatile bool g_bus_disabled = true;
@@ -386,6 +387,13 @@ void sb_echo_char(uint8_t c)
 }
 
 bool sb_send_string(char* str)
+{
+	if(g_isMaster) return true;
+	
+	return sb_send_master_string(str);
+}
+
+bool sb_send_master_string(char* str)
 {
 	char buf[SERIALBUS_MAX_TX_MSG_LENGTH+1];
 	bool err = false;
