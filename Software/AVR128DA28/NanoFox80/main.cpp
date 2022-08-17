@@ -3916,7 +3916,7 @@ void handleSerialCloning(void)
 				if(msg_id == SB_MESSAGE_CLOCK)
 				{
 					g_programming_state = SYNC_Waiting_for_CLK_F_reply;
- 					sprintf(g_tempStr, "CLK F %lu\r", g_event_start_epoch);
+ 					sprintf(g_tempStr, "CLK F %lu\r", g_event_finish_epoch);
  					sb_send_master_string(g_tempStr);
 					g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
 				}
