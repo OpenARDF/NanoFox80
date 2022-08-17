@@ -474,7 +474,7 @@ void handle_1sec_tasks(void)
 						}
 					}
 							
- 					if((g_sleepType != DO_NOT_SLEEP) && !g_isMaster && !g_event_commenced)
+ 					if((g_sleepType != DO_NOT_SLEEP) && !g_isMaster && !g_event_commenced && !g_cloningInProgress)
 					{
 						LEDS.reset();
 						g_go_to_sleep_now = true;								
@@ -554,7 +554,7 @@ ISR(TCB0_INT_vect)
 							
 		static bool key = false;
 
-		if(g_event_enabled && g_event_commenced && !g_isMaster) /* Handle cycling transmissions */
+		if(g_event_enabled && g_event_commenced && !g_isMaster && !g_cloningInProgress) /* Handle cycling transmissions */
 		{
 			initializeManualTransmissions = true;
 			
@@ -842,7 +842,7 @@ int main(void)
 			if(g_handle_counted_presses == 1)
 			{
 				sb_send_string((char*)"\n1 press\n");
-				if(!g_isMaster) startEventNow(PROGRAMMATIC);
+				if(!g_isMaster && !g_cloningInProgress) startEventNow(PROGRAMMATIC);
 			}
 			else if (g_handle_counted_presses == 2)
 			{
@@ -922,19 +922,23 @@ int main(void)
 			}
 			else
 			{
-				sb_send_string((char*)"\nSlave\n");
+//				sb_send_string((char*)"\nSlave\n");
 				isMasterCountdownSeconds = 0;
+				g_start_event = true;
+				sb_send_NewPrompt();
 			}
 			
-			sb_send_NewPrompt();
+			g_cloningInProgress = false;
+			g_programming_countdown = 0;
+			g_send_clone_success_countdown = 0;
 		}
 		
 		if(g_start_event)
 		{
+			g_start_event = false;
+			
 			if(!g_isMaster)
 			{
-				g_start_event = false;
-			
 				SC status = STATUS_CODE_IDLE;
 				g_last_error_code = launchEvent(&status);
 			
@@ -1000,7 +1004,7 @@ int main(void)
 		/********************************
 		 * Handle sleep
 		 ******************************/
-		if(g_go_to_sleep_now)
+		if(g_go_to_sleep_now && !g_cloningInProgress)
 		{
 			LEDS.blink(LEDS_OFF);
 			wifi_reset(ON);
@@ -1276,17 +1280,19 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 							if(sb_buff->fields[SB_FIELD1][0] == 'A')
 							{
 								g_foxoring_frequencyA = f;
+								g_ee_mgr.updateEEPROMVar(Foxoring_FrequencyA, (void*)&f);
 							}
 							else if(sb_buff->fields[SB_FIELD1][0] == 'B')
 							{
 								g_foxoring_frequencyB = f;
+								g_ee_mgr.updateEEPROMVar(Foxoring_FrequencyB, (void*)&f);
 							}
 							else if(sb_buff->fields[SB_FIELD1][0] == 'C')
 							{
 								g_foxoring_frequencyC = f;
+								g_ee_mgr.updateEEPROMVar(Foxoring_FrequencyC, (void*)&f);
 							}
 					
-							g_ee_mgr.saveAllEEPROM();
 							sb_send_string((char*)"FRE\r");
 						}
 					}
@@ -1314,7 +1320,7 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 						
 						if(!txSetFrequency(&f, true))
 						{
-							g_ee_mgr.saveAllEEPROM();
+							g_ee_mgr.updateEEPROMVar(Frequency, (void*)&f);
 						}
 						else
 						{
@@ -1335,21 +1341,26 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 			{
 				if(g_cloningInProgress)
 				{
-					if(sb_buff->fields[SB_FIELD1][0] == 'A')
+					if(sb_buff->fields[SB_FIELD1][0] && sb_buff->fields[SB_FIELD2][0])
 					{
-						strcpy((char*)g_messages_text[FOXA_PATTERN_TEXT], sb_buff->fields[SB_FIELD2]);
-					}
-					else if(sb_buff->fields[SB_FIELD1][0] == 'B')
-					{
-						strcpy((char*)g_messages_text[FOXB_PATTERN_TEXT], sb_buff->fields[SB_FIELD2]);
-					}
-					else if(sb_buff->fields[SB_FIELD1][0] == 'C')
-					{
-						strcpy((char*)g_messages_text[FOXC_PATTERN_TEXT], sb_buff->fields[SB_FIELD2]);
-					}
+						if(sb_buff->fields[SB_FIELD1][0] == 'A')
+						{
+							strcpy((char*)g_messages_text[FOXA_PATTERN_TEXT], sb_buff->fields[SB_FIELD2]);
+							g_ee_mgr.updateEEPROMVar(FoxA_pattern_text, g_messages_text[FOXA_PATTERN_TEXT]);
+						}
+						else if(sb_buff->fields[SB_FIELD1][0] == 'B')
+						{
+							strcpy((char*)g_messages_text[FOXB_PATTERN_TEXT], sb_buff->fields[SB_FIELD2]);
+							g_ee_mgr.updateEEPROMVar(FoxB_pattern_text, g_messages_text[FOXB_PATTERN_TEXT]);
+						}
+						else if(sb_buff->fields[SB_FIELD1][0] == 'C')
+						{
+							strcpy((char*)g_messages_text[FOXC_PATTERN_TEXT], sb_buff->fields[SB_FIELD2]);
+							g_ee_mgr.updateEEPROMVar(FoxC_pattern_text, g_messages_text[FOXC_PATTERN_TEXT]);
+						}
 					
-					g_ee_mgr.saveAllEEPROM();
-					sb_send_string((char*)"PAT\r");
+						sb_send_string((char*)"PAT\r");
+					}
 				}
 				else
 				{
@@ -1364,22 +1375,23 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 								if(g_foxoring_fox == FOXORING_EVENT_FOXA)
 								{
 									strcpy(g_messages_text[FOXA_PATTERN_TEXT], g_tempStr);
+									g_ee_mgr.updateEEPROMVar(FoxA_pattern_text, g_messages_text[FOXA_PATTERN_TEXT]);
 								}
 								else if(g_foxoring_fox == FOXORING_EVENT_FOXB)
 								{
 									strcpy(g_messages_text[FOXB_PATTERN_TEXT], g_tempStr);
+									g_ee_mgr.updateEEPROMVar(FoxB_pattern_text, g_messages_text[FOXB_PATTERN_TEXT]);
 								}
 								else if(g_foxoring_fox == FOXORING_EVENT_FOXC)
 								{
 									strcpy(g_messages_text[FOXC_PATTERN_TEXT], g_tempStr);
+									g_ee_mgr.updateEEPROMVar(FoxC_pattern_text, g_messages_text[FOXC_PATTERN_TEXT]);
 								}
 							}
 							else
 							{
 								strcpy(g_messages_text[PATTERN_TEXT], g_tempStr);
 							}
-						
-							g_ee_mgr.saveAllEEPROM();
 						}
 						else
 						{
@@ -1420,7 +1432,6 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
  					keyTransmitter(OFF);
 					startEventNow(PROGRAMMATIC);
 				}
-
 			}
 			break;
 
@@ -1480,7 +1491,6 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 						if(strlen(g_tempStr) <= MAX_PATTERN_TEXT_LENGTH)
 						{
 							strcpy((char*)g_messages_text[STATION_ID], g_tempStr);
-							g_ee_mgr.updateEEPROMVar(StationID_text, (void*)g_tempStr);
 						}
 					}
 					
@@ -1491,7 +1501,7 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 					}
 				}
 
-				g_ee_mgr.saveAllEEPROM();
+				g_ee_mgr.updateEEPROMVar(StationID_text, g_messages_text[STATION_ID]);
 				
 				if(g_messages_text[STATION_ID][0])
 				{
@@ -1526,7 +1536,7 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 					sprintf(g_tempStr, "err\n");
 				}
 
-				reportSettings();
+				if(!(g_cloningInProgress)) reportSettings();
 			}
 			break;
 
@@ -1539,9 +1549,10 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 						g_cloningInProgress = true;
 						sb_send_string((char*)"MAS\r");
 						g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
+						suspendEvent();
 					}
 				}
-				else if(sb_buff->fields[SB_FIELD1][0] == 'Q')
+				else if((sb_buff->fields[SB_FIELD1][0] == 'Q') && g_cloningInProgress)
 				{
 					g_cloningInProgress = false;
 					g_programming_countdown = 0;
@@ -1554,16 +1565,16 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 						if((sb_buff->fields[SB_FIELD1][0] == 'M') || (sb_buff->fields[SB_FIELD1][0] == '1'))
 						{
  							g_isMaster = true;
-  							g_ee_mgr.updateEEPROMVar(Master_setting, (void*)&g_isMaster);
+ // 							g_ee_mgr.updateEEPROMVar(Master_setting, (void*)&g_isMaster);
 						}
 						else
 						{
 							g_isMaster = false;
- 							g_ee_mgr.updateEEPROMVar(Master_setting, (void*)&g_isMaster);
+// 							g_ee_mgr.updateEEPROMVar(Master_setting, (void*)&g_isMaster);
 						}
 					}
 
-					reportSettings();
+					if(!g_cloningInProgress) reportSettings();
 				}
 			}
 			break;
@@ -1574,7 +1585,7 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 				{
 					sb_send_string((char*)"EVT F\r");
 					g_event = EVENT_FOXORING;
-					g_ee_mgr.saveAllEEPROM();
+					g_ee_mgr.updateEEPROMVar(Event_setting, (void*)&g_event);
 					g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
 				}
 				else
@@ -1582,14 +1593,14 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 					if(sb_buff->fields[SB_FIELD1][0] == 'F')
 					{
 						g_event = EVENT_FOXORING;
-						g_ee_mgr.saveAllEEPROM();
+						g_ee_mgr.updateEEPROMVar(Event_setting, (void*)&g_event);
 						init_transmitter(getFrequencySetting());
 						setupForFox(getFoxSetting(), START_NOTHING);
 					}
 					else if(sb_buff->fields[SB_FIELD1][0])
 					{
 						g_event = EVENT_NONE;
-						g_ee_mgr.saveAllEEPROM();			
+						g_ee_mgr.updateEEPROMVar(Event_setting, (void*)&g_event);
 						init_transmitter(getFrequencySetting());
 						setupForFox(getFoxSetting(), START_NOTHING);
 					}
@@ -1656,7 +1667,7 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 						{
 							g_event_start_epoch = atol(g_tempStr);
 					
-							g_ee_mgr.saveAllEEPROM();
+							g_ee_mgr.updateEEPROMVar(Event_start_epoch, (void*)&g_event_start_epoch);
 							sb_send_string((char*)"CLK\r");
 							g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
 						}
@@ -1664,7 +1675,7 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 						{
  							g_event_start_epoch = s;
  							g_event_finish_epoch = MAX(g_event_finish_epoch, (g_event_start_epoch + SECONDS_24H));
-							g_ee_mgr.saveAllEEPROM();
+							g_ee_mgr.updateEEPROMVar(Event_start_epoch, (void*)&g_event_start_epoch);
  							setupForFox(INVALID_FOX, START_EVENT_WITH_STARTFINISH_TIMES);
 							if(eventScheduled())
 							{
@@ -1694,7 +1705,7 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 						{
 							g_event_finish_epoch = atol(g_tempStr);
 							
-							g_ee_mgr.saveAllEEPROM();
+							g_ee_mgr.updateEEPROMVar(Event_finish_epoch, (void*)&g_event_finish_epoch);
 							sb_send_string((char*)"CLK\r");
 							g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
 						}
@@ -3014,13 +3025,13 @@ void setupForFox(Fox_t fox, EventAction_t action)
 		}
 		
 		SC status = STATUS_CODE_IDLE;
-		EC result = launchEvent(&status);
+		launchEvent(&status);
 		g_wifi_enable_delay = 2; /* Ensure WiFi is enabled and countdown is reset */
 
-		if(!result)
-		{
-			g_ee_mgr.saveAllEEPROM();
-		}
+// 		if(!result)
+// 		{
+// 			g_ee_mgr.saveAllEEPROM();
+// 		}
 	}
 	else if(action == START_TRANSMISSIONS_NOW)                                  /* Immediately start transmitting, regardless RTC or time slot */
 	{
@@ -3673,6 +3684,7 @@ void handleSerialCloning(void)
 	if(!g_programming_countdown)
 	{
 		g_programming_state = SYNC_Searching_for_slave;
+		g_cloningInProgress = false;
 	}
 	
 	SerialbusRxBuffer* sb_buff = nextFullSBRxBuffer();
@@ -3683,10 +3695,10 @@ void handleSerialCloning(void)
 		isMasterCountdownSeconds = 600; /* Extend Master time */
 	}
 	
-	if(!g_programming_msg_throttle)
+	if(!g_programming_msg_throttle && !g_cloningInProgress)
 	{
 		sb_send_master_string((char*)"\rMAS P\r"); /* Set slave to active cloning state */
-		g_programming_msg_throttle = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
+		g_programming_msg_throttle = 600;
 	}
 	
 	switch(g_programming_state)
@@ -3701,11 +3713,12 @@ void handleSerialCloning(void)
 					sb_send_master_string((char*)"EVT F\r"); /* Set slave's event to foxoring */
 					g_programming_state = SYNC_Waiting_for_EVT_reply;
 					g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
+					g_cloningInProgress = true;
 				}
-				else
-				{
-					handleSerialBusMsgs();
-				}
+// 				else
+// 				{
+// 					handleSerialBusMsgs();
+// 				}
 			}			
 		}
 		break;

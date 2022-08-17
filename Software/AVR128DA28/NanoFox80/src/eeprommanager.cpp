@@ -409,10 +409,10 @@ void EepromManager::saveAllEEPROM(void)
 		updateEEPROMVar(Fox_setting, (void*)&g_fox);
 	}
 	
-	if(g_isMaster != eeprom_read_byte(&(EepromManager::ee_vars.master_setting)))
-	{
-		updateEEPROMVar(Master_setting, (void*)&g_isMaster);
-	}
+// 	if(g_isMaster != eeprom_read_byte(&(EepromManager::ee_vars.master_setting)))
+// 	{
+// 		updateEEPROMVar(Master_setting, (void*)&g_isMaster);
+// 	}
 	
 	if(g_event != eeprom_read_byte(&(EepromManager::ee_vars.event_setting)))
 	{
@@ -567,7 +567,7 @@ bool EepromManager::readNonVols(void)
 
 	if(initialization_flag == EEPROM_INITIALIZED_FLAG)  /* EEPROM is up to date */
 	{
-		g_isMaster = (int8_t)eeprom_read_byte(&(EepromManager::ee_vars.master_setting));
+		g_isMaster = EEPROM_MASTER_SETTING_DEFAULT; // (int8_t)eeprom_read_byte(&(EepromManager::ee_vars.master_setting));
 		g_id_codespeed = CLAMP(MIN_CODE_SPEED_WPM, eeprom_read_byte(&(EepromManager::ee_vars.id_codespeed)), MAX_CODE_SPEED_WPM);
 		g_event = (Event_t)eeprom_read_byte((const uint8_t*)&(EepromManager::ee_vars.event_setting));
 		g_foxoring_frequencyA = CLAMP(TX_MINIMUM_80M_FREQUENCY, eeprom_read_dword(&(EepromManager::ee_vars.foxoring_frequencyA)), TX_MAXIMUM_80M_FREQUENCY);

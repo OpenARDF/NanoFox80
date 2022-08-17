@@ -315,33 +315,28 @@ void serialbus_disable(void)
 bool serialbus_send_text(char* text)
 {
 	bool err = true;
-	uint16_t tries = 200;
 
 	if(g_bus_disabled)
 	{
 		return( err);
 	}
 
+	uint16_t tries;
 	if(text)
 	{
 		SerialbusTxBuffer* buff = nextEmptySBTxBuffer();
-
-		while(!buff && tries)
+		tries = 200;
+		
+		while(!buff && tries--)
 		{
-			while(serialbusTxInProgress() && tries)
-			{
-				if(tries)
-				{
-					tries--;    /* wait until transmit finishes */
-				}
-			}
+			uint16_t spin = 500;
+			while(serialbusTxInProgress() && spin--); /* Wait for previous transmission to complete */
 			buff = nextEmptySBTxBuffer();
 		}
 
 		if(buff)
 		{
 			sprintf(*buff, text);
-
 			serialbus_start_tx();
 			err = false;
 		}
