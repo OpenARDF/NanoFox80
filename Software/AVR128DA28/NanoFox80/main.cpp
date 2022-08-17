@@ -841,12 +841,12 @@ int main(void)
 		{
 			if(g_handle_counted_presses == 1)
 			{
-				sb_send_string((char*)"\n1 press\n");
+//				sb_send_string((char*)"\n1 press\n");
 				if(!g_isMaster && !g_cloningInProgress) startEventNow(PROGRAMMATIC);
 			}
 			else if (g_handle_counted_presses == 2)
 			{
-				sb_send_string((char*)"\n2 presses\n");
+//				sb_send_string((char*)"\n2 presses\n");
 				suspendEvent();
 			}
 			
@@ -886,7 +886,11 @@ int main(void)
 
 			if(g_text_buff.empty())
 			{
-				if(g_hardware_error & ((int)HARDWARE_NO_RTC | (int)HARDWARE_NO_SI5351 ))
+				if(g_cloningInProgress)
+				{
+					LEDS.blink(LEDS_RED_ON_CONSTANT);
+				}
+				else if(g_hardware_error & ((int)HARDWARE_NO_RTC | (int)HARDWARE_NO_SI5351 ))
 				{
 					LEDS.blink(LEDS_RED_BLINK_FAST);
 				}
