@@ -17,15 +17,16 @@
 #define SLOW_OFF 500
 #define BRIEF_ON 15
 #define BRIEF_OFF 50
-#define LED_TIMEOUT 60000
+#define LED_TIMEOUT_DELAY 180000
 
 extern volatile bool g_event_enabled;
 extern volatile bool g_enable_manual_transmissions;
 extern CircularStringBuff g_text_buff;
 extern Enunciation_t g_enunciator;
 
+static volatile bool timer_blink_inhibit = false; /* disable blinking by timer */
 static volatile Blink_t lastBlinkSetting = LEDS_OFF;
-static volatile uint32_t led_timeout_count = 0;
+static volatile uint32_t led_timeout_count = LED_TIMEOUT_DELAY;
 static volatile int16_t red_blink_on_period = 0;
 static volatile int16_t red_blink_off_period = 0;
 static volatile int16_t green_blink_on_period = 0;
@@ -34,7 +35,6 @@ static volatile int16_t red_blink_count = 0;
 static volatile int16_t green_blink_count = 0;
 static volatile bool red_led_configured = false;
 static volatile bool green_led_configured = false;
-static volatile bool g_override = false;
 
 // default constructor
 leds::leds()
@@ -51,100 +51,104 @@ ISR(TCB1_INT_vect)
 {
 	uint8_t x = TCB1.INTFLAGS;
 	
-	if(led_timeout_count || g_override)
+	if(x & TCB_CAPT_bm)
 	{
-		led_timeout_count--;
-		
-		if(x & TCB_CAPT_bm)
+		if(led_timeout_count)
 		{
-			if(red_blink_count)
-			{
-				if(red_blink_count > 1)
-				{
-					LED_set_RED_level(ON);
-					red_blink_count--;
-				}
-				else if(red_blink_count < -1)
-				{
-					LED_set_RED_level(OFF);
-					red_blink_count++;
-				}
+			led_timeout_count--;
 			
-				if(red_blink_count == 1)
+			if(!led_timeout_count)
+			{
+				LED_set_RED_level(OFF);
+				LED_set_GREEN_level(OFF);
+			}
+		}
+		
+		if(!timer_blink_inhibit)
+		{
+			if(led_timeout_count)
+			{		
+				if(red_blink_count)
 				{
-					if(red_blink_off_period)
+					if(red_blink_count > 1)
 					{
-						red_blink_count = -red_blink_off_period;
+						LED_set_RED_level(ON);
+						red_blink_count--;
 					}
-					else /* constantly on */
+					else if(red_blink_count < -1)
+					{
+						LED_set_RED_level(OFF);
+						red_blink_count++;
+					}
+				
+					if(red_blink_count == 1)
+					{
+						if(red_blink_off_period)
+						{
+							red_blink_count = -red_blink_off_period;
+						}
+						else /* constantly on */
+						{
+							red_blink_count = red_blink_on_period;
+						}
+					}
+					else if(red_blink_count == -1)
 					{
 						red_blink_count = red_blink_on_period;
 					}
+				
 				}
-				else if(red_blink_count == -1)
+				else if(red_led_configured)
 				{
-					red_blink_count = red_blink_on_period;
-				}
-			
-			}
-			else if(red_led_configured)
-			{
-				LED_set_RED_level(OFF);
-			}
-		
-			if(green_blink_count)
-			{
-				if(green_blink_count > 1)
-				{
-					LED_set_GREEN_level(ON);
-					green_blink_count--;
-				}
-				else if(green_blink_count < -1)
-				{
-					LED_set_GREEN_level(OFF);
-					green_blink_count++;
+					LED_set_RED_level(OFF);
 				}
 			
-				if(green_blink_count == 1)
+				if(green_blink_count)
 				{
-					if(green_blink_off_period)
+					if(green_blink_count > 1)
 					{
-						green_blink_count = -green_blink_off_period;
+						LED_set_GREEN_level(ON);
+						green_blink_count--;
 					}
-					else /* constantly on */
+					else if(green_blink_count < -1)
+					{
+						LED_set_GREEN_level(OFF);
+						green_blink_count++;
+					}
+				
+					if(green_blink_count == 1)
+					{
+						if(green_blink_off_period)
+						{
+							green_blink_count = -green_blink_off_period;
+						}
+						else /* constantly on */
+						{
+							green_blink_count = green_blink_on_period;
+						}
+					}
+					else if(green_blink_count == -1)
 					{
 						green_blink_count = green_blink_on_period;
 					}
 				}
-				else if(green_blink_count == -1)
+				else if(green_led_configured)
 				{
-					green_blink_count = green_blink_on_period;
-				}	
+					LED_set_GREEN_level(OFF);
+				}
 			}
-			else if(green_led_configured)
+			else
 			{
+	//			TCB1.INTCTRL &= ~TCB_CAPT_bm;   /* Capture or Timeout: disabled */
+				LED_set_RED_level(OFF);
 				LED_set_GREEN_level(OFF);
-			}
+		// 		red_led_configured = false;
+		// 		green_led_configured = false;
+			}		
 		}
-	}
-	else
-	{
-		TCB1.INTCTRL &= ~TCB_CAPT_bm;   /* Capture or Timeout: disabled */
-		LED_set_RED_level(OFF);
-		LED_set_GREEN_level(OFF);
-// 		red_led_configured = false;
-// 		green_led_configured = false;
 	}
 		
 	TCB1.INTFLAGS =  (TCB_CAPT_bm | TCB_OVF_bm); /* clear interrupt flag */
-}
-
-void leds::reset(void)
-{
-	g_override = false;
-	blink(LEDS_OFF);
-	g_text_buff.reset();
-	g_enable_manual_transmissions = false;
 }
 
 
@@ -155,16 +159,13 @@ bool leds::active(void)
 
 void leds::setRed(bool on)
 {
-	if(g_override) return;
+	if(!led_timeout_count) return;
 
-	TCB1.INTCTRL &= ~TCB_CAPT_bm;   /* Capture or Timeout: disabled */
+//	TCB1.INTCTRL &= ~TCB_CAPT_bm;   /* Capture or Timeout: disabled */
 
 	if(on)
 	{
-		if(led_timeout_count)
-		{
-			LED_set_RED_level(ON);
-		}
+		LED_set_RED_level(ON);
 	}
 	else
 	{
@@ -174,16 +175,13 @@ void leds::setRed(bool on)
 
 void leds::setGreen(bool on)
 {
-	if(g_override) return;
+	if(!led_timeout_count) return;
 
-	TCB1.INTCTRL &= ~TCB_CAPT_bm;   /* Capture or Timeout: disabled */
+//	TCB1.INTCTRL &= ~TCB_CAPT_bm;   /* Capture or Timeout: disabled */
 
 	if(on)
 	{
-		if(led_timeout_count)
-		{
-			LED_set_GREEN_level(ON);
-		}
+		LED_set_GREEN_level(ON);
 	}
 	else
 	{
@@ -191,42 +189,60 @@ void leds::setGreen(bool on)
 	}
 }
 
-void leds::resume(void)
+/* Turns off LEDs, resets the text buffer, and disables LED character transmissions. Re-enables LED timer blink functionality. */
+void leds::reset(void)
 {
-	if(!active())
-	{
-		led_timeout_count = LED_TIMEOUT;
-		TCB1.INTCTRL |= TCB_CAPT_bm;   /* Capture or Timeout: enabled */
-	}
+	blink(LEDS_OFF);
+	g_text_buff.reset();
+	g_enable_manual_transmissions = false;
+	timer_blink_inhibit = false; /* Enable timer LED control */
+	led_timeout_count = LED_TIMEOUT_DELAY;
+}
+
+/* Disables LED timer while resetting settings for interrupt safety. */
+void leds::init(void)
+{
+	TCB1.INTCTRL &= ~TCB_CAPT_bm; /* Disable timer interrupt */
+	reset();
+	TCB1.INTCTRL |= TCB_CAPT_bm;   /* Capture or Timeout: enabled */
 }
 
 void leds::sendCode(char* str)
 {
-	g_enable_manual_transmissions = false; /* simple thread collision avoidance */
+	if(!led_timeout_count) return;
 	
 	if(!str || !strlen(str))
 	{
 		return;
 	}
 
-// 	g_event_enabled = false; /* Ensure an ongoing event is interrupted */
-				
 	int lenstr = strlen(str);					
 	int i = 0;
 
+	g_enable_manual_transmissions = false; /* simple thread collision avoidance */
+	
 	while(!g_text_buff.full() && i<lenstr && i<TEXT_BUFF_SIZE)
 	{
 		g_text_buff.put(str[i++]);
 	}
 	
+	timer_blink_inhibit = true; /* Prevent timer from controlling LED */
 	g_enable_manual_transmissions = true;
 }
 
 void leds::blink(Blink_t blinkMode)
 {
-	if(g_override) return;
+	blink(blinkMode, false);
+}
+
+void leds::blink(Blink_t blinkMode, bool resetTimeout)
+{
+	if(resetTimeout)
+	{
+		led_timeout_count = LED_TIMEOUT_DELAY;
+	}
 	
-	led_timeout_count = LED_TIMEOUT;
+	if(!led_timeout_count && (blinkMode != LEDS_OFF)) return;
 	
 	if(blinkMode != lastBlinkSetting)
 	{
@@ -267,6 +283,7 @@ void leds::blink(Blink_t blinkMode)
 				red_blink_off_period = BRIEF_OFF;
 				red_blink_count = red_blink_on_period;	
 				red_led_configured = true;			
+				timer_blink_inhibit = false; /* Enable timer LED control */
 			}
 			break;
 			
@@ -276,6 +293,7 @@ void leds::blink(Blink_t blinkMode)
 				green_blink_off_period = BRIEF_OFF;	
 				green_blink_count = green_blink_on_period;			
 				green_led_configured = true;			
+				timer_blink_inhibit = false; /* Enable timer LED control */
 			}
 			break;
 			
@@ -285,6 +303,7 @@ void leds::blink(Blink_t blinkMode)
 				red_blink_off_period = SLOW_OFF;
 				red_blink_count = red_blink_on_period;				
 				red_led_configured = true;			
+				timer_blink_inhibit = false; /* Enable timer LED control */
 			}
 			break;
 			
@@ -294,6 +313,7 @@ void leds::blink(Blink_t blinkMode)
 				green_blink_off_period = SLOW_OFF;	
 				green_blink_count = green_blink_on_period;			
 				green_led_configured = true;			
+				timer_blink_inhibit = false; /* Enable timer LED control */
 			}
 			break;
 			
@@ -307,6 +327,7 @@ void leds::blink(Blink_t blinkMode)
 				red_blink_count = red_blink_on_period;				
 				red_led_configured = true;			
 				green_led_configured = true;			
+				timer_blink_inhibit = false; /* Enable timer LED control */
 			}
 			break;
 			
@@ -320,6 +341,7 @@ void leds::blink(Blink_t blinkMode)
 				red_blink_count = red_blink_on_period;				
 				red_led_configured = true;			
 				green_led_configured = true;			
+				timer_blink_inhibit = false; /* Enable timer LED control */
 			}
 			break;
 			
@@ -333,14 +355,10 @@ void leds::blink(Blink_t blinkMode)
 				red_blink_count = red_blink_on_period;				
 				red_led_configured = true;			
 				green_led_configured = true;			
+				timer_blink_inhibit = false; /* Enable timer LED control */
 			}
 			break;
 			
-			case LEDS_RED_AND_GREEN_BLINK_FAST_OVERRIDE_ALL:
-			{
-				g_override = true;
-			}
-			/* Intentional fall-thru */
 			case LEDS_RED_AND_GREEN_BLINK_FAST:
 			{
 				green_blink_on_period = FAST_ON;
@@ -351,6 +369,7 @@ void leds::blink(Blink_t blinkMode)
 				red_blink_count = red_blink_on_period;				
 				red_led_configured = true;			
 				green_led_configured = true;			
+				timer_blink_inhibit = false; /* Enable timer LED control */
 			}
 			break;
 			
@@ -360,6 +379,7 @@ void leds::blink(Blink_t blinkMode)
 				red_blink_off_period = 0;
 				red_blink_count = red_blink_on_period;
 				red_led_configured = true;			
+				timer_blink_inhibit = false; /* Enable timer LED control */
 			}
 			break;
 			
@@ -369,6 +389,7 @@ void leds::blink(Blink_t blinkMode)
 				green_blink_off_period = 0;
 				green_blink_count = green_blink_on_period;
 				green_led_configured = true;			
+				timer_blink_inhibit = false; /* Enable timer LED control */
 			}
 			break;
 			
@@ -379,10 +400,7 @@ void leds::blink(Blink_t blinkMode)
 			break;
 		}
 		
-		if(red_led_configured || green_led_configured) 
-		{
-			TCB1.INTCTRL |= TCB_CAPT_bm;   /* Capture or Timeout: enabled */
-		}
+		TCB1.INTCTRL |= TCB_CAPT_bm;   /* Capture or Timeout: enabled */
 	}
 	
 	lastBlinkSetting = blinkMode;

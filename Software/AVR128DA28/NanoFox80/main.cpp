@@ -42,9 +42,8 @@ typedef enum
 
 typedef enum
 {
-	AWAKENED_BY_POWERUP,
+	POWER_UP_START,
 	AWAKENED_BY_CLOCK,
-	AWAKENED_BY_ANTENNA,
 	AWAKENED_BY_BUTTONPRESS
 } Awakened_t;
 
@@ -69,7 +68,8 @@ typedef enum {
 	SYNC_Waiting_for_FRE_B_reply,
 	SYNC_Waiting_for_FRE_C_reply,
 	SYNC_Waiting_for_CLK_S_reply,
-	SYNC_Waiting_for_CLK_F_reply
+	SYNC_Waiting_for_CLK_F_reply,
+	SYNC_Waiting_for_ACK
 } SyncState_t;
 
 #define PROGRAMMING_MESSAGE_TIMEOUT_PERIOD 9000
@@ -91,8 +91,6 @@ static volatile bool g_powering_off = false;
 static volatile uint16_t g_util_tick_countdown = 0;
 static volatile bool g_battery_measurements_active = false;
 static volatile uint16_t g_maximum_battery = 0;
-
-volatile AntConnType g_antenna_connect_state = ANT_CONNECTION_UNDETERMINED;
 
 static volatile bool g_start_event = false;
 static volatile bool g_end_event = false;
@@ -122,17 +120,16 @@ volatile bool g_event_enabled = EEPROM_EVENT_ENABLED_DEFAULT;                   
 volatile bool g_event_commenced = false;
 volatile bool g_check_for_next_event = false;
 volatile bool g_waiting_for_next_event = false;
-volatile uint16_t g_battery_empty_mV = EEPROM_BATTERY_EMPTY_MV;
+volatile float g_voltage_threshold = EEPROM_BATTERY_THRESHOLD_V;
+volatile float g_battery_voltage = 0.;
 volatile bool g_sending_station_ID = false;											/* Allows a small extension of transmissions to ensure the ID is fully sent */
 volatile bool g_muteAfterID = false;												/* Inhibit any transmissions after the ID has been sent */
-
-static volatile bool g_sufficient_power_detected = false;
-static volatile bool g_enableHardwareWDResets = false;
+volatile uint32_t g_event_checksum = 0;
 
 static volatile bool g_go_to_sleep_now = false;
 static volatile bool g_sleeping = false;
 static volatile time_t g_time_to_wake_up = 0;
-static volatile Awakened_t g_awakenedBy = AWAKENED_BY_POWERUP;
+static volatile Awakened_t g_awakenedBy = POWER_UP_START;
 static volatile SleepType g_sleepType = SLEEP_FOREVER;
 
 #define NUMBER_OF_POLLED_ADC_CHANNELS 1
@@ -296,7 +293,7 @@ void handle_1sec_tasks(void)
 				g_event_commenced = false;
 				g_check_for_next_event = true;
 				g_wifi_enable_delay = 2;
-				LEDS.reset();
+				LEDS.init();
 				g_sleepType = SLEEP_FOREVER;
 					
 				if(g_hardware_error & (int)HARDWARE_NO_WIFI)
@@ -430,7 +427,7 @@ void handle_1sec_tasks(void)
 				}
 
 				g_event_commenced = true;
-				LEDS.reset();
+				LEDS.init();
 			}
 		}
 	}
@@ -466,9 +463,9 @@ void handle_1sec_tasks(void)
 					g_shutting_down_wifi = false;
 					g_wifi_active = false;
 					
-					if((g_sleepType == DO_NOT_SLEEP) && (g_hardware_error & (int)HARDWARE_NO_WIFI)) /* This should never happen, but if it does it needs to be handled */
+					if((g_sleepType == DO_NOT_SLEEP) && (g_hardware_error & (int)HARDWARE_NO_WIFI)) /* There is no WiFi hardware to provide a new event */
 					{
-						if(!eventScheduled())
+						if(!g_event_commenced && !eventScheduled()) /* There is no ongoing event, and none scheduled for the future */
 						{
 							g_sleepType = SLEEP_FOREVER;
 						}
@@ -476,7 +473,7 @@ void handle_1sec_tasks(void)
 							
  					if((g_sleepType != DO_NOT_SLEEP) && !g_isMaster && !g_event_commenced && !g_cloningInProgress)
 					{
-						LEDS.reset();
+						LEDS.init();
 						g_go_to_sleep_now = true;								
 					}
 				}
@@ -707,21 +704,13 @@ ISR(TCB0_INT_vect)
  		}
  		else if(ADC0_conversionDone())   /* wait for conversion to complete */
  		{
- 			static uint16_t holdConversionResult;
  			uint16_t hold = ADC0_read(); //ADC;
  			
  			if((hold > 10) && (hold < 4090))
  			{
- 				holdConversionResult = hold; // (uint16_t)(((uint32_t)hold * ADC_REF_VOLTAGE_mV) >> 10);    /* millivolts at ADC pin */
- 				uint16_t lastResult = g_lastConversionResult[indexConversionInProcess];
- 
  				g_adcUpdated[indexConversionInProcess] = true;
- 				lastResult = holdConversionResult;
- 				g_lastConversionResult[indexConversionInProcess] = lastResult;
- 			}
- 			else
- 			{
- 				hold = g_lastConversionResult[indexConversionInProcess];
+  				g_lastConversionResult[indexConversionInProcess] = hold;
+				g_battery_voltage = (0.00705 * (float)g_lastConversionResult[EXTERNAL_BATTERY_VOLTAGE]) + 0.05;
  			}
  
  			conversionInProcess = false;
@@ -747,10 +736,23 @@ ISR(PORTD_PORT_vect)
 			g_awakenedBy = AWAKENED_BY_BUTTONPRESS;	
 			g_waiting_for_next_event = false; /* Ensure the wifi module does not get shut off prematurely */
 		}
-		else 
+		else if(g_switch_closed_count > 5)
 		{	
-			if(PORTD_get_pin_level(SWITCH)) g_switch_presses_count++;		
-			g_switch_closed_count = 0;
+			if(!LEDS.active())
+			{
+				LEDS.init();
+			}
+			else
+			{
+				if(PORTD_get_pin_level(SWITCH)) g_switch_presses_count++;		
+				g_switch_closed_count = 0;
+				if(g_isMaster) 
+				{
+					g_send_clone_success_countdown = 0;
+					g_cloningInProgress = false;
+					g_programming_msg_throttle = 0;
+				}
+			}
 		}
 	}
 	
@@ -777,7 +779,7 @@ void powerUp3V3(void)
 int main(void)
 {
 	atmel_start_init();
-	LEDS.blink(LEDS_OFF);
+	LEDS.blink(LEDS_OFF, true);
 	powerUp3V3();
 	
 	g_ee_mgr.initializeEEPROMVars();
@@ -859,7 +861,11 @@ int main(void)
 			
 			if(g_text_buff.empty())
 			{
-				if(g_send_clone_success_countdown)
+				if((g_battery_voltage >= 0.1) && (g_battery_voltage <= g_voltage_threshold))
+				{
+					LEDS.sendCode((char*)"V ");
+				}
+				else if(g_send_clone_success_countdown)
 				{
 					LEDS.sendCode((char*)"X ");
 				}
@@ -872,6 +878,7 @@ int main(void)
 			if(!isMasterCountdownSeconds)
 			{
 				g_isMaster = false;
+				g_send_clone_success_countdown = 0;
 				g_start_event = eventEnabled(); /* Start any event stored in EEPROM */
 			}
 		}
@@ -886,9 +893,13 @@ int main(void)
 
 			if(g_text_buff.empty())
 			{
-				if(g_cloningInProgress)
+				if((g_battery_voltage >= 0.1) && (g_battery_voltage <= g_voltage_threshold))
 				{
-					LEDS.blink(LEDS_RED_ON_CONSTANT);
+					LEDS.sendCode((char*)"V ");
+				}
+				else if(g_cloningInProgress)
+				{
+					LEDS.blink(LEDS_RED_ON_CONSTANT, true);
 				}
 				else if(g_hardware_error & ((int)HARDWARE_NO_RTC | (int)HARDWARE_NO_SI5351 ))
 				{
@@ -935,6 +946,7 @@ int main(void)
 			g_cloningInProgress = false;
 			g_programming_countdown = 0;
 			g_send_clone_success_countdown = 0;
+			LEDS.init();
 		}
 		
 		if(g_start_event)
@@ -1049,9 +1061,9 @@ int main(void)
 			while(util_delay_ms(2000));
 			init_transmitter();
 			
-			if((g_awakenedBy == AWAKENED_BY_BUTTONPRESS) || (g_awakenedBy == AWAKENED_BY_ANTENNA) || (g_awakenedBy == AWAKENED_BY_POWERUP))
+			if(g_awakenedBy == AWAKENED_BY_BUTTONPRESS)
 			{	
-				LEDS.reset();
+				LEDS.init();
 				g_wifi_enable_delay = 2; /* Ensure WiFi is enabled and countdown is reset */
 			}
 
@@ -1072,7 +1084,7 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 		if(!g_WiFi_shutdown_seconds)
 		{
 			g_wifi_enable_delay = 2;
-			LEDS.resume();
+			LEDS.init();
 		}
 		else
 		{
@@ -1296,8 +1308,11 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 								g_foxoring_frequencyC = f;
 								g_ee_mgr.updateEEPROMVar(Foxoring_FrequencyC, (void*)&f);
 							}
+							
+							g_event_checksum += f;
 					
 							sb_send_string((char*)"FRE\r");
+							g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
 						}
 					}
 					else if(!frequencyVal(sb_buff->fields[SB_FIELD1], &f))
@@ -1347,23 +1362,31 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 				{
 					if(sb_buff->fields[SB_FIELD1][0] && sb_buff->fields[SB_FIELD2][0])
 					{
+						int len = MIN(MAX_PATTERN_TEXT_LENGTH, strlen(sb_buff->fields[SB_FIELD2]));
+						
 						if(sb_buff->fields[SB_FIELD1][0] == 'A')
 						{
-							strcpy((char*)g_messages_text[FOXA_PATTERN_TEXT], sb_buff->fields[SB_FIELD2]);
+							strncpy((char*)g_messages_text[FOXA_PATTERN_TEXT], sb_buff->fields[SB_FIELD2], len);
 							g_ee_mgr.updateEEPROMVar(FoxA_pattern_text, g_messages_text[FOXA_PATTERN_TEXT]);
 						}
 						else if(sb_buff->fields[SB_FIELD1][0] == 'B')
 						{
-							strcpy((char*)g_messages_text[FOXB_PATTERN_TEXT], sb_buff->fields[SB_FIELD2]);
+							strncpy((char*)g_messages_text[FOXB_PATTERN_TEXT], sb_buff->fields[SB_FIELD2], len);
 							g_ee_mgr.updateEEPROMVar(FoxB_pattern_text, g_messages_text[FOXB_PATTERN_TEXT]);
 						}
 						else if(sb_buff->fields[SB_FIELD1][0] == 'C')
 						{
-							strcpy((char*)g_messages_text[FOXC_PATTERN_TEXT], sb_buff->fields[SB_FIELD2]);
+							strncpy((char*)g_messages_text[FOXC_PATTERN_TEXT], sb_buff->fields[SB_FIELD2], len);
 							g_ee_mgr.updateEEPROMVar(FoxC_pattern_text, g_messages_text[FOXC_PATTERN_TEXT]);
+						}
+						
+						for(int i=0; i<len; i++)
+						{
+							g_event_checksum += sb_buff->fields[SB_FIELD2][i];
 						}
 					
 						sb_send_string((char*)"PAT\r");
+						g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
 					}
 				}
 				else
@@ -1432,7 +1455,7 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 				else
 				{
 					LEDS.setRed(OFF);
-					LEDS.resume();
+					LEDS.init();
  					keyTransmitter(OFF);
 					startEventNow(PROGRAMMATIC);
 				}
@@ -1477,6 +1500,8 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 			{
 				if(sb_buff->fields[SB_FIELD1][0])
 				{
+					int len = 0;
+					
 					if((sb_buff->fields[SB_FIELD1][0] == '\"') && (sb_buff->fields[SB_FIELD1][1] == '\"')) /* "" */
 					{
 						g_messages_text[STATION_ID][0] = '\0';
@@ -1491,15 +1516,18 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 							strcat(g_tempStr, " ");
 							strcat(g_tempStr, sb_buff->fields[SB_FIELD2]);
 						}
-
-						if(strlen(g_tempStr) <= MAX_PATTERN_TEXT_LENGTH)
-						{
-							strcpy((char*)g_messages_text[STATION_ID], g_tempStr);
-						}
+						
+						len = MIN(MAX_PATTERN_TEXT_LENGTH, strlen(g_tempStr));
+						strncpy((char*)g_messages_text[STATION_ID], g_tempStr, len);
 					}
 					
 					if(g_cloningInProgress)
-					{
+					{				
+						for(int i=0; i<len; i++)
+						{
+							g_event_checksum += g_messages_text[STATION_ID][i];
+						}
+
 						sb_send_string((char*)"ID\r");
 						g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
 					}
@@ -1554,13 +1582,23 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 						sb_send_string((char*)"MAS\r");
 						g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
 						suspendEvent();
+						g_event_checksum = 0;
 					}
 				}
 				else if((sb_buff->fields[SB_FIELD1][0] == 'Q') && g_cloningInProgress)
 				{
+					uint32_t sum = atol(sb_buff->fields[SB_FIELD2]);
 					g_cloningInProgress = false;
 					g_programming_countdown = 0;
-					g_send_clone_success_countdown = 18000;
+					if(sum == g_event_checksum)
+					{
+						sb_send_string((char*)"MAS ACK\r");
+						g_send_clone_success_countdown = 18000;
+					}
+					else
+					{
+						sb_send_string((char*)"MAS NAK\r");
+					}
 				}
 				else
 				{
@@ -1569,16 +1607,16 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 						if((sb_buff->fields[SB_FIELD1][0] == 'M') || (sb_buff->fields[SB_FIELD1][0] == '1'))
 						{
  							g_isMaster = true;
- // 							g_ee_mgr.updateEEPROMVar(Master_setting, (void*)&g_isMaster);
+							isMasterCountdownSeconds = 600; /* Remain Master for 10 minutes */
 						}
-						else
-						{
-							g_isMaster = false;
-// 							g_ee_mgr.updateEEPROMVar(Master_setting, (void*)&g_isMaster);
-						}
+// 						else
+// 						{
+// 							g_isMaster = false;
+// 							isMasterCountdownSeconds = 0;
+// 							g_start_event = true;
+// 							reportSettings();
+// 						}
 					}
-
-					if(!g_cloningInProgress) reportSettings();
 				}
 			}
 			break;
@@ -1591,6 +1629,7 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 					g_event = EVENT_FOXORING;
 					g_ee_mgr.updateEEPROMVar(Event_setting, (void*)&g_event);
 					g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
+					g_event_checksum += 'F';
 				}
 				else
 				{
@@ -1642,6 +1681,7 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 								sprintf(g_tempStr, "CLK T %lu\r", t);
 								sb_send_string(g_tempStr);
 								g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
+								g_event_checksum += t;
 							}
 							else
 							{
@@ -1674,6 +1714,7 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 							g_ee_mgr.updateEEPROMVar(Event_start_epoch, (void*)&g_event_start_epoch);
 							sb_send_string((char*)"CLK\r");
 							g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
+							g_event_checksum += s;
 						}
 						else
 						{
@@ -1712,6 +1753,7 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 							g_ee_mgr.updateEEPROMVar(Event_finish_epoch, (void*)&g_event_finish_epoch);
 							sb_send_string((char*)"CLK\r");
 							g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
+							g_event_checksum += f;
 						}
 						else
 						{
@@ -1733,35 +1775,34 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 			}
 			break;
 
-			case SB_MESSAGE_UTIL:
+			case SB_MESSAGE_VOLTS:
 			{
-				if(sb_buff->fields[SB_FIELD1][0] == 'C')
-				{
-					if(sb_buff->fields[SB_FIELD2][0])
-					{
-						int16_t v = atoi(sb_buff->fields[SB_FIELD2]);
+				char txt[6];
 
-						if((v > -2000) && (v < 2000))
-						{
-// 							g_atmega_temp_calibration = v;
-// 							ee_mgr.updateEEPROMVar(Atmega_temp_calibration, (void*)&g_atmega_temp_calibration);
-						}
+				if(sb_buff->fields[SB_FIELD1][0])
+				{
+					float v = atof(sb_buff->fields[SB_FIELD1]);
+
+					if((v >= 0.1) && (v <= 15.))
+					{
+ 						g_voltage_threshold = v;
+						g_ee_mgr.updateEEPROMVar(Voltage_threshold, (void*)&g_voltage_threshold);
+					}
+					else
+					{
+						sb_send_string((char*)"Err: 0.1 V < thresh < 15.0 V\n");
 					}
 
-// 					sprintf(g_tempStr, "T Cal= %d\n", g_atmega_temp_calibration);
-// 					sb_send_string(g_tempStr);
 				}
 
-// 				sprintf(g_tempStr, "T=%dC\n", g_temperature);
-// 				sb_send_string(g_tempStr);
-
-				float bat = (float)g_lastConversionResult[EXTERNAL_BATTERY_VOLTAGE];
-				bat *= 0.00705;
-				
-				char txt[6];
-				dtostrf(bat, 4, 1, txt);
+				dtostrf(g_battery_voltage, 4, 1, txt);
 				txt[5] = '\0';
   				sprintf(g_tempStr, "Bat =%s Volts\n", txt);
+ 				sb_send_string(g_tempStr);
+
+				dtostrf(g_voltage_threshold, 4, 1, txt);
+				txt[5] = '\0';
+ 				sprintf(g_tempStr, "thresh =%s Volts\n", txt);
  				sb_send_string(g_tempStr);
 			}
 			break;
@@ -1849,13 +1890,13 @@ void __attribute__((optimize("O0"))) handleLinkBusMsgs()
 					
 						if(c == '[')
 						{
-							LEDS.blink(LEDS_RED_ON_CONSTANT);
+							LEDS.blink(LEDS_RED_ON_CONSTANT, true);
 							txKeyDown(ON);
 						}
 						else if(c == ']')
 						{
 							txKeyDown(OFF);
-							LEDS.blink(LEDS_RED_OFF);
+							LEDS.blink(LEDS_RED_OFF, true);
 						}
 						else if(c == '^') /* Prevent sleep shutdown */
 						{
@@ -1915,7 +1956,7 @@ void __attribute__((optimize("O0"))) handleLinkBusMsgs()
 					{
 						g_wifi_enable_delay = 1; /* Start countdown to WiFi power off */
 						if(!g_event_enabled) g_start_event = true; /* Attempt to launch any event that is already set */
-						LEDS.reset();
+						LEDS.init();
 					}
 					else if(f1 == '3')                      /* ESP is ready for power off" */
 					{			
@@ -1966,7 +2007,7 @@ void __attribute__((optimize("O0"))) handleLinkBusMsgs()
 						g_event_commenced = true;                   /* get things running immediately */
 						g_event_enabled = true;                     /* get things running immediately */
 						g_last_status_code = STATUS_CODE_EVENT_STARTED_NOW_TRANSMITTING;
-						LEDS.reset();
+						LEDS.init();
 					}
 					else if(f1 == '2')  /* enables a downloaded event stored in EEPROM */
 					{
@@ -1992,15 +2033,6 @@ void __attribute__((optimize("O0"))) handleLinkBusMsgs()
 								SC status = STATUS_CODE_IDLE;
 								g_last_error_code = launchEvent(&status);
 								g_wifi_enable_delay = 2; /* Ensure WiFi is enabled and countdown is reset */
-									
-								if(g_event_enabled)
-								{
-									LEDS.blink(LEDS_RED_BLINK_SLOW);
-								}
-								else
-								{
-									LEDS.blink(LEDS_RED_ON_CONSTANT);
-								}								
 							}
 							else
 							{
@@ -2578,7 +2610,7 @@ EC activateEventUsingCurrentSettings(SC* statusCode)
 			}
 
 			g_event_commenced = true;
-			LEDS.reset();
+			LEDS.init();
 		}
 		else    /* start time is in the future */
 		{
@@ -2623,7 +2655,7 @@ void suspendEvent()
 	keyTransmitter(OFF);
 	bool repeat = false;
 	makeMorse((char*)"\0", &repeat, null);  /* reset makeMorse */
-	LEDS.reset();
+	LEDS.init();
 	g_event_enabled = eventScheduled();
 }
 
@@ -3047,7 +3079,7 @@ void setupForFox(Fox_t fox, EventAction_t action)
 		g_event_commenced = true;                   /* get things running immediately */
 		g_event_enabled = true;                     /* get things running immediately */
 		g_last_status_code = STATUS_CODE_EVENT_STARTED_NOW_TRANSMITTING;
-		LEDS.reset();
+		LEDS.init();
 	}
 	else         /* if(action == START_EVENT_WITH_STARTFINISH_TIMES) */
 	{
@@ -3274,9 +3306,13 @@ void reportConfigErrors(void)
 	}
 	else if(g_event_start_epoch < now)  /* Event has already started */
 	{
-		if(g_event_start_epoch < MINIMUM_VALID_EPOCH)     /* Start in invalid */
+		if(g_event_start_epoch < MINIMUM_VALID_EPOCH)     /* Start invalid */
 		{
 			sb_send_string(TEXT_SET_START_TXT);
+		}
+		else if(!g_event_enabled)
+		{
+			sb_send_string((char*)"Start with > SYN 2\n");
 		}
 		else
 		{
@@ -3294,15 +3330,6 @@ void reportSettings(void)
 	time_t now = time(null);
 	
 	sb_send_string(TEXT_CURRENT_SETTINGS_TXT);
-	
-	if(g_isMaster)
-	{
-		sb_send_string((char*)"   Role: Master\n");
-	}
-	else
-	{
-		sb_send_string((char*)"   Role: Slave\n");	
-	}
 	
 	sprintf(g_tempStr, "   Time: %s\n", convertEpochToTimeString(now, buf, 50));
 	sb_send_string(g_tempStr);
@@ -3697,6 +3724,7 @@ void handleSerialCloning(void)
 	if(sb_buff)
 	{
 		isMasterCountdownSeconds = 600; /* Extend Master time */
+		LEDS.init(); /* Extend or resume LED operation */
 	}
 	
 	if(!g_programming_msg_throttle && !g_cloningInProgress)
@@ -3718,6 +3746,7 @@ void handleSerialCloning(void)
 					g_programming_state = SYNC_Waiting_for_EVT_reply;
 					g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
 					g_cloningInProgress = true;
+					g_event_checksum = 'F';
 				}
 // 				else
 // 				{
@@ -3736,7 +3765,9 @@ void handleSerialCloning(void)
 				{
 					if(sb_buff->fields[SB_FIELD1][0] == 'F')
 					{
-						sprintf(g_tempStr, "CLK T %lu\r", time(null)); /* Set slave's RTC */
+						time_t now = time(null);
+						g_event_checksum += now;
+						sprintf(g_tempStr, "CLK T %lu\r", now); /* Set slave's RTC */
 						sb_send_master_string(g_tempStr);
 						g_programming_state = SYNC_Waiting_for_CLK_T_reply;
 						g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
@@ -3761,6 +3792,11 @@ void handleSerialCloning(void)
 						char* ptr1=NULL;
 						char* ptr2=NULL;
 						int ch = ' ';
+						
+						for(uint8_t i=0; i<strlen(g_messages_text[STATION_ID]); i++)
+						{
+							g_event_checksum += g_messages_text[STATION_ID][i];
+						}
  
 						ptr1 = strchr( g_messages_text[STATION_ID], ch );
 						
@@ -3801,6 +3837,10 @@ void handleSerialCloning(void)
 				msg_id = sb_buff->id;
 				if(msg_id == SB_MESSAGE_SET_STATION_ID)
 				{
+					for(uint8_t i=0; i<strlen(g_messages_text[FOXA_PATTERN_TEXT]); i++)
+					{
+						g_event_checksum += g_messages_text[FOXA_PATTERN_TEXT][i];
+					}
 					g_programming_state = SYNC_Waiting_for_PAT_A_reply;
 					sprintf(g_tempStr, "PAT A %s\r", g_messages_text[FOXA_PATTERN_TEXT]);
 					sb_send_master_string(g_tempStr);
@@ -3818,6 +3858,10 @@ void handleSerialCloning(void)
 				msg_id = sb_buff->id;
 				if(msg_id == SB_MESSAGE_PATTERN)
 				{
+					for(uint8_t i=0; i<strlen(g_messages_text[FOXB_PATTERN_TEXT]); i++)
+					{
+						g_event_checksum += g_messages_text[FOXB_PATTERN_TEXT][i];
+					}
 					g_programming_state = SYNC_Waiting_for_PAT_B_reply;
 					sprintf(g_tempStr, "PAT B %s\r", g_messages_text[FOXB_PATTERN_TEXT]);
 					sb_send_master_string(g_tempStr);
@@ -3835,6 +3879,10 @@ void handleSerialCloning(void)
 				msg_id = sb_buff->id;
 				if(msg_id == SB_MESSAGE_PATTERN)
 				{
+					for(uint8_t i=0; i<strlen(g_messages_text[FOXC_PATTERN_TEXT]); i++)
+					{
+						g_event_checksum += g_messages_text[FOXC_PATTERN_TEXT][i];
+					}
 					g_programming_state = SYNC_Waiting_for_PAT_C_reply;
 					sprintf(g_tempStr, "PAT C %s\r", g_messages_text[FOXC_PATTERN_TEXT]);
 					sb_send_master_string(g_tempStr);
@@ -3852,6 +3900,7 @@ void handleSerialCloning(void)
 				msg_id = sb_buff->id;
 				if(msg_id == SB_MESSAGE_PATTERN)
 				{
+					g_event_checksum += g_foxoring_frequencyA;
 					g_programming_state = SYNC_Waiting_for_FRE_A_reply;
 					sprintf(g_tempStr, "FRE A %lu\r", g_foxoring_frequencyA);
 					sb_send_master_string(g_tempStr);
@@ -3869,6 +3918,7 @@ void handleSerialCloning(void)
 				msg_id = sb_buff->id;
 				if(msg_id == SB_MESSAGE_TX_FREQ)
 				{
+					g_event_checksum += g_foxoring_frequencyB;
 					g_programming_state = SYNC_Waiting_for_FRE_B_reply;
 					sprintf(g_tempStr, "FRE B %lu\r", g_foxoring_frequencyB);
 					sb_send_master_string(g_tempStr);
@@ -3886,6 +3936,7 @@ void handleSerialCloning(void)
 				msg_id = sb_buff->id;
 				if(msg_id == SB_MESSAGE_TX_FREQ)
 				{
+					g_event_checksum += g_foxoring_frequencyC;
 					g_programming_state = SYNC_Waiting_for_FRE_C_reply;
 					sprintf(g_tempStr, "FRE C %lu\r", g_foxoring_frequencyC);
 					sb_send_master_string(g_tempStr);
@@ -3903,6 +3954,7 @@ void handleSerialCloning(void)
 				msg_id = sb_buff->id;
 				if(msg_id == SB_MESSAGE_TX_FREQ)
 				{
+					g_event_checksum += g_event_start_epoch;
 					g_programming_state = SYNC_Waiting_for_CLK_S_reply;
  					sprintf(g_tempStr, "CLK S %lu\r", g_event_start_epoch);
  					sb_send_master_string(g_tempStr);
@@ -3919,6 +3971,7 @@ void handleSerialCloning(void)
 				msg_id = sb_buff->id;
 				if(msg_id == SB_MESSAGE_CLOCK)
 				{
+					g_event_checksum += g_event_finish_epoch;
 					g_programming_state = SYNC_Waiting_for_CLK_F_reply;
  					sprintf(g_tempStr, "CLK F %lu\r", g_event_finish_epoch);
  					sb_send_master_string(g_tempStr);
@@ -3935,9 +3988,33 @@ void handleSerialCloning(void)
 				msg_id = sb_buff->id;
 				if(msg_id == SB_MESSAGE_CLOCK)
 				{
-					sb_send_master_string((char*)"MAS Q\r");
+					g_programming_state = SYNC_Waiting_for_ACK;
+					sprintf(g_tempStr, "MAS Q %lu\r", g_event_checksum);
+					sb_send_master_string(g_tempStr);
+				}
+			}
+		}
+		break;
+
+		case SYNC_Waiting_for_ACK:
+		{
+			if(sb_buff)
+			{
+				msg_id = sb_buff->id;
+				if(msg_id == SB_MESSAGE_MASTER)
+				{
+					if(sb_buff->fields[SB_FIELD1][0] == 'A')
+					{
+						g_send_clone_success_countdown = 18000;
+					}
+					else
+					{
+						isMasterCountdownSeconds = 600; /* Extend Master time */
+						g_programming_msg_throttle = 0;
+						g_cloningInProgress = false;
+					}
+					
 					g_programming_state = SYNC_Searching_for_slave;
-					g_send_clone_success_countdown = 18000;
 				}
 			}
 		}

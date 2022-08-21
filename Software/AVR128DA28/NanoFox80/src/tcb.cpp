@@ -61,7 +61,7 @@ TCB1.INTCTRL = 1 << TCB_CAPT_bp   /* Capture or Timeout: enabled */
 | 0 << TCB_OVF_bp; /* OverFlow Interrupt: disabled */
 
 // Set TOP
-TCB1.CCMP = 0x9C40;
+TCB1.CCMP = 0xC350;
 
 TCB1.CTRLA = TCB_CLKSEL_DIV2_gc     /* CLK_PER */
 | 1 << TCB_ENABLE_bp   /* Enable: enabled */

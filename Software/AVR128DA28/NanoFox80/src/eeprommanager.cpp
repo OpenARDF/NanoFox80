@@ -74,7 +74,8 @@ const struct EE_prom EEMEM EepromManager::ee_vars
 0x00, // 	uint8_t master_setting; /* 100 */
 "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", // 	char foxA_pattern_text[MAX_PATTERN_TEXT_LENGTH + 2]; /* 101 */
 "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", // 	char foxB_pattern_text[MAX_PATTERN_TEXT_LENGTH + 2]; /* 123 */
-"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0" // 	char foxC_pattern_text[MAX_PATTERN_TEXT_LENGTH + 2]; /* 145 */
+"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", // 	char foxC_pattern_text[MAX_PATTERN_TEXT_LENGTH + 2]; /* 145 */
+0x00000000 // uint32_t voltage_threshold
 };
 
 extern bool g_isMaster;
@@ -100,6 +101,7 @@ extern volatile int16_t g_off_air_seconds;
 extern volatile int16_t g_on_air_seconds;
 extern volatile int16_t g_ID_period_seconds;
 extern volatile int16_t g_intra_cycle_delay_time;
+extern volatile float g_voltage_threshold;
 
 extern char g_tempStr[];
 
@@ -138,6 +140,13 @@ void avr_eeprom_write_dword(eeprom_addr_t index, uint32_t in) {
 	while (NVMCTRL.STATUS & NVMCTRL_EEBUSY_bm);
 	_PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_EEERWR_gc);
 	*(uint32_t*)(eeprom_addr_t)(MAPPED_EEPROM_START+index) = in;
+	_PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_NONE_gc);
+}
+
+void avr_eeprom_write_float(eeprom_addr_t index, float in) {
+	while (NVMCTRL.STATUS & NVMCTRL_EEBUSY_bm);
+	_PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_EEERWR_gc);
+	*(float*)(eeprom_addr_t)(MAPPED_EEPROM_START+index) = in;
 	_PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_NONE_gc);
 }
 
@@ -382,7 +391,12 @@ void EepromManager::updateEEPROMVar(EE_var_t v, void* val)
 			avr_eeprom_write_byte(j, 0);
 		}
 		break;
-
+		
+		case Voltage_threshold:
+		{
+			avr_eeprom_write_float(Voltage_threshold, *(float*)val);
+		}
+		break;
 
 		default:
 		{
@@ -556,6 +570,12 @@ void EepromManager::saveAllEEPROM(void)
 			break;
 		}
 	}
+	
+	if(g_voltage_threshold != eeprom_read_float(&(EepromManager::ee_vars.voltage_threshold)))
+	{
+		updateEEPROMVar(Voltage_threshold, (void*)&g_voltage_threshold);
+	}
+	
 }
 
 
@@ -654,6 +674,8 @@ bool EepromManager::readNonVols(void)
 				break;
 			}
 		}
+		
+		g_voltage_threshold = CLAMP(0.1, eeprom_read_float(&(EepromManager::ee_vars.voltage_threshold)), 15.0);
 
 		failure = false;
 	}
@@ -783,6 +805,10 @@ bool EepromManager::readNonVols(void)
 			}
 			
 			avr_eeprom_write_byte(i, '\0');
+
+			g_voltage_threshold = EEPROM_BATTERY_THRESHOLD_V;
+			avr_eeprom_write_float(Voltage_threshold, g_voltage_threshold);
+
 			/* Done */
 
 			avr_eeprom_write_word(0, EEPROM_INITIALIZED_FLAG);

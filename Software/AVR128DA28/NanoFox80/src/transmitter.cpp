@@ -32,8 +32,6 @@
 // #include "binio.h"
 // #include "port.h"
 
-extern volatile AntConnType g_antenna_connect_state;
-
 static volatile bool g_tx_initialized = false;
 volatile Frequency_Hz g_80m_frequency = EEPROM_TX_80M_FREQUENCY_DEFAULT;
 volatile uint16_t g_80m_power_level_mW = EEPROM_TX_80M_POWER_MW_DEFAULT;

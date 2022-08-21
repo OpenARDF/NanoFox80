@@ -33,7 +33,7 @@
 
 /******************************************************
  * Set the text that gets displayed to the user */
-#define SW_REVISION "0.59"
+#define SW_REVISION "0.60"
 
 //#define TRANQUILIZE_WATCHDOG
 
@@ -43,22 +43,9 @@
 /*******************************************************/
 
 /******************************************************
- * Include only the necessary hardware support */
-   #define INCLUDE_SI5351_SUPPORT true // Silicon Labs Programmable Clock
-//   #define INCLUDE_DS3231_SUPPORT true // Maxim RTC
-//   #define INCLUDE_DAC081C085_SUPPORT
-//   #define ENABLE_PIN_CHANGE_INTERRUPT_0
-//   #define ENABLE_PIN_CHANGE_INTERRUPT_1
-//   #define ENABLE_PIN_CHANGE_INTERRUPT_2
-
-// #ifdef INCLUDE_DAC081C085_SUPPORT
-//    #define PA_DAC DAC081C_I2C_SLAVE_ADDR_A0
-// #endif
-
-//   #define AM_DAC DAC081C_I2C_SLAVE_ADDR_A1
-//   #define BIAS_POT MCP4552_I2C_SLAVE_ADDR_A0
-
-	#define DATE_STRING_SUPPORT_ENABLED
+ * Include only the necessary hardware and software support */
+#define INCLUDE_SI5351_SUPPORT true // Silicon Labs Programmable Clock
+#define DATE_STRING_SUPPORT_ENABLED
 
 /*******************************************************/
 /* Error Codes                                                                   */
@@ -211,7 +198,7 @@ typedef uint16_t BatteryLevel;  /* in milliVolts */
 
 /******************************************************
  * EEPROM definitions */
-#define EEPROM_INITIALIZED_FLAG 0x00F8
+#define EEPROM_INITIALIZED_FLAG 0x00F9
 #define EEPROM_UNINITIALIZED 0x00
 
 #define EEPROM_STATION_ID_DEFAULT "FOXBOX"
@@ -236,7 +223,7 @@ typedef uint16_t BatteryLevel;  /* in milliVolts */
 #define EEPROM_CLK1_ONOFF_DEFAULT OFF
 #define EEPROM_CLK2_ONOFF_DEFAULT OFF
 
-#define EEPROM_BATTERY_EMPTY_MV 3430
+#define EEPROM_BATTERY_THRESHOLD_V (3.800)
 #define MAX_UNLOCK_CODE_LENGTH 8
 #define EEPROM_DTMF_UNLOCK_CODE_DEFAULT "1357"
 #define MIN_UNLOCK_CODE_LENGTH 4
@@ -329,14 +316,6 @@ typedef enum
 
 typedef enum
 {
-	ANT_CONNECTION_UNDETERMINED,
-	ANT_DISCONNECTED,
-	ANT_CONNECTED
-} AntConnType;
-
-
-typedef enum
-{
 	BEACON = 0,
 	FOX_1,
 	FOX_2,
@@ -371,25 +350,6 @@ typedef enum
 	EVENT_FOXORING
 } Event_t;
 
-#define QUAD_MASK 0xC0
-#define QUAD_A 7
-#define QUAD_B 6
-
-#define MAX_TONE_VOLUME_SETTING 15
-#define TONE_POT_VAL(x) (255 - (x*17))
-#define MAX_MAIN_VOLUME_SETTING 15
-
-#define POWER_OFF_DELAY 5000
-#define BACKLIGHT_OFF_DELAY 5000
-#define BACKLIGHT_ALWAYS_ON 65535
-#define HEADPHONE_REMOVED_DELAY 100
-#define POWERUP_LOW_VOLTAGE_DELAY 900   /* A short delay at first power up before declaring battery is too low */
-#define LOW_VOLTAGE_DELAY 9000          /* A longer delay if the receiver has been running and the battery starts to sag */
-#define CURSOR_EXPIRATION_DELAY 5000    /* Keep cursor displayed this long without user action */
-#define LONG_PRESS_TICK_COUNT 1200      /* Press a button for this many ticks in order to access a long-press function */
-
-#define SEND_ID_DELAY 4100
-
 /* Periodic TIMER2 interrupt timing definitions */
 #define OCR2A_OVF_FREQ_300 0x0C
 #define OCR2A_OVF_FREQ_600 0x06
@@ -400,121 +360,8 @@ typedef enum
 #define TIMER2_5_8HZ (1200/OCR2A_OVF_BASE_FREQ)
 #define TIMER2_0_5HZ (12000/OCR2A_OVF_BASE_FREQ)
 
-#define BEEP_SHORT 100
-#define BEEP_LONG 65535
-
 /******************************************************
  * UI Hardware-related definitions */
-
-typedef enum lcdRow
-{
-	ROW0,
-	ROW1,
-	NUMBER_OF_LCD_ROWS
-} LcdRowType;
-
-typedef enum lcdColumn
-{
-	COL0,
-	COL1,
-	COL2,
-	COL3,
-	COL4,
-	COL5,
-	COL6,
-	COL7,
-	COL8,
-	COL9,
-	COL10,
-	COL11,
-	COL12,
-	COL13,
-	COL14,
-	COL15,
-	COL16,
-	COL17,
-	COL18,
-	COL19,
-	NUMBER_OF_LCD_COLS,
-	INVALID_LCD_COLUMN
-} LcdColType;
-
-typedef enum
-{
-	BUTTON1_COLUMN = COL0,
-	BUTTON2_COLUMN = COL5,
-	BUTTON3_COLUMN = COL10,
-	BUTTON4_COLUMN = COL15
-} ButtonColumn;
-
-typedef enum
-{
-	FrequencyFormat,
-	HourMinuteSecondFormat,
-	HourMinuteSecondDateFormat
-} TextFormat;
-
-#define DISPLAY_WIDTH_STRING_SIZE (NUMBER_OF_LCD_COLS + 1)
-
-typedef uint8_t BackLightSettingType;
-#define BL_OFF 0xFF
-#define BL_LOW 0xCF
-#define BL_MED 0x8F
-#define BL_HIGH 0x00
-
-typedef uint8_t ContrastType;
-
-typedef enum volumeSetting
-{
-	VOL_ZERO = 0,
-	VOL_10,
-	VOL_20,
-	VOL_30,
-	VOL_40,
-	VOL_50,
-	VOL_60,
-	VOL_70,
-	VOL_80,
-	VOL_90,
-	VOL_100,
-	DECREMENT_VOL,
-	INCREMENT_VOL,
-	VOL_NOT_SPECIFIED
-} VolumeSetting;
-
-typedef enum volumeType
-{
-	TONE_VOLUME,
-	MAIN_VOLUME
-} VolumeType;
-
-typedef enum batteryType
-{
-	BATTERY_9V,
-	BATTERY_4r2V,
-	BATTERY_EXTERNAL,
-	BATTERY_UNKNOWN
-} BatteryType;
-
-typedef enum buttons
-{
-	BUTTON1,
-	BUTTON2,
-	BUTTON3,
-	BUTTON4,
-	NUMBER_OF_BUTTONS
-} ButtonType;
-
-typedef enum
-{
-	Minutes_Seconds,                        /* minutes up to 59 */
-	Hours_Minutes_Seconds,                  /* hours up to 23 */
-	Day_Month_Year_Hours_Minutes_Seconds,   /* Year up to 99 */
-	Minutes_Seconds_Elapsed,                /* minutes up to 99 */
-	Time_Format_Not_Specified
-} TimeFormat;
-
-#define NO_TIME_SPECIFIED (-1)
 
 #define SecondsFromHours(hours) ((hours) * 3600)
 #define SecondsFromMinutes(min) ((min) * 60)
@@ -528,7 +375,7 @@ typedef enum
 	STATION_ID
 } TextIndex;
 
-#define MAX_PATTERN_TEXT_LENGTH 20
+#define MAX_PATTERN_TEXT_LENGTH (uint8_t)20
 
 typedef enum
 {
@@ -553,18 +400,5 @@ typedef enum
 	INIT_TRANSMISSIONS_STARTING_NOW,
 	INIT_EVENT_IN_PROGRESS_WITH_STARTFINISH_TIMES
 } InitializeAction_t;
-// 
-// typedef enum
-// {
-// 	AUDIO_SAMPLING,
-// 	TEMPERATURE_SAMPLING,
-// 	VOLTAGE_SAMPLING
-// } ADCChannel_t;
-
 
 #endif  /* DEFS_H */
-
-
-
-
-

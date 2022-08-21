@@ -61,6 +61,7 @@ struct EE_prom
 	char foxA_pattern_text[MAX_PATTERN_TEXT_LENGTH + 2]; /* 101 */
 	char foxB_pattern_text[MAX_PATTERN_TEXT_LENGTH + 2]; /* 123 */
 	char foxC_pattern_text[MAX_PATTERN_TEXT_LENGTH + 2]; /* 145 */
+	float voltage_threshold; /* 167 */
 };
 
 typedef enum
@@ -90,7 +91,8 @@ typedef enum
 	Master_setting = 100, /* bool: 1 byte */ 
 	FoxA_pattern_text = 101,  /* 22 bytes */
 	FoxB_pattern_text = 123,  /* 22 bytes */
-	FoxC_pattern_text = 145   /* 22 bytes */
+	FoxC_pattern_text = 145,  /* 22 bytes */
+	Voltage_threshold = 167   /* 4 bytes */
 } EE_var_t;
 
 class EepromManager

@@ -118,9 +118,7 @@ typedef enum
 	LB_MESSAGE_STARTFINISH = 'S' * 10 + 'F',			/* Sets the start and finish times */
 	LB_MESSAGE_PERM = 'P' * 100 + 'R' * 10 + 'M',		/* Saves most settings to EEPROM "perm" */
 	LB_MESSAGE_TX_POWER = 'P' * 100 + 'O' * 10 + 'W',	/* Sets transmit power level */
-#ifdef DONOTUSE
-	LB_MESSAGE_DRIVE_LEVEL = 'D' * 100 + 'R' * 10 + 'I', /*  Adjust 2m drive level */
-#endif // DONOTUSE
+
 	LB_MESSAGE_SET_STATION_ID = 'I' * 10 + 'D',        /* Sets amateur radio callsign text */
 	LB_MESSAGE_SET_PATTERN = 'P' * 10 + 'A',           /* Sets unique transmit pattern */
 	LB_MESSAGE_CODE_SPEED = 'S' * 100 + 'P' * 10 + 'D', /* Sets id and pattern code speeds */
