@@ -126,6 +126,7 @@ volatile bool g_sending_station_ID = false;											/* Allows a small extensio
 volatile bool g_muteAfterID = false;												/* Inhibit any transmissions after the ID has been sent */
 volatile uint32_t g_event_checksum = 0;
 
+static volatile bool g_run_event_forever = false;
 static volatile bool g_go_to_sleep_now = false;
 static volatile bool g_sleeping = false;
 static volatile time_t g_time_to_wake_up = 0;
@@ -171,7 +172,7 @@ Frequency_Hz g_foxoring_frequencyC = 3570000;
 Fox_t g_foxoring_fox = FOXORING_EVENT_FOXA;
 
 int8_t g_utc_offset;
-uint8_t g_unlockCode[8];
+uint8_t g_unlockCode[UNLOCK_CODE_SIZE + 1];
 
 volatile bool g_enable_manual_transmissions = false;
 
@@ -278,7 +279,7 @@ void handle_1sec_tasks(void)
 	
 	if(isMasterCountdownSeconds) isMasterCountdownSeconds--;
 
-	if(g_event_commenced)
+	if(g_event_commenced && !g_run_event_forever)
 	{
 		if(g_event_finish_epoch && !g_check_for_next_event && !g_shutting_down_wifi)
 		{
@@ -746,7 +747,7 @@ ISR(PORTD_PORT_vect)
 			{
 				if(PORTD_get_pin_level(SWITCH)) g_switch_presses_count++;		
 				g_switch_closed_count = 0;
-				if(g_isMaster) 
+				if(g_send_clone_success_countdown || g_cloningInProgress) 
 				{
 					g_send_clone_success_countdown = 0;
 					g_cloningInProgress = false;
@@ -932,15 +933,15 @@ int main(void)
 			g_isMaster = !g_isMaster;
 			if(g_isMaster)
 			{
-//				sb_send_string((char*)"\nMaster\n");
 				isMasterCountdownSeconds = 600; /* Remain Master for 10 minutes */
 			}
 			else
 			{
-//				sb_send_string((char*)"\nSlave\n");
 				isMasterCountdownSeconds = 0;
 				g_start_event = true;
 				sb_send_NewPrompt();
+				g_event_commenced = false;
+				g_start_event = true;
 			}
 			
 			g_cloningInProgress = false;
@@ -1216,13 +1217,13 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 								 if((c >= FOXORING_EVENT_FOXA) && (c <= FOXORING_EVENT_FOXC))
 								 {
 									 g_foxoring_fox = holdFox;
-									 setupForFox(holdFox, START_NOTHING);
+									 setupForFox(holdFox, START_EVENT_WITH_STARTFINISH_TIMES);
 								 }
 							 }
 							 else
 							 {
 								 g_fox = holdFox;
-								 setupForFox(holdFox, START_NOTHING);
+								 setupForFox(holdFox, START_EVENT_WITH_STARTFINISH_TIMES);
 							 }
  						}
 					}
@@ -1594,6 +1595,8 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 					{
 						sb_send_string((char*)"MAS ACK\r");
 						g_send_clone_success_countdown = 18000;
+						setupForFox(INVALID_FOX, START_EVENT_WITH_STARTFINISH_TIMES);   /* Start the event if one is configured */
+						g_start_event = true;
 					}
 					else
 					{
@@ -2416,6 +2419,12 @@ void __attribute__((optimize("O0"))) handleLinkBusMsgs()
  ************************************************************************/
 bool __attribute__((optimize("O0"))) eventEnabled()
 {
+	if(g_run_event_forever) 
+	{
+		g_sleepType = DO_NOT_SLEEP;
+		return(true);
+	}
+	
 	time_t now = time(null);
 	int32_t dif = timeDif(now, g_event_finish_epoch);
 	g_go_to_sleep_now = false;
@@ -2484,14 +2493,17 @@ EC __attribute__((optimize("O0"))) launchEvent(SC* statusCode)
 EC activateEventUsingCurrentSettings(SC* statusCode)
 {
 	/* Make sure everything has been sanely initialized */
-	if(!g_event_start_epoch)
+	if(!g_run_event_forever)
 	{
-		return( ERROR_CODE_EVENT_MISSING_START_TIME);
-	}
+		if(!g_event_start_epoch)
+		{
+			return( ERROR_CODE_EVENT_MISSING_START_TIME);
+		}
 
-	if(g_event_start_epoch >= g_event_finish_epoch)   /* Finish must be later than start */
-	{
-		return( ERROR_CODE_EVENT_NOT_CONFIGURED);
+		if(g_event_start_epoch >= g_event_finish_epoch)   /* Finish must be later than start */
+		{
+			return( ERROR_CODE_EVENT_NOT_CONFIGURED);
+		}
 	}
 
 	if(!g_on_air_seconds)
@@ -2530,7 +2542,7 @@ EC activateEventUsingCurrentSettings(SC* statusCode)
 
 	time_t now = time(null);
 	
-	if(g_event_finish_epoch < now)   /* the event has already finished */
+	if(!g_run_event_forever && (g_event_finish_epoch < now))   /* the event has already finished */
 	{
 		if(statusCode)
 		{
@@ -2539,20 +2551,63 @@ EC activateEventUsingCurrentSettings(SC* statusCode)
 	}
 	else
 	{
-		int32_t dif = timeDif(now, g_event_start_epoch); /* returns arg1 - arg2 */
-
-		if(dif >= 0)                                    /* start time is in the past */
+		if(g_run_event_forever)
 		{
-			bool turnOnTransmitter = false;
-			int cyclePeriod = g_on_air_seconds + g_off_air_seconds;
-			int secondsIntoCycle = dif % cyclePeriod;
-			int timeTillTransmit = g_intra_cycle_delay_time - secondsIntoCycle;
+			g_last_status_code = STATUS_CODE_EVENT_STARTED_NOW_TRANSMITTING;
+			g_on_the_air = g_on_air_seconds;
+			g_sendID_seconds_countdown = g_on_air_seconds - g_time_needed_for_ID;
+			g_code_throttle = throttleValue(g_pattern_codespeed);
+			LEDS.init();
+			g_event_enabled = true;
+			g_event_commenced = true;
+		}
+		else
+		{			
+			int32_t dif = timeDif(now, g_event_start_epoch); /* returns arg1 - arg2 */
 
-			if(timeTillTransmit <= 0)                       /* we should have started transmitting already in this cycle */
+			if(dif >= 0)                                    /* start time is in the past */
 			{
-				if(g_on_air_seconds <= -timeTillTransmit)   /* we should have finished transmitting in this cycle */
+				bool turnOnTransmitter = false;
+				int cyclePeriod = g_on_air_seconds + g_off_air_seconds;
+				int secondsIntoCycle = dif % cyclePeriod;
+				int timeTillTransmit = g_intra_cycle_delay_time - secondsIntoCycle;
+
+				if(timeTillTransmit <= 0)                       /* we should have started transmitting already in this cycle */
 				{
-					g_on_the_air = -(cyclePeriod + timeTillTransmit);
+					if(g_on_air_seconds <= -timeTillTransmit)   /* we should have finished transmitting in this cycle */
+					{
+						g_on_the_air = -(cyclePeriod + timeTillTransmit);
+						if(statusCode)
+						{
+							*statusCode = STATUS_CODE_EVENT_STARTED_WAITING_FOR_TIME_SLOT;
+						}
+
+						if(!g_event_enabled)
+						{
+							g_sendID_seconds_countdown = (g_on_air_seconds - g_on_the_air) - g_time_needed_for_ID;
+						}
+					}
+					else    /* we should be transmitting right now */
+					{
+						g_on_the_air = g_on_air_seconds + timeTillTransmit;
+						turnOnTransmitter = true;
+						if(statusCode)
+						{
+							*statusCode = STATUS_CODE_EVENT_STARTED_NOW_TRANSMITTING;
+						}
+
+						if(!g_event_enabled)
+						{
+							if(g_time_needed_for_ID < g_on_the_air)
+							{
+								g_sendID_seconds_countdown = g_on_the_air - g_time_needed_for_ID;
+							}
+						}
+					}
+				}
+				else    /* it is not yet time to transmit in this cycle */
+				{
+					g_on_the_air = -timeTillTransmit;
 					if(statusCode)
 					{
 						*statusCode = STATUS_CODE_EVENT_STARTED_WAITING_FOR_TIME_SLOT;
@@ -2560,65 +2615,33 @@ EC activateEventUsingCurrentSettings(SC* statusCode)
 
 					if(!g_event_enabled)
 					{
-						g_sendID_seconds_countdown = (g_on_air_seconds - g_on_the_air) - g_time_needed_for_ID;
+						g_sendID_seconds_countdown = timeTillTransmit + g_on_air_seconds - g_time_needed_for_ID;
 					}
 				}
-				else    /* we should be transmitting right now */
-				{
-					g_on_the_air = g_on_air_seconds + timeTillTransmit;
-					turnOnTransmitter = true;
-					if(statusCode)
-					{
-						*statusCode = STATUS_CODE_EVENT_STARTED_NOW_TRANSMITTING;
-					}
 
-					if(!g_event_enabled)
-					{
-						if(g_time_needed_for_ID < g_on_the_air)
-						{
-							g_sendID_seconds_countdown = g_on_the_air - g_time_needed_for_ID;
-						}
-					}
+				if(turnOnTransmitter)
+				{
+					bool hold = g_event_enabled;
+					g_event_enabled = false; // prevent interrupts from affecting the settings
+					g_code_throttle = throttleValue(g_pattern_codespeed);
+					g_event_enabled = hold;
 				}
+				else
+				{
+					keyTransmitter(OFF);
+				}
+
+				g_event_commenced = true;
+				LEDS.init();
 			}
-			else    /* it is not yet time to transmit in this cycle */
+			else    /* start time is in the future */
 			{
-				g_on_the_air = -timeTillTransmit;
 				if(statusCode)
 				{
-					*statusCode = STATUS_CODE_EVENT_STARTED_WAITING_FOR_TIME_SLOT;
+					*statusCode = STATUS_CODE_WAITING_FOR_EVENT_START;
 				}
-
-				if(!g_event_enabled)
-				{
-					g_sendID_seconds_countdown = timeTillTransmit + g_on_air_seconds - g_time_needed_for_ID;
-				}
-			}
-
-			if(turnOnTransmitter)
-			{
-				bool hold = g_event_enabled;
-				g_event_enabled = false; // prevent interrupts from affecting the settings
-//				bool repeat = true;
-//				makeMorse(getPatternText(), &repeat, NULL);
-				g_code_throttle = throttleValue(g_pattern_codespeed);
-				g_event_enabled = hold;
-			}
-			else
-			{
 				keyTransmitter(OFF);
 			}
-
-			g_event_commenced = true;
-			LEDS.init();
-		}
-		else    /* start time is in the future */
-		{
-			if(statusCode)
-			{
-				*statusCode = STATUS_CODE_WAITING_FOR_EVENT_START;
-			}
-			keyTransmitter(OFF);
 		}
 
 		g_waiting_for_next_event = false;
@@ -2652,6 +2675,7 @@ void suspendEvent()
 	g_event_enabled = false;    /* get things stopped immediately */
 	g_on_the_air = 0;           /*  stop transmitting */
 	g_event_commenced = false;  /* get things stopped immediately */
+	g_run_event_forever = false;
 	keyTransmitter(OFF);
 	bool repeat = false;
 	makeMorse((char*)"\0", &repeat, null);  /* reset makeMorse */
@@ -2680,9 +2704,13 @@ void startEventNow(EventActionSource_t activationSource)
 		{
 			setupForFox(INVALID_FOX, START_EVENT_NOW);
 		}
-		else if((conf == WAITING_FOR_START) || (conf == SCHEDULED_EVENT_WILL_NEVER_RUN) || (conf == SCHEDULED_EVENT_DID_NOT_START)) /* Start immediately */
+		else if((conf == SCHEDULED_EVENT_WILL_NEVER_RUN) || (conf == SCHEDULED_EVENT_DID_NOT_START)) /* Start immediately */
 		{
 			setupForFox(INVALID_FOX, START_EVENT_NOW);
+		}
+		else if((conf == WAITING_FOR_START))
+		{
+			setupForFox(INVALID_FOX, START_EVENT_WITH_STARTFINISH_TIMES);
 		}
 		else                                                                                                                        /*if((conf == EVENT_IN_PROGRESS) */
 		{
@@ -2775,6 +2803,8 @@ void startEventUsingRTC(void)
 void setupForFox(Fox_t fox, EventAction_t action)
 {
 	bool patternNotSet = true;
+	
+	g_run_event_forever = false;
 	
 	if(fox == INVALID_FOX)
 	{
@@ -3052,14 +3082,8 @@ void setupForFox(Fox_t fox, EventAction_t action)
 	}
 	else if(action == START_EVENT_NOW)
 	{
-		time_t now = time(null);
-		
-		g_event_start_epoch = now;
-		if(g_event_start_epoch > g_event_finish_epoch)
-		{
-			g_event_finish_epoch = g_event_start_epoch + DAY;
-		}
-		
+// 		time_t now = time(null);
+		g_run_event_forever = true;
 		SC status = STATUS_CODE_IDLE;
 		launchEvent(&status);
 		g_wifi_enable_delay = 2; /* Ensure WiFi is enabled and countdown is reset */

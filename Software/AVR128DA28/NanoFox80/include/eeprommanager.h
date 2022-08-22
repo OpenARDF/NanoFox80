@@ -32,92 +32,148 @@
 #endif  /* ATMEL_STUDIO_7 */
 
 #include <time.h>
+#include <avr/eeprom.h>
+
+
 
 struct EE_prom
 {
-	uint16_t eeprom_initialization_flag; /* 0 */
-	time_t event_start_epoch; /* 2 */
-	time_t event_finish_epoch; /* 6 */
- 	char stationID_text[MAX_PATTERN_TEXT_LENGTH + 2]; /* 10 */
- 	char pattern_text[MAX_PATTERN_TEXT_LENGTH + 2]; /* 32 */
-	uint8_t unlockCode[MAX_UNLOCK_CODE_LENGTH + 2]; /* 54 */
-	uint8_t id_codespeed;  /* 64 */
-	uint8_t fox_setting;  /* 65 */
-	uint8_t utc_offset; /* 66 */
-	uint32_t frequency; /* 67 */
-	uint32_t rtty_offset; /* 71 */
-	uint16_t rf_power; /* 75 */
-	uint8_t pattern_codespeed; /* 77 */
-	int16_t off_air_seconds; /* 78 */
-	int16_t on_air_seconds; /* 80 */
-	int16_t ID_period_seconds; /* 82 */
-	int16_t intra_cycle_delay_time; /* 84 */
-	uint8_t event_setting; /* 86 */
-	uint32_t foxoring_frequencyA; /* 87 */
-	uint32_t foxoring_frequencyB; /* 91 */
-	uint32_t foxoring_frequencyC; /* 95 */	
-	uint8_t foxoring_fox_setting; /* 99 */
-	uint8_t master_setting; /* 100 */
-	char foxA_pattern_text[MAX_PATTERN_TEXT_LENGTH + 2]; /* 101 */
-	char foxB_pattern_text[MAX_PATTERN_TEXT_LENGTH + 2]; /* 123 */
-	char foxC_pattern_text[MAX_PATTERN_TEXT_LENGTH + 2]; /* 145 */
-	float voltage_threshold; /* 167 */
+	uint16_t eeprom_initialization_flag;
+	uint32_t guard4_1;
+	time_t event_start_epoch; 
+	uint32_t guard4_2;
+	time_t event_finish_epoch; 
+	uint32_t guard4_3;
+ 	char stationID_text[MAX_PATTERN_TEXT_LENGTH + 1]; 
+	uint32_t guard4_4;
+ 	char pattern_text[MAX_PATTERN_TEXT_LENGTH + 1]; 
+	uint32_t guard4_5;
+	uint8_t unlockCode[MAX_UNLOCK_CODE_LENGTH + 1];
+	uint32_t guard4_6;
+	uint8_t id_codespeed; 
+	uint32_t guard4_7;
+	uint8_t fox_setting; 
+	uint32_t guard4_8;
+	uint8_t utc_offset; 
+	uint32_t guard4_9;
+	uint32_t frequency;
+	uint32_t guard4_10;
+	uint32_t rtty_offset; 
+	uint32_t guard4_11;
+	uint16_t rf_power;
+	uint32_t guard4_12;
+	uint8_t pattern_codespeed;
+	uint32_t guard4_13;
+	int16_t off_air_seconds; 
+	uint32_t guard4_14;
+	int16_t on_air_seconds; 
+	uint32_t guard4_15;
+	int16_t ID_period_seconds; 
+	uint32_t guard4_16;
+	int16_t intra_cycle_delay_time; 
+	uint32_t guard4_17;
+	uint8_t event_setting; 
+	uint32_t guard4_18;
+	uint32_t foxoring_frequencyA; 
+	uint32_t guard4_19;
+	uint32_t foxoring_frequencyB; 
+	uint32_t guard4_20;
+	uint32_t foxoring_frequencyC; 
+	uint32_t guard4_21;
+	uint8_t foxoring_fox_setting; 
+	uint32_t guard4_22;
+	uint8_t master_setting;
+	uint32_t guard4_23;
+	char foxA_pattern_text[MAX_PATTERN_TEXT_LENGTH + 1]; 
+	uint32_t guard4_24;
+	char foxB_pattern_text[MAX_PATTERN_TEXT_LENGTH + 1]; 
+	uint32_t guard4_25;
+	char foxC_pattern_text[MAX_PATTERN_TEXT_LENGTH + 1]; 
+	uint32_t guard4_26;
+	float voltage_threshold; 
 };
 
 typedef enum
 {
 	Eeprom_initialization_flag = 0, /* 2 bytes */
-	Event_start_epoch = 2, /* 4 bytes */
-	Event_finish_epoch = 6, /* 4 bytes */
-	StationID_text = 10, /* 22 bytes */
-	Pattern_text = 32, /* 22 bytes */
-	UnlockCode = 54, /* 10 bytes */
-	Id_codespeed = 64, /* 1 byte */
-	Fox_setting = 65, /* 1 bytes */ 
-	Utc_offset = 66, /* 1 byte */
-	Frequency = 67, /* 4 bytes */
-	RTTY_offset = 71, /* 4 bytes */
-	RF_Power = 75, /* 2 bytes */
-	Pattern_Code_Speed = 77, /* 1 byte */
-	Off_Air_Seconds = 78, /* 2 bytes */
-	On_Air_Seconds = 80, /* 2 bytes */
-	ID_Period_Seconds = 82, /* 2 bytes */
-	Intra_Cycle_Delay_Seconds = 84, /* 2 bytes */
-	Event_setting = 86, /* 1 byte */ 
-	Foxoring_FrequencyA = 87,  /* 4 bytes */
-	Foxoring_FrequencyB = 91,  /* 4 bytes */
-	Foxoring_FrequencyC = 95,  /* 4 bytes */
-	Foxoring_fox_setting = 99, /* 1 byte */ 
-	Master_setting = 100, /* bool: 1 byte */ 
-	FoxA_pattern_text = 101,  /* 22 bytes */
-	FoxB_pattern_text = 123,  /* 22 bytes */
-	FoxC_pattern_text = 145,  /* 22 bytes */
-	Voltage_threshold = 167   /* 4 bytes */
+	Guard4_1 = Eeprom_initialization_flag + 2,  /* 4 bytes */
+	Event_start_epoch = Guard4_1 + 4, /* 4 bytes */
+	Guard4_2 = Event_start_epoch + 4,  /* 4 bytes */
+	Event_finish_epoch =  Guard4_2 + 4, /* 4 bytes */
+	Guard4_3 = Event_finish_epoch + 4,  /* 4 bytes */
+	StationID_text =  Guard4_3 + 4, /* MAX_PATTERN_TEXT_LENGTH + 1 bytes */
+	Guard4_4 = StationID_text + MAX_PATTERN_TEXT_LENGTH + 1,  /* 4 bytes */
+	Pattern_text =  Guard4_4 + 4, /* MAX_PATTERN_TEXT_LENGTH + 1  bytes */
+	Guard4_5 = Pattern_text + MAX_PATTERN_TEXT_LENGTH + 1,  /* 4 bytes */
+	UnlockCode =  Guard4_5 + 4, /* UNLOCK_CODE_SIZE + 1 bytes */
+	Guard4_6 = UnlockCode + UNLOCK_CODE_SIZE + 1,  /* 4 bytes */
+	Id_codespeed =  Guard4_6 + 4, /* 1 byte */
+	Guard4_7 = Id_codespeed + 1,  /* 4 bytes */
+	Fox_setting =  Guard4_7 + 4, /* 1 bytes */ 
+	Guard4_8 = Fox_setting + 1,  /* 4 bytes */
+	Utc_offset =  Guard4_8 + 4, /* 1 byte */
+	Guard4_9 = Utc_offset + 1,  /* 4 bytes */
+	Frequency =  Guard4_9 + 4, /* 4 bytes */
+	Guard4_10 = Frequency + 4,  /* 4 bytes */
+	RTTY_offset =  Guard4_10 + 4, /* 4 bytes */
+	Guard4_11 = RTTY_offset + 4,  /* 4 bytes */
+	RF_Power =  Guard4_11 + 4, /* 2 bytes */
+	Guard4_12 = RF_Power + 2,  /* 4 bytes */
+	Pattern_Code_Speed =  Guard4_12 + 4, /* 1 byte */
+	Guard4_13 = Pattern_Code_Speed + 1,  /* 4 bytes */
+	Off_Air_Seconds =  Guard4_13 + 4, /* 2 bytes */
+	Guard4_14 = Off_Air_Seconds + 2,  /* 4 bytes */
+	On_Air_Seconds =  Guard4_14 + 4, /* 2 bytes */
+	Guard4_15 = On_Air_Seconds + 2,  /* 4 bytes */
+	ID_Period_Seconds =  Guard4_15 + 4, /* 2 bytes */
+	Guard4_16 = ID_Period_Seconds + 2,  /* 4 bytes */
+	Intra_Cycle_Delay_Seconds =  Guard4_16 + 4, /* 2 bytes */
+	Guard4_17 = Intra_Cycle_Delay_Seconds + 2,  /* 4 bytes */
+	Event_setting =  Guard4_17 + 4, /* 1 byte */ 
+	Guard4_18 = Event_setting + 1,  /* 4 bytes */
+	Foxoring_FrequencyA =  Guard4_18 + 4,  /* 4 bytes */
+	Guard4_19 = Foxoring_FrequencyA + 4,  /* 4 bytes */
+	Foxoring_FrequencyB =  Guard4_19 + 4,  /* 4 bytes */
+	Guard4_20 = Foxoring_FrequencyB + 4,  /* 4 bytes */
+	Foxoring_FrequencyC =  Guard4_20 + 4,  /* 4 bytes */
+	Guard4_21 = Foxoring_FrequencyC + 4,  /* 4 bytes */
+	Foxoring_fox_setting =  Guard4_21 + 4, /* 1 byte */ 
+	Guard4_22 = Foxoring_fox_setting + 1,  /* 4 bytes */
+	Master_setting =  Guard4_22 + 4, /* bool: 1 byte */ 
+	Guard4_23 = Master_setting + 1,  /* 4 bytes */
+	FoxA_pattern_text =  Guard4_23 + 4,  /* MAX_PATTERN_TEXT_LENGTH + 1 bytes bytes */
+	Guard4_24 = FoxA_pattern_text + MAX_PATTERN_TEXT_LENGTH + 1,  /* 4 bytes */
+	FoxB_pattern_text =  Guard4_24 + 4,  /* MAX_PATTERN_TEXT_LENGTH + 1 bytes */
+	Guard4_25 = FoxB_pattern_text + MAX_PATTERN_TEXT_LENGTH + 1,  /* 4 bytes */
+	FoxC_pattern_text =  Guard4_25 + 4,  /* MAX_PATTERN_TEXT_LENGTH + 1 bytes bytes */
+	Guard4_26 = FoxC_pattern_text + MAX_PATTERN_TEXT_LENGTH + 1,  /* 4 bytes */
+	Voltage_threshold =  Guard4_26 + 4   /* 4 bytes */
 } EE_var_t;
+
 
 class EepromManager
 {
-/*variables */
-public:
-protected:
-private:
+	/*variables */
+	public:
+	protected:
+	private:
 
-/*functions */
-public:
-EepromManager();
-~EepromManager();
+	/*functions */
+	public:
+	EepromManager();
+	~EepromManager();
 
-static const struct EE_prom ee_vars;
+	static const struct EE_prom ee_vars;
 
-bool initializeEEPROMVars(void);
-bool readNonVols(void);
-void updateEEPROMVar(EE_var_t v, void* val);
-void saveAllEEPROM();
+	bool initializeEEPROMVars(void);
+	bool readNonVols(void);
+	void updateEEPROMVar(EE_var_t v, void* val);
+	void saveAllEEPROM();
 
-protected:
-private:
-EepromManager( const EepromManager &c );
-EepromManager& operator=( const EepromManager &c );
+	protected:
+	private:
+	EepromManager( const EepromManager &c );
+	EepromManager& operator=( const EepromManager &c );
 };  /*EepromManager */
 
 #endif  /*__EEPROMMANAGER_H__ */

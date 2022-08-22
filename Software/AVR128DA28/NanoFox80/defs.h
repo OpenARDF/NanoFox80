@@ -33,7 +33,7 @@
 
 /******************************************************
  * Set the text that gets displayed to the user */
-#define SW_REVISION "0.60"
+#define SW_REVISION "0.61"
 
 //#define TRANQUILIZE_WATCHDOG
 
@@ -198,7 +198,7 @@ typedef uint16_t BatteryLevel;  /* in milliVolts */
 
 /******************************************************
  * EEPROM definitions */
-#define EEPROM_INITIALIZED_FLAG 0x00F9
+#define EEPROM_INITIALIZED_FLAG 0x00FF
 #define EEPROM_UNINITIALIZED 0x00
 
 #define EEPROM_STATION_ID_DEFAULT "FOXBOX"
@@ -376,6 +376,7 @@ typedef enum
 } TextIndex;
 
 #define MAX_PATTERN_TEXT_LENGTH (uint8_t)20
+#define UNLOCK_CODE_SIZE (uint8_t)8
 
 typedef enum
 {
