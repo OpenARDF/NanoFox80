@@ -34,7 +34,7 @@
 #include <time.h>
 #include <avr/eeprom.h>
 
-
+#define GUARDSIZE sizeof(uint32_t)
 
 struct EE_prom
 {
@@ -52,13 +52,13 @@ struct EE_prom
 	uint32_t guard4_6;
 	uint8_t id_codespeed; 
 	uint32_t guard4_7;
-	uint8_t fox_setting; 
+	Fox_t fox_setting; 
 	uint32_t guard4_8;
 	uint8_t utc_offset; 
 	uint32_t guard4_9;
 	uint32_t frequency;
 	uint32_t guard4_10;
-	uint32_t rtty_offset; 
+	Frequency_Hz rtty_offset; 
 	uint32_t guard4_11;
 	uint16_t rf_power;
 	uint32_t guard4_12;
@@ -72,7 +72,7 @@ struct EE_prom
 	uint32_t guard4_16;
 	int16_t intra_cycle_delay_time; 
 	uint32_t guard4_17;
-	uint8_t event_setting; 
+	Event_t event_setting; 
 	uint32_t guard4_18;
 	uint32_t foxoring_frequencyA; 
 	uint32_t guard4_19;
@@ -80,9 +80,9 @@ struct EE_prom
 	uint32_t guard4_20;
 	uint32_t foxoring_frequencyC; 
 	uint32_t guard4_21;
-	uint8_t foxoring_fox_setting; 
+	Fox_t foxoring_fox_setting; 
 	uint32_t guard4_22;
-	uint8_t master_setting;
+	bool master_setting;
 	uint32_t guard4_23;
 	char foxA_pattern_text[MAX_PATTERN_TEXT_LENGTH + 1]; 
 	uint32_t guard4_24;
@@ -90,64 +90,70 @@ struct EE_prom
 	uint32_t guard4_25;
 	char foxC_pattern_text[MAX_PATTERN_TEXT_LENGTH + 1]; 
 	uint32_t guard4_26;
-	float voltage_threshold; 
+	float voltage_threshold;
+	uint32_t guard4_27;
+	uint16_t clock_calibration;
+	uint32_t guard4_28;
 };
 
 typedef enum
 {
 	Eeprom_initialization_flag = 0, /* 2 bytes */
-	Guard4_1 = Eeprom_initialization_flag + 2,  /* 4 bytes */
-	Event_start_epoch = Guard4_1 + 4, /* 4 bytes */
-	Guard4_2 = Event_start_epoch + 4,  /* 4 bytes */
-	Event_finish_epoch =  Guard4_2 + 4, /* 4 bytes */
-	Guard4_3 = Event_finish_epoch + 4,  /* 4 bytes */
-	StationID_text =  Guard4_3 + 4, /* MAX_PATTERN_TEXT_LENGTH + 1 bytes */
-	Guard4_4 = StationID_text + MAX_PATTERN_TEXT_LENGTH + 1,  /* 4 bytes */
-	Pattern_text =  Guard4_4 + 4, /* MAX_PATTERN_TEXT_LENGTH + 1  bytes */
-	Guard4_5 = Pattern_text + MAX_PATTERN_TEXT_LENGTH + 1,  /* 4 bytes */
-	UnlockCode =  Guard4_5 + 4, /* UNLOCK_CODE_SIZE + 1 bytes */
-	Guard4_6 = UnlockCode + UNLOCK_CODE_SIZE + 1,  /* 4 bytes */
-	Id_codespeed =  Guard4_6 + 4, /* 1 byte */
-	Guard4_7 = Id_codespeed + 1,  /* 4 bytes */
-	Fox_setting =  Guard4_7 + 4, /* 1 bytes */ 
-	Guard4_8 = Fox_setting + 1,  /* 4 bytes */
-	Utc_offset =  Guard4_8 + 4, /* 1 byte */
-	Guard4_9 = Utc_offset + 1,  /* 4 bytes */
-	Frequency =  Guard4_9 + 4, /* 4 bytes */
-	Guard4_10 = Frequency + 4,  /* 4 bytes */
-	RTTY_offset =  Guard4_10 + 4, /* 4 bytes */
-	Guard4_11 = RTTY_offset + 4,  /* 4 bytes */
-	RF_Power =  Guard4_11 + 4, /* 2 bytes */
-	Guard4_12 = RF_Power + 2,  /* 4 bytes */
-	Pattern_Code_Speed =  Guard4_12 + 4, /* 1 byte */
-	Guard4_13 = Pattern_Code_Speed + 1,  /* 4 bytes */
-	Off_Air_Seconds =  Guard4_13 + 4, /* 2 bytes */
-	Guard4_14 = Off_Air_Seconds + 2,  /* 4 bytes */
-	On_Air_Seconds =  Guard4_14 + 4, /* 2 bytes */
-	Guard4_15 = On_Air_Seconds + 2,  /* 4 bytes */
-	ID_Period_Seconds =  Guard4_15 + 4, /* 2 bytes */
-	Guard4_16 = ID_Period_Seconds + 2,  /* 4 bytes */
-	Intra_Cycle_Delay_Seconds =  Guard4_16 + 4, /* 2 bytes */
-	Guard4_17 = Intra_Cycle_Delay_Seconds + 2,  /* 4 bytes */
-	Event_setting =  Guard4_17 + 4, /* 1 byte */ 
-	Guard4_18 = Event_setting + 1,  /* 4 bytes */
-	Foxoring_FrequencyA =  Guard4_18 + 4,  /* 4 bytes */
-	Guard4_19 = Foxoring_FrequencyA + 4,  /* 4 bytes */
-	Foxoring_FrequencyB =  Guard4_19 + 4,  /* 4 bytes */
-	Guard4_20 = Foxoring_FrequencyB + 4,  /* 4 bytes */
-	Foxoring_FrequencyC =  Guard4_20 + 4,  /* 4 bytes */
-	Guard4_21 = Foxoring_FrequencyC + 4,  /* 4 bytes */
-	Foxoring_fox_setting =  Guard4_21 + 4, /* 1 byte */ 
-	Guard4_22 = Foxoring_fox_setting + 1,  /* 4 bytes */
-	Master_setting =  Guard4_22 + 4, /* bool: 1 byte */ 
-	Guard4_23 = Master_setting + 1,  /* 4 bytes */
-	FoxA_pattern_text =  Guard4_23 + 4,  /* MAX_PATTERN_TEXT_LENGTH + 1 bytes bytes */
-	Guard4_24 = FoxA_pattern_text + MAX_PATTERN_TEXT_LENGTH + 1,  /* 4 bytes */
-	FoxB_pattern_text =  Guard4_24 + 4,  /* MAX_PATTERN_TEXT_LENGTH + 1 bytes */
-	Guard4_25 = FoxB_pattern_text + MAX_PATTERN_TEXT_LENGTH + 1,  /* 4 bytes */
-	FoxC_pattern_text =  Guard4_25 + 4,  /* MAX_PATTERN_TEXT_LENGTH + 1 bytes bytes */
-	Guard4_26 = FoxC_pattern_text + MAX_PATTERN_TEXT_LENGTH + 1,  /* 4 bytes */
-	Voltage_threshold =  Guard4_26 + 4   /* 4 bytes */
+	Guard4_1 = Eeprom_initialization_flag + sizeof(uint16_t),		/**** Guard = 4 bytes ****/
+	Event_start_epoch = Guard4_1 + GUARDSIZE, /* 4 bytes */
+	Guard4_2 = Event_start_epoch + sizeof(time_t),					/**** Guard = 4 bytes ****/
+	Event_finish_epoch =  Guard4_2 + GUARDSIZE, /* 4 bytes */
+	Guard4_3 = Event_finish_epoch + sizeof(time_t),					/**** Guard = 4 bytes ****/
+	StationID_text =  Guard4_3 + GUARDSIZE, /* MAX_PATTERN_TEXT_LENGTH + 1 bytes */
+	Guard4_4 = StationID_text + MAX_PATTERN_TEXT_LENGTH + 1,		/**** Guard = 4 bytes ****/
+	Pattern_text =  Guard4_4 + GUARDSIZE, /* MAX_PATTERN_TEXT_LENGTH + 1  bytes */
+	Guard4_5 = Pattern_text + MAX_PATTERN_TEXT_LENGTH + 1,			/**** Guard = 4 bytes ****/
+	UnlockCode =  Guard4_5 + GUARDSIZE, /* UNLOCK_CODE_SIZE + 1 bytes */
+	Guard4_6 = UnlockCode + UNLOCK_CODE_SIZE + 1,					/**** Guard = 4 bytes ****/
+	Id_codespeed =  Guard4_6 + GUARDSIZE, /* 1 byte */
+	Guard4_7 = Id_codespeed + sizeof(uint8_t),						/**** Guard = 4 bytes ****/
+	Fox_setting =  Guard4_7 + GUARDSIZE, /* 1 bytes */ 
+	Guard4_8 = Fox_setting + sizeof(Fox_t),							/**** Guard = 4 bytes ****/
+	Utc_offset =  Guard4_8 + GUARDSIZE, /* 1 byte */
+	Guard4_9 = Utc_offset + sizeof(uint8_t),						/**** Guard = 4 bytes ****/
+	Frequency =  Guard4_9 + GUARDSIZE, /* 4 bytes */
+	Guard4_10 = Frequency + sizeof(Frequency_Hz),					/**** Guard = 4 bytes ****/
+	RTTY_offset =  Guard4_10 + GUARDSIZE, /* 4 bytes */
+	Guard4_11 = RTTY_offset + sizeof(Frequency_Hz),					/**** Guard = 4 bytes ****/
+	RF_Power =  Guard4_11 + GUARDSIZE, /* 2 bytes */
+	Guard4_12 = RF_Power + sizeof(int16_t),							/**** Guard = 4 bytes ****/
+	Pattern_Code_Speed =  Guard4_12 + GUARDSIZE, /* 1 byte */
+	Guard4_13 = Pattern_Code_Speed + sizeof(uint8_t),				/**** Guard = 4 bytes ****/
+	Off_Air_Seconds =  Guard4_13 + GUARDSIZE, /* 2 bytes */
+	Guard4_14 = Off_Air_Seconds + sizeof(int16_t),					/**** Guard = 4 bytes ****/
+	On_Air_Seconds =  Guard4_14 + GUARDSIZE, /* 2 bytes */
+	Guard4_15 = On_Air_Seconds + sizeof(int16_t),					/**** Guard = 4 bytes ****/
+	ID_Period_Seconds =  Guard4_15 + GUARDSIZE, /* 2 bytes */
+	Guard4_16 = ID_Period_Seconds + sizeof(int16_t),				/**** Guard = 4 bytes ****/
+	Intra_Cycle_Delay_Seconds =  Guard4_16 + GUARDSIZE, /* 2 bytes */
+	Guard4_17 = Intra_Cycle_Delay_Seconds + sizeof(int16_t),		/**** Guard = 4 bytes ****/
+	Event_setting =  Guard4_17 + GUARDSIZE, /* 1 byte */ 
+	Guard4_18 = Event_setting + sizeof(Event_t),					/**** Guard = 4 bytes ****/
+	Foxoring_FrequencyA =  Guard4_18 + GUARDSIZE,  /* 4 bytes */
+	Guard4_19 = Foxoring_FrequencyA + sizeof(Frequency_Hz),			/**** Guard = 4 bytes ****/
+	Foxoring_FrequencyB =  Guard4_19 + GUARDSIZE,  /* 4 bytes */
+	Guard4_20 = Foxoring_FrequencyB + sizeof(Frequency_Hz),			/**** Guard = 4 bytes ****/
+	Foxoring_FrequencyC =  Guard4_20 + GUARDSIZE,  /* 4 bytes */
+	Guard4_21 = Foxoring_FrequencyC + sizeof(Frequency_Hz),			/**** Guard = 4 bytes ****/
+	Foxoring_fox_setting =  Guard4_21 + GUARDSIZE, /* 1 byte */ 
+	Guard4_22 = Foxoring_fox_setting + sizeof(Fox_t),				/**** Guard = 4 bytes ****/
+	Master_setting =  Guard4_22 + GUARDSIZE, /* bool: 1 byte */ 
+	Guard4_23 = Master_setting + sizeof(bool),						/**** Guard = 4 bytes ****/
+	FoxA_pattern_text =  Guard4_23 + GUARDSIZE,  /* MAX_PATTERN_TEXT_LENGTH + 1 bytes */
+	Guard4_24 = FoxA_pattern_text + MAX_PATTERN_TEXT_LENGTH + 1,	/**** Guard = 4 bytes ****/
+	FoxB_pattern_text =  Guard4_24 + GUARDSIZE,  /* MAX_PATTERN_TEXT_LENGTH + 1 bytes */
+	Guard4_25 = FoxB_pattern_text + MAX_PATTERN_TEXT_LENGTH + 1,	/**** Guard = 4 bytes ****/
+	FoxC_pattern_text =  Guard4_25 + GUARDSIZE,  /* MAX_PATTERN_TEXT_LENGTH + 1 bytes */
+	Guard4_26 = FoxC_pattern_text + MAX_PATTERN_TEXT_LENGTH + 1,	/**** Guard = 4 bytes ****/
+	Voltage_threshold =  Guard4_26 + GUARDSIZE,   /* 4 bytes */
+	Guard4_27 = Voltage_threshold + sizeof(float),					/**** Guard = 4 bytes ****/
+	Clock_calibration =  Guard4_27 + GUARDSIZE,   /* 2 bytes */
+	Guard4_28 = Clock_calibration + sizeof(uint16_t),				/**** Guard = 4 bytes ****/
 } EE_var_t;
 
 

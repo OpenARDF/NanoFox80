@@ -125,6 +125,7 @@ volatile float g_battery_voltage = 0.;
 volatile bool g_sending_station_ID = false;											/* Allows a small extension of transmissions to ensure the ID is fully sent */
 volatile bool g_muteAfterID = false;												/* Inhibit any transmissions after the ID has been sent */
 volatile uint32_t g_event_checksum = 0;
+extern uint16_t g_clock_calibration;
 
 static volatile bool g_run_event_forever = false;
 static volatile bool g_go_to_sleep_now = false;
@@ -786,6 +787,8 @@ int main(void)
 	g_ee_mgr.initializeEEPROMVars();
 	g_ee_mgr.readNonVols();
 	g_isMaster = false; /* Never start up as master */
+	
+	RTC_set_calibration(g_clock_calibration);
 					
 	wifi_reset(ON);
 	wifi_power(ON);
@@ -1059,6 +1062,7 @@ int main(void)
 			g_sleeping = false;
 			atmel_start_init();
 			powerUp3V3();
+			RTC_set_calibration(g_clock_calibration);
 			while(util_delay_ms(2000));
 			init_transmitter();
 			
@@ -1770,6 +1774,14 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 						}
  					}
 				}
+				else if(sb_buff->fields[SB_FIELD1][0] == 'C' && !g_cloningInProgress)  /* Clock calibration */
+				{
+					strncpy(g_tempStr, sb_buff->fields[SB_FIELD2], 12);
+					uint16_t cal;
+					
+					cal = atoi(g_tempStr);
+					RTC_set_calibration(cal);
+				}
 //  				else if(sb_buff->fields[SB_FIELD1][0] == '*')  /* Sync seconds to zero */
 //  				{
 //  				}
@@ -2470,7 +2482,6 @@ uint16_t throttleValue(uint8_t speed)
 
 EC __attribute__((optimize("O0"))) launchEvent(SC* statusCode)
 {
-// 	set_system_time(ds3231_get_epoch(null));
 	EC ec = activateEventUsingCurrentSettings(statusCode);
 
 	if(*statusCode)
@@ -3417,6 +3428,8 @@ void reportSettings(void)
 		sb_send_string((char*)"   Freq: None set\n");
 	}
 	
+	sprintf(g_tempStr, "   Cal: %d\n", RTC_get_cal()); /* Read value directly from RTC */
+	sb_send_string(g_tempStr);
 	sprintf(g_tempStr, "   Start:  %s\n", convertEpochToTimeString(g_event_start_epoch, buf, 50));
 	sb_send_string(g_tempStr);
 	sprintf(g_tempStr, "   Finish: %s\n", convertEpochToTimeString(g_event_finish_epoch, buf, 50));

@@ -52,9 +52,9 @@ const struct EE_prom EEMEM EepromManager::ee_vars
 	0x00000000, // 	Guard
 	0x00000000, // 	time_t event_start_epoch;
 	0x00000000, // 	Guard
-	0x00000000,  // 	time_t event_finish_epoch; 
+	0x00000000, // time_t event_finish_epoch; 
 	0x00000000, // 	Guard
-	"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",  // 	char stationID_text[MAX_PATTERN_TEXT_LENGTH + 1];
+	"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",  // char stationID_text[MAX_PATTERN_TEXT_LENGTH + 1];
 	0x00000000, // 	Guard
 	"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", // 	char pattern_text[MAX_PATTERN_TEXT_LENGTH + 1]; 
 	0x00000000, // 	Guard
@@ -62,7 +62,7 @@ const struct EE_prom EEMEM EepromManager::ee_vars
 	0x00000000, // 	Guard
 	0x00, // 	uint8_t id_codespeed;  
 	0x00000000, // 	Guard
-	0x00, // 	uint8_t fox_setting;  
+	(Fox_t)0x00, // Fox_t fox_setting;  
 	0x00000000, // 	Guard
 	0x00, // 	uint8_t utc_offset; 
 	0x00000000, // 	Guard
@@ -82,7 +82,7 @@ const struct EE_prom EEMEM EepromManager::ee_vars
 	0x00000000, // 	Guard
 	0x0000, // 	int16_t intra_cycle_delay_time; 
 	0x00000000, // 	Guard
-	0x00, // 	uint8_t event_setting;
+	(Event_t)0x00, // Event_t event_setting;
 	0x00000000, // 	Guard
 	0x00000000,  // uint32_t foxoring_frequencyA;
 	0x00000000, // 	Guard
@@ -90,7 +90,7 @@ const struct EE_prom EEMEM EepromManager::ee_vars
 	0x00000000, // 	Guard
 	0x00000000,  // uint32_t foxoring_frequencyC; 
 	0x00000000, // 	Guard
-	0x00, // 	uint16_t foxoring_fox_setting; 
+	(Fox_t)0x00, // uint8_t foxoring_fox_setting; 
 	0x00000000, // 	Guard
 	0x00, // 	uint8_t master_setting;
 	0x00000000, // 	Guard
@@ -100,7 +100,10 @@ const struct EE_prom EEMEM EepromManager::ee_vars
 	0x00000000, // 	Guard
 	"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", // 	char foxC_pattern_text[MAX_PATTERN_TEXT_LENGTH + 1];
 	0x00000000, // 	Guard
-	0x00000000 // uint32_t voltage_threshold
+	0x00000000, // uint32_t voltage_threshold
+	0x00000000, // 	Guard
+	0x0000, // uint16_t clock_calibration
+	0x00000000 // 	Guard
 };
 
 extern bool g_isMaster;
@@ -108,7 +111,7 @@ extern volatile Fox_t g_fox;
 extern Frequency_Hz g_frequency;
 extern volatile int8_t g_utc_offset;
 extern uint8_t g_unlockCode[];
-extern uint32_t g_rtty_offset;
+extern Frequency_Hz g_rtty_offset;
 
 extern volatile Event_t g_event;
 extern volatile Frequency_Hz g_foxoring_frequencyA;
@@ -127,6 +130,7 @@ extern volatile int16_t g_on_air_seconds;
 extern volatile int16_t g_ID_period_seconds;
 extern volatile int16_t g_intra_cycle_delay_time;
 extern volatile float g_voltage_threshold;
+extern uint16_t g_clock_calibration;
 
 extern char g_tempStr[];
 
@@ -300,7 +304,7 @@ void EepromManager::updateEEPROMVar(EE_var_t v, void* val)
 
 		case Fox_setting:
 		{
-			if(*(uint8_t*)val != eeprom_read_byte(&(EepromManager::ee_vars.fox_setting)))
+			if(*(uint8_t*)val != eeprom_read_byte((uint8_t*)&(EepromManager::ee_vars.fox_setting)))
 			{
 				avr_eeprom_write_byte(Fox_setting, *(uint8_t*)val);
 			}			
@@ -309,7 +313,7 @@ void EepromManager::updateEEPROMVar(EE_var_t v, void* val)
 		
 		case Master_setting:
 		{
-			if(*(uint8_t*)val != eeprom_read_byte(&(EepromManager::ee_vars.master_setting)))
+			if(*(uint8_t*)val != eeprom_read_byte((uint8_t*)&(EepromManager::ee_vars.master_setting)))
 			{
 				avr_eeprom_write_byte(Master_setting, *(uint8_t*)val);
 			}
@@ -318,7 +322,7 @@ void EepromManager::updateEEPROMVar(EE_var_t v, void* val)
 		
 		case Event_setting:
 		{
-			if(*(uint8_t*)val != eeprom_read_byte(&(EepromManager::ee_vars.event_setting)))
+			if(*(uint8_t*)val != eeprom_read_byte((uint8_t*)&(EepromManager::ee_vars.event_setting)))
 			{
 				avr_eeprom_write_byte(Event_setting, *(uint8_t*)val);
 			}
@@ -354,7 +358,7 @@ void EepromManager::updateEEPROMVar(EE_var_t v, void* val)
 
 		case Foxoring_fox_setting:
 		{
-			if(*(uint8_t*)val != eeprom_read_byte(&(EepromManager::ee_vars.foxoring_fox_setting)))
+			if(*(uint8_t*)val != eeprom_read_byte((uint8_t*)&(EepromManager::ee_vars.foxoring_fox_setting)))
 			{
 				avr_eeprom_write_byte(Foxoring_fox_setting, *(uint8_t*)val);
 			}		
@@ -528,6 +532,15 @@ void EepromManager::updateEEPROMVar(EE_var_t v, void* val)
 			}
 		}
 		break;
+		
+		case Clock_calibration:
+		{
+			if(*(uint16_t*)val != eeprom_read_word(&(EepromManager::ee_vars.clock_calibration)))
+			{
+				avr_eeprom_write_word(Clock_calibration, *(uint16_t*)val);
+			}
+		}
+		break;
 
 		default:
 		{
@@ -567,6 +580,7 @@ void EepromManager::saveAllEEPROM(void)
 	updateEEPROMVar(FoxB_pattern_text, (void*)g_messages_text[FOXB_PATTERN_TEXT]);
 	updateEEPROMVar(FoxC_pattern_text, (void*)g_messages_text[FOXC_PATTERN_TEXT]);
 	updateEEPROMVar(Voltage_threshold, (void*)&g_voltage_threshold);
+	updateEEPROMVar(Clock_calibration, (void*)&g_clock_calibration);
 }
 
 
@@ -584,8 +598,8 @@ bool EepromManager::readNonVols(void)
 		g_foxoring_frequencyA = CLAMP(TX_MINIMUM_80M_FREQUENCY, eeprom_read_dword(&(EepromManager::ee_vars.foxoring_frequencyA)), TX_MAXIMUM_80M_FREQUENCY);
 		g_foxoring_frequencyB = CLAMP(TX_MINIMUM_80M_FREQUENCY, eeprom_read_dword(&(EepromManager::ee_vars.foxoring_frequencyB)), TX_MAXIMUM_80M_FREQUENCY);
 		g_foxoring_frequencyC = CLAMP(TX_MINIMUM_80M_FREQUENCY, eeprom_read_dword(&(EepromManager::ee_vars.foxoring_frequencyC)), TX_MAXIMUM_80M_FREQUENCY);
-		g_foxoring_fox = CLAMP(FOXORING_EVENT_FOXA, (Fox_t)eeprom_read_byte(&(EepromManager::ee_vars.fox_setting)), FOXORING_EVENT_FOXC);
-		g_fox = CLAMP(BEACON, (Fox_t)eeprom_read_byte(&(EepromManager::ee_vars.fox_setting)), SPRINT_F5);
+		g_foxoring_fox = (Fox_t)(CLAMP(FOXORING_EVENT_FOXA, eeprom_read_byte((uint8_t*)&(EepromManager::ee_vars.fox_setting)), FOXORING_EVENT_FOXC));
+		g_fox = (Fox_t)(CLAMP(BEACON, eeprom_read_byte((uint8_t*)&(EepromManager::ee_vars.fox_setting)), SPRINT_F5));
 		g_event_start_epoch = eeprom_read_dword(&(EepromManager::ee_vars.event_start_epoch));
 		g_event_finish_epoch = eeprom_read_dword(&(EepromManager::ee_vars.event_finish_epoch));
 		g_utc_offset = (int8_t)eeprom_read_byte(&(EepromManager::ee_vars.utc_offset));
@@ -667,6 +681,8 @@ bool EepromManager::readNonVols(void)
 		}
 		
 		g_voltage_threshold = CLAMP(0.1, eeprom_read_float(&(EepromManager::ee_vars.voltage_threshold)), 15.0);
+		
+		g_clock_calibration = eeprom_read_word(&(EepromManager::ee_vars.clock_calibration));
 
 		failure = false;
 	}
@@ -747,7 +763,7 @@ bool EepromManager::readNonVols(void)
 			avr_eeprom_write_dword(Frequency, g_frequency);
 
 			g_rtty_offset = EEPROM_RTTY_OFFSET_FREQUENCY_DEFAULT;
-			avr_eeprom_write_dword(Frequency, g_frequency);
+			avr_eeprom_write_dword(Frequency, g_rtty_offset);
 
 			g_80m_power_level_mW = EEPROM_TX_80M_POWER_MW_DEFAULT;
 			avr_eeprom_write_dword(RF_Power, g_80m_power_level_mW);
@@ -799,6 +815,9 @@ bool EepromManager::readNonVols(void)
 
 			g_voltage_threshold = EEPROM_BATTERY_THRESHOLD_V;
 			avr_eeprom_write_float(Voltage_threshold, g_voltage_threshold);
+			
+			g_clock_calibration = EEPROM_CLOCK_CALIBRATION_DEFAULT;
+			avr_eeprom_write_word(Clock_calibration, g_clock_calibration);
 
 			/* Done */
 

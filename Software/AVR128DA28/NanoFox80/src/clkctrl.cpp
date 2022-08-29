@@ -48,7 +48,7 @@ int8_t CLKCTRL_init()
 	//		 | 0 << CLKCTRL_SOURCE_bp /* Select Source for PLL: disabled */);
 
 	ccp_write_io((void*)&(CLKCTRL.OSCHFCTRLA),CLKCTRL_FRQSEL_24M_gc /* 4 */
-	| 1 << CLKCTRL_AUTOTUNE_bp /* Auto-Tune enable: disabled */
+	| 1 << CLKCTRL_AUTOTUNE_bp /* Auto-Tune enable: enabled */
 	| 0 << CLKCTRL_RUNSTDBY_bp /* Run standby: disabled */);
 
 	// ccp_write_io((void*)&(CLKCTRL.MCLKCTRLA),CLKCTRL_CLKSEL_OSCHF_gc /* Internal high-frequency oscillator */
