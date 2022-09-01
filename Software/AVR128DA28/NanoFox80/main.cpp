@@ -1728,6 +1728,7 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
  							g_event_start_epoch = s;
  							g_event_finish_epoch = MAX(g_event_finish_epoch, (g_event_start_epoch + SECONDS_24H));
 							g_ee_mgr.updateEEPROMVar(Event_start_epoch, (void*)&g_event_start_epoch);
+							g_ee_mgr.updateEEPROMVar(Event_finish_epoch, (void*)&g_event_finish_epoch);
  							setupForFox(INVALID_FOX, START_EVENT_WITH_STARTFINISH_TIMES);
 							if(eventScheduled())
 							{
@@ -1755,7 +1756,7 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
  					{
 						if(g_cloningInProgress)
 						{
-							g_event_finish_epoch = atol(g_tempStr);
+							g_event_finish_epoch = f;
 							
 							g_ee_mgr.updateEEPROMVar(Event_finish_epoch, (void*)&g_event_finish_epoch);
 							sb_send_string((char*)"CLK\r");
