@@ -28,15 +28,11 @@
 #ifndef __RTC_H__
 #define __RTC_H__
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 void RTC_init(void);
+void RTC_init(uint16_t cal);
 void RTC_init_backup(void);
-
-#ifdef __cplusplus
-}
-#endif
+void RTC_init_backup(uint16_t cal);
+void RTC_set_calibration(uint16_t cal);
+uint16_t RTC_get_cal(void);
 
 #endif //__RTC_H__

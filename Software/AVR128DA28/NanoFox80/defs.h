@@ -33,7 +33,7 @@
 
 /******************************************************
  * Set the text that gets displayed to the user */
-#define SW_REVISION "0.61"
+#define SW_REVISION "0.63"
 
 //#define TRANQUILIZE_WATCHDOG
 
@@ -198,7 +198,7 @@ typedef uint16_t BatteryLevel;  /* in milliVolts */
 
 /******************************************************
  * EEPROM definitions */
-#define EEPROM_INITIALIZED_FLAG 0x00FF
+#define EEPROM_INITIALIZED_FLAG (uint16_t)0x0101
 #define EEPROM_UNINITIALIZED 0x00
 
 #define EEPROM_STATION_ID_DEFAULT "FOXBOX"
@@ -223,6 +223,7 @@ typedef uint16_t BatteryLevel;  /* in milliVolts */
 #define EEPROM_CLK1_ONOFF_DEFAULT OFF
 #define EEPROM_CLK2_ONOFF_DEFAULT OFF
 
+#define EEPROM_CLOCK_CALIBRATION_DEFAULT 32767
 #define EEPROM_BATTERY_THRESHOLD_V (3.800)
 #define MAX_UNLOCK_CODE_LENGTH 8
 #define EEPROM_DTMF_UNLOCK_CODE_DEFAULT "1357"
