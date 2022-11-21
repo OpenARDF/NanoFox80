@@ -3547,7 +3547,7 @@
     (property "Reference" "C106" (id 0) (at 201.7014 55.1723 0)
       (effects (font (size 1.27 1.27)) (justify right))
     )
-    (property "Value" "15-60pF" (id 1) (at 201.7014 57.7092 0)
+    (property "Value" "" (id 1) (at 201.7014 57.7092 0)
       (effects (font (size 1.27 1.27)) (justify right))
     )
     (property "Footprint" "Capacitor_THT:CP_Radial_Ceramic_Trimmer_D9.4mm_P8.00mm" (id 2) (at 199.39 55.88 0)
@@ -4762,7 +4762,7 @@
     (property "Reference" "Q103" (id 0) (at 186.182 35.9953 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Value" "DTC113Z" (id 1) (at 186.182 38.5322 0)
+    (property "Value" "" (id 1) (at 186.182 38.5322 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Footprint" "" (id 2) (at 181.61 36.83 0)
@@ -4770,6 +4770,15 @@
     )
     (property "Datasheet" "" (id 3) (at 181.61 36.83 0)
       (effects (font (size 1.27 1.27)) (justify left) hide)
+    )
+    (property "Digi-Key Part No." "264-RN1426TE85LFCT-ND" (id 4) (at 181.61 36.83 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Link" "https://www.digikey.com/en/products/detail/toshiba-semiconductor-and-storage/RN1426TE85LF/2330276" (id 5) (at 181.61 36.83 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Manufacturer" "Toshiba Semiconductor and Storage" (id 6) (at 181.61 36.83 0)
+      (effects (font (size 1.27 1.27)) hide)
     )
     (pin "1" (uuid 9675bcba-4001-4c4f-af07-32a85229f5c2))
     (pin "2" (uuid 650df6eb-3cb5-452a-8dff-7e9860a6c5b1))
@@ -4980,7 +4989,7 @@
     (property "Reference" "D102" (id 0) (at 185.928 52.5053 90)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Value" "4.7V" (id 1) (at 185.928 55.0422 90)
+    (property "Value" "" (id 1) (at 185.928 55.0422 90)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Footprint" "" (id 2) (at 184.15 53.34 90)
@@ -5369,7 +5378,7 @@
     (in_bom yes) (on_board yes) (fields_autoplaced)
     (uuid bec9562c-6b4c-48ba-b645-29b85449b6e2)
     (property "Reference" "R103" (id 0) (at 191.77 44.9412 90))
-    (property "Value" "10" (id 1) (at 191.77 47.4781 90))
+    (property "Value" "" (id 1) (at 191.77 47.4781 90))
     (property "Footprint" "" (id 2) (at 191.77 49.53 0)
       (effects (font (size 1.27 1.27)) hide)
     )
@@ -5788,7 +5797,7 @@
     (property "Reference" "C118" (id 0) (at 213.36 53.34 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Value" "TBD pF" (id 1) (at 213.36 58.42 0)
+    (property "Value" "" (id 1) (at 213.36 58.42 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Footprint" "Capacitor_SMD:C_0805_2012Metric" (id 2) (at 212.09 55.88 0)
@@ -6422,7 +6431,7 @@
       (reference "C105") (unit 1) (value "220pF") (footprint "Capacitor_SMD:C_0805_2012Metric")
     )
     (path "/0e1e7a3c-c50c-4d42-9572-0d002900c69d"
-      (reference "C106") (unit 1) (value "15-60pF") (footprint "Capacitor_THT:CP_Radial_Ceramic_Trimmer_D9.4mm_P8.00mm")
+      (reference "C106") (unit 1) (value "NP") (footprint "Capacitor_THT:CP_Radial_Ceramic_Trimmer_D9.4mm_P8.00mm")
     )
     (path "/1230aad1-fe96-4be0-9f04-1e46bf447e94"
       (reference "C107") (unit 1) (value "10nF") (footprint "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder")
@@ -6458,7 +6467,7 @@
       (reference "C117") (unit 1) (value "100nF") (footprint "Capacitor_SMD:C_0805_2012Metric")
     )
     (path "/e185d3e9-1152-453e-9913-3041132c8b39"
-      (reference "C118") (unit 1) (value "TBD pF") (footprint "Capacitor_SMD:C_0805_2012Metric")
+      (reference "C118") (unit 1) (value "NP") (footprint "Capacitor_SMD:C_0805_2012Metric")
     )
     (path "/46155e87-3819-47f9-b3a7-1d0e71924957"
       (reference "C119") (unit 1) (value "TBD pF") (footprint "Capacitor_SMD:C_0805_2012Metric")
@@ -6479,7 +6488,7 @@
       (reference "D101") (unit 1) (value "LED_Filled") (footprint "LED_SMD:LED_APDA1806SECK")
     )
     (path "/9a362b03-69ee-4b1f-b653-32a8ac132ea9"
-      (reference "D102") (unit 1) (value "4.7V") (footprint "")
+      (reference "D102") (unit 1) (value "NP") (footprint "")
     )
     (path "/494208f9-e0ca-4027-9207-cba02c8b4cf6"
       (reference "D103") (unit 1) (value "ESD9B5.0ST5G_1") (footprint "Diode_SMD:D_0603_1608Metric")
@@ -6539,7 +6548,7 @@
       (reference "Q102") (unit 1) (value "BSS138W-7-F") (footprint "Package_TO_SOT_SMD:SOT-323_SC-70")
     )
     (path "/7e4f8b88-6c4b-4ba5-bc05-ae0251584d83"
-      (reference "Q103") (unit 1) (value "DTC113Z") (footprint "")
+      (reference "Q103") (unit 1) (value "RN1426TE85LF") (footprint "Package_TO_SOT_SMD:SC-59")
     )
     (path "/68b55295-fe67-43f3-942f-ec08960df788"
       (reference "R101") (unit 1) (value "10k") (footprint "Resistor_SMD:R_0805_2012Metric")
@@ -6548,7 +6557,7 @@
       (reference "R102") (unit 1) (value "10k") (footprint "Resistor_SMD:R_0805_2012Metric")
     )
     (path "/bec9562c-6b4c-48ba-b645-29b85449b6e2"
-      (reference "R103") (unit 1) (value "10") (footprint "")
+      (reference "R103") (unit 1) (value "10") (footprint "Resistor_SMD:R_0805_2012Metric")
     )
     (path "/c4a0b625-0796-4f97-b5bb-d859e812789a"
       (reference "R108") (unit 1) (value "1k") (footprint "")
