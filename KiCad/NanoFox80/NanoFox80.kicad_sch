@@ -6,8 +6,8 @@
 
   (title_block
     (title "NanoFox80 Foxoring Transmitter")
-    (date "2022-07-01")
-    (rev "0.4")
+    (date "2022-11-21")
+    (rev "0.5")
   )
 
   (lib_symbols
