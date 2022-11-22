@@ -2749,7 +2749,7 @@
     (stroke (width 0) (type default) (color 0 0 0 0))
     (uuid 321a4f3d-9caa-4c4b-9dd6-21c5ebbc3e42)
   )
-  (wire (pts (xy 41.91 151.13) (xy 63.5 151.13))
+  (wire (pts (xy 41.91 151.13) (xy 50.8 151.13))
     (stroke (width 0) (type default) (color 0 0 0 0))
     (uuid 32be3dca-8f9e-4a51-b33c-d91b89887aa2)
   )
@@ -3020,6 +3020,10 @@
   (wire (pts (xy 142.24 88.9) (xy 139.7 88.9))
     (stroke (width 0) (type default) (color 0 0 0 0))
     (uuid 9b17a8c6-b370-462f-a6fd-222b922e0494)
+  )
+  (wire (pts (xy 58.42 151.13) (xy 63.5 151.13))
+    (stroke (width 0) (type default) (color 0 0 0 0))
+    (uuid 9b69efba-b3ce-4680-9fc5-f2986a5e0b16)
   )
   (wire (pts (xy 31.75 101.6) (xy 31.75 104.14))
     (stroke (width 0) (type default) (color 0 0 0 0))
@@ -3557,6 +3561,25 @@
       (effects (font (size 1.27 1.27)) hide)
     )
     (pin "1" (uuid 15e77dd9-0cac-499c-8537-5074ff795896))
+  )
+
+  (symbol (lib_id "Diode:1N914WT") (at 54.61 151.13 180) (unit 1)
+    (in_bom yes) (on_board yes)
+    (uuid 0d0a8cf0-7e30-4463-a75a-b09ac9dce329)
+    (property "Reference" "D107" (id 0) (at 53.34 148.59 0)
+      (effects (font (size 1.27 1.27)) (justify right))
+    )
+    (property "Value" "1N914WT" (id 1) (at 50.8 153.67 0)
+      (effects (font (size 1.27 1.27)) (justify right))
+    )
+    (property "Footprint" "Diode_SMD:D_SOD-523" (id 2) (at 54.61 146.685 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Datasheet" "http://www.mouser.com/ds/2/149/1N4148WT-461550.pdf" (id 3) (at 54.61 151.13 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (pin "1" (uuid 0839b970-6b3f-436b-9950-69bdb059b8ae))
+    (pin "2" (uuid aecf1641-6f94-4611-8eea-726660437d93))
   )
 
   (symbol (lib_id "Device:C_Trim_Small") (at 199.39 55.88 180) (unit 1)
@@ -4147,12 +4170,12 @@
   )
 
   (symbol (lib_id "power:+VSW") (at 50.8 158.75 0) (unit 1)
-    (in_bom yes) (on_board yes) (fields_autoplaced)
+    (in_bom yes) (on_board yes)
     (uuid 402b505a-3134-4180-8252-3cb6368585af)
-    (property "Reference" "#PWR?" (id 0) (at 50.8 162.56 0)
+    (property "Reference" "#PWR0128" (id 0) (at 50.8 162.56 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "Value" "+VSW" (id 1) (at 50.8 155.1742 0))
+    (property "Value" "+VSW" (id 1) (at 48.26 154.94 0))
     (property "Footprint" "" (id 2) (at 50.8 158.75 0)
       (effects (font (size 1.27 1.27)) hide)
     )
@@ -4230,7 +4253,7 @@
   (symbol (lib_id "Diode:1N914WT") (at 80.01 143.51 90) (unit 1)
     (in_bom yes) (on_board yes)
     (uuid 48669e45-be64-4eba-820d-5e81f3945590)
-    (property "Reference" "D105" (id 0) (at 74.93 142.24 90)
+    (property "Reference" "D105" (id 0) (at 72.39 142.24 90)
       (effects (font (size 1.27 1.27)) (justify right))
     )
     (property "Value" "1N914WT" (id 1) (at 69.85 146.05 90)
@@ -4693,7 +4716,7 @@
   (symbol (lib_id "Device:C_Small") (at 68.58 157.48 0) (unit 1)
     (in_bom yes) (on_board yes)
     (uuid 6ff25e28-6290-4c29-a474-b6a86c1058fa)
-    (property "Reference" "C?" (id 0) (at 64.77 157.48 90))
+    (property "Reference" "C120" (id 0) (at 64.77 157.48 90))
     (property "Value" "100nF" (id 1) (at 72.39 156.21 90))
     (property "Footprint" "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder" (id 2) (at 68.58 157.48 0)
       (effects (font (size 1.27 1.27)) hide)
@@ -5138,7 +5161,7 @@
   (symbol (lib_id "power:+VSW") (at 90.17 177.8 0) (unit 1)
     (in_bom yes) (on_board yes) (fields_autoplaced)
     (uuid a3e4e30c-206c-441f-ab18-6136621c1881)
-    (property "Reference" "#PWR?" (id 0) (at 90.17 181.61 0)
+    (property "Reference" "#PWR0157" (id 0) (at 90.17 181.61 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "+VSW" (id 1) (at 90.17 174.2242 0))
@@ -5388,7 +5411,7 @@
   (symbol (lib_id "power:+VSW") (at 36.83 29.21 0) (unit 1)
     (in_bom yes) (on_board yes) (fields_autoplaced)
     (uuid bd6b6d07-bcc0-4e70-87e3-edf6a5aca5a3)
-    (property "Reference" "#PWR?" (id 0) (at 36.83 33.02 0)
+    (property "Reference" "#PWR0104" (id 0) (at 36.83 33.02 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "+VSW" (id 1) (at 36.83 25.6342 0))
@@ -5485,7 +5508,7 @@
   (symbol (lib_id "Connector_Generic:Conn_01x02") (at 58.42 158.75 180) (unit 1)
     (in_bom yes) (on_board yes)
     (uuid c5875cb9-6af0-4961-b2bf-5b09e29a87ee)
-    (property "Reference" "J112" (id 0) (at 55.88 158.75 90))
+    (property "Reference" "J112" (id 0) (at 59.69 161.29 0))
     (property "Value" "Conn_01x02" (id 1) (at 58.42 161.1829 0)
       (effects (font (size 1.27 1.27)) hide)
     )
@@ -6247,6 +6270,9 @@
     (path "/147cc31b-4b75-4e69-ae4b-2adbf5168a78"
       (reference "#PWR0103") (unit 1) (value "GND") (footprint "")
     )
+    (path "/bd6b6d07-bcc0-4e70-87e3-edf6a5aca5a3"
+      (reference "#PWR0104") (unit 1) (value "+VSW") (footprint "")
+    )
     (path "/c932b361-059f-4797-bb48-55acd54d22ae"
       (reference "#PWR0105") (unit 1) (value "+3V3") (footprint "")
     )
@@ -6315,6 +6341,9 @@
     )
     (path "/a26cc237-247c-40f8-b7f9-58843826a7c0"
       (reference "#PWR0127") (unit 1) (value "GND") (footprint "")
+    )
+    (path "/402b505a-3134-4180-8252-3cb6368585af"
+      (reference "#PWR0128") (unit 1) (value "+VSW") (footprint "")
     )
     (path "/4f7a1eba-8dbc-4c27-9d23-77ce339ae68b"
       (reference "#PWR0129") (unit 1) (value "VDD") (footprint "")
@@ -6400,6 +6429,9 @@
     (path "/64de86ef-34b6-48e4-914f-da9895b635d3"
       (reference "#PWR0156") (unit 1) (value "GND") (footprint "")
     )
+    (path "/a3e4e30c-206c-441f-ab18-6136621c1881"
+      (reference "#PWR0157") (unit 1) (value "+VSW") (footprint "")
+    )
     (path "/11e76ef2-618d-4ad6-8a58-2f677f10418e"
       (reference "#PWR0158") (unit 1) (value "GND") (footprint "")
     )
@@ -6427,6 +6459,9 @@
     (path "/a6cf679a-8fe8-43b4-a04f-10097436e2b4/f0558733-7a87-4748-916a-027321554c55"
       (reference "#PWR0202") (unit 1) (value "GND") (footprint "")
     )
+    (path "/a6cf679a-8fe8-43b4-a04f-10097436e2b4/6fe5f251-d125-403e-ab6b-dbe26cac51a9"
+      (reference "#PWR0203") (unit 1) (value "+VSW") (footprint "")
+    )
     (path "/a6cf679a-8fe8-43b4-a04f-10097436e2b4/02034456-d704-450b-856e-6d640ab38367"
       (reference "#PWR0204") (unit 1) (value "GND") (footprint "")
     )
@@ -6441,18 +6476,6 @@
     )
     (path "/a6cf679a-8fe8-43b4-a04f-10097436e2b4/5bebce6f-f3b9-411b-b304-4bdc02de2c10"
       (reference "#PWR0209") (unit 1) (value "GND") (footprint "")
-    )
-    (path "/402b505a-3134-4180-8252-3cb6368585af"
-      (reference "#PWR?") (unit 1) (value "+VSW") (footprint "")
-    )
-    (path "/a6cf679a-8fe8-43b4-a04f-10097436e2b4/6fe5f251-d125-403e-ab6b-dbe26cac51a9"
-      (reference "#PWR?") (unit 1) (value "+VSW") (footprint "")
-    )
-    (path "/a3e4e30c-206c-441f-ab18-6136621c1881"
-      (reference "#PWR?") (unit 1) (value "+VSW") (footprint "")
-    )
-    (path "/bd6b6d07-bcc0-4e70-87e3-edf6a5aca5a3"
-      (reference "#PWR?") (unit 1) (value "+VSW") (footprint "")
     )
     (path "/c938e709-b8e6-465b-a1ac-8390c5f3f4c9"
       (reference "AE101") (unit 1) (value "Antenna_Shield") (footprint "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical")
@@ -6517,6 +6540,9 @@
     (path "/46155e87-3819-47f9-b3a7-1d0e71924957"
       (reference "C119") (unit 1) (value "TBD pF") (footprint "Capacitor_SMD:C_0805_2012Metric")
     )
+    (path "/6ff25e28-6290-4c29-a474-b6a86c1058fa"
+      (reference "C120") (unit 1) (value "100nF") (footprint "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder")
+    )
     (path "/6acc6fcf-4b9f-4444-92c4-4fe7b9ec74a5"
       (reference "C121") (unit 1) (value "100nF") (footprint "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder")
     )
@@ -6528,9 +6554,6 @@
     )
     (path "/a6cf679a-8fe8-43b4-a04f-10097436e2b4/4539a17b-41d4-4534-8281-e72b7eaa4fde"
       (reference "C203") (unit 1) (value "100nF") (footprint "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder")
-    )
-    (path "/6ff25e28-6290-4c29-a474-b6a86c1058fa"
-      (reference "C?") (unit 1) (value "100nF") (footprint "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder")
     )
     (path "/3d96634f-3b26-447f-8ede-f6059a78b14d"
       (reference "D101") (unit 1) (value "LED_Filled") (footprint "LED_SMD:LED_APDA1806SECK")
@@ -6549,6 +6572,9 @@
     )
     (path "/4be57c09-772e-4b40-9578-77f4049d5694"
       (reference "D106") (unit 1) (value "LED_Filled") (footprint "LED_SMD:LED_APDA1806SECK")
+    )
+    (path "/0d0a8cf0-7e30-4463-a75a-b09ac9dce329"
+      (reference "D107") (unit 1) (value "1N914WT") (footprint "Diode_SMD:D_SOD-523")
     )
     (path "/a27abb84-56e0-453a-b41b-2d099dd070cf"
       (reference "J101") (unit 1) (value "Conn_01x02") (footprint "Connector_PinSocket_2.54mm:PinSocket_1x02_P2.54mm_Vertical")

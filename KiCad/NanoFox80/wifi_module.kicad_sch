@@ -1048,7 +1048,7 @@
   (symbol (lib_id "power:+VSW") (at 246.38 83.82 0) (unit 1)
     (in_bom yes) (on_board yes) (fields_autoplaced)
     (uuid 6fe5f251-d125-403e-ab6b-dbe26cac51a9)
-    (property "Reference" "#PWR?" (id 0) (at 246.38 87.63 0)
+    (property "Reference" "#PWR0203" (id 0) (at 246.38 87.63 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "+VSW" (id 1) (at 246.38 80.2442 0))
