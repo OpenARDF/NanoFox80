@@ -31,15 +31,42 @@
 
 extern ADC_Init_t g_adc_initialization;
 
+uint8_t portDpinReadings[3];
+uint8_t portDdebounced;
+
 // default constructor
 binio::binio()
 {
+	portDdebounced = 0;
 } //binio
 
 // default destructor
 binio::~binio()
 {
 } //~binio
+
+
+// This function is called approximately each 1/60 to 1/30 sec.
+void debounce(void)
+{
+	// Move previously sampled raw input bits one step down the line.
+	portDpinReadings[2] = portDpinReadings[1];
+	portDpinReadings[1] = portDpinReadings[0];
+
+	// Sample new raw input bits from PORT_A.
+	portDpinReadings[0] = PORTD_get_port_level();
+
+	// Debounce output bits using low-pass filtering.
+	portDdebounced = portDdebounced ^ (
+	(portDdebounced ^ portDpinReadings[0])
+	& (portDdebounced ^ portDpinReadings[1])
+	& (portDdebounced ^ portDpinReadings[2]));
+}
+
+uint8_t portDdebouncedVals(void)
+{
+	return portDdebounced;
+}
 
 
 void BINIO_init(void)
