@@ -143,7 +143,7 @@ static volatile uint16_t g_adcCountdownCount[NUMBER_OF_POLLED_ADC_CHANNELS] = { 
 static volatile bool g_adcUpdated[NUMBER_OF_POLLED_ADC_CHANNELS] = { false };
 static volatile uint16_t g_lastConversionResult[NUMBER_OF_POLLED_ADC_CHANNELS];
 
-volatile uint16_t g_switch_closed_count = 0;
+volatile uint16_t g_switch_closed_time = 0;
 volatile uint16_t g_handle_counted_presses = 0;
 volatile uint16_t g_switch_presses_count = 0;
 volatile bool g_long_button_press = false;
@@ -496,6 +496,8 @@ Periodic tasks not requiring precise timing. Rate = 300 Hz
 ISR(TCB0_INT_vect)
 {
 	static bool initializeManualTransmissions = true;
+	static uint8_t fiftyMS = 6;
+	
 	uint8_t x = TCB0.INTFLAGS;
 	
     if(x & TCB_CAPT_bm)
@@ -505,6 +507,81 @@ ISR(TCB0_INT_vect)
 		static uint16_t codeInc = 0;
 		bool repeat, finished;
 		static uint16_t switch_closures_count_period = 0;
+		uint8_t holdSwitch;
+		static uint8_t buttonReleased = false;
+		static uint8_t longPressEnabled = true;
+		
+		fiftyMS++;
+		if(!(fiftyMS % 6))
+		{
+			holdSwitch = portDdebouncedVals() & (1 << SWITCH);
+			debounce();
+			
+			if(holdSwitch != (portDdebouncedVals() & (1 << SWITCH))) /* Change detected */
+			{	
+				if(holdSwitch) /* Switch was open, so now it must be closed */
+				{
+					if(!LEDS.active())
+					{
+						LEDS.init();
+					}
+					else
+					{
+						g_switch_presses_count++;
+						buttonReleased = false;
+					}
+				}
+				else /* Switch is now open */
+				{
+					g_switch_closed_time = 0;
+					buttonReleased = true;
+					longPressEnabled = true;
+					
+					if(g_send_clone_success_countdown || g_cloningInProgress) 
+					{
+						g_send_clone_success_countdown = 0;
+						g_cloningInProgress = false;
+						g_programming_msg_throttle = 0;
+					}
+				}
+			}
+			else if(!holdSwitch) /* Switch closed */
+			{
+				if(!g_long_button_press && longPressEnabled)
+				{
+					if(++g_switch_closed_time >= 200)
+					{
+						g_long_button_press = true;
+						g_switch_closed_time = 0;
+						g_switch_presses_count = 0;
+						longPressEnabled = false;
+					}
+				}
+			}
+		
+			if(switch_closures_count_period)
+			{
+				switch_closures_count_period--;
+				
+				if(!switch_closures_count_period)
+				{
+					if(g_switch_presses_count && (g_switch_presses_count < 3))
+					{
+						g_handle_counted_presses = g_switch_presses_count;
+					}
+					
+					g_switch_presses_count = 0;
+				}
+			}
+			else if(g_switch_presses_count == 1 && buttonReleased)
+			{
+				switch_closures_count_period = 50;
+			}
+			else if(g_switch_presses_count > 2)
+			{
+				g_switch_presses_count = 0;
+			}
+		}
 		
 		if(g_util_tick_countdown)
 		{
@@ -514,42 +591,6 @@ ISR(TCB0_INT_vect)
 		if(g_programming_countdown) g_programming_countdown--;
 		if(g_programming_msg_throttle) g_programming_msg_throttle--;
 		if(g_send_clone_success_countdown) g_send_clone_success_countdown--;
-		
-		if(switch_closures_count_period)
-		{
-			switch_closures_count_period--;
-				
-			if(!switch_closures_count_period)
-			{
-				if(g_switch_presses_count && (g_switch_presses_count<=3))
-				{
-					g_handle_counted_presses = g_switch_presses_count;
-				}
-					
-				g_switch_presses_count = 0;
-			}
-		}
-		else if(g_switch_presses_count == 1)
-		{
-			switch_closures_count_period = 300;
-		}
-		else if(g_switch_presses_count > 2)
-		{
-			g_switch_presses_count = 0;
-		}
-
-		// Check switch state	
-		if(!PORTD_get_pin_level(SWITCH))
-		{
-			if(g_switch_closed_count<1000)
-			{
-				g_switch_closed_count++;
-				if(g_switch_closed_count >= 1000)
-				{
-					g_long_button_press = true;
-				}
-			}			
-		}		
 							
 		static bool key = false;
 
@@ -737,24 +778,6 @@ ISR(PORTD_PORT_vect)
 			g_sleeping = false;
 			g_awakenedBy = AWAKENED_BY_BUTTONPRESS;	
 			g_waiting_for_next_event = false; /* Ensure the wifi module does not get shut off prematurely */
-		}
-		else if(g_switch_closed_count > 5)
-		{	
-			if(!LEDS.active())
-			{
-				LEDS.init();
-			}
-			else
-			{
-				if(PORTD_get_pin_level(SWITCH)) g_switch_presses_count++;		
-				g_switch_closed_count = 0;
-				if(g_send_clone_success_countdown || g_cloningInProgress) 
-				{
-					g_send_clone_success_countdown = 0;
-					g_cloningInProgress = false;
-					g_programming_msg_throttle = 0;
-				}
-			}
 		}
 	}
 	

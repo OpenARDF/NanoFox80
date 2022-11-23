@@ -26,6 +26,8 @@
 #ifndef __BINIO_H__
 #define __BINIO_H__
 
+#include "defs.h"
+
 /* PORTA *************************************************************************************/
 #define WIFI_RESET 7
 #define WIFI_ENABLE 6
@@ -60,6 +62,8 @@
 
 
 void BINIO_init(void);
+void debounce(void);
+uint8_t portDdebouncedVals(void);
 
 class binio
 {
