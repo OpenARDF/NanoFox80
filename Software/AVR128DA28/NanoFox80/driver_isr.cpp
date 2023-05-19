@@ -118,8 +118,6 @@ void serial_Rx(uint8_t rx_char)
 
 					textBuff[charIndex] = '\0'; /* terminate last-message buffer */
 				}
-
-				sb_send_NewLine();
 			}
 			else
 			{
@@ -197,7 +195,20 @@ void serial_Rx(uint8_t rx_char)
 						if(field_index == 0)    /* message ID received */
 						{
 							msg_ID = msg_ID * 10 + rx_char;
-							field_len++;
+							if(++field_len > SERIALBUS_MAX_MSG_ID_LENGTH) /* Invalid ID length = throw out everything */
+							{
+								rx_char = '\0';
+								buff->id = SB_INVALID_MESSAGE; /* print help message */
+
+								charIndex = 0;
+								field_len = 0;
+								msg_ID = LB_MESSAGE_EMPTY;
+
+								field_index = 0;
+								buff = NULL;
+
+								receiving_msg = false;
+							}
 						}
 						else
 						{
@@ -224,7 +235,7 @@ void serial_Rx(uint8_t rx_char)
 
 					msg_ID = 0;
 				}
-				else if(rx_char == ' ') /* Handle Space */
+				else if(!isalnum(rx_char)) /* Handle Space and other non-alphanumeric characters */
 				{
 					rx_char = '\0';
 				}
@@ -242,6 +253,7 @@ void serial_Rx(uint8_t rx_char)
 
 					receiving_msg = true;
 					charIndex++;
+					field_len = 1;
 				}
 			}
 

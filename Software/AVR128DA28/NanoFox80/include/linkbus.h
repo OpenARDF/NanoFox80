@@ -31,7 +31,7 @@
 #include "defs.h"
 #include "usart_basic.h"
 
-#define LINKBUS_USART USART_0
+#define LINKBUS_USART USART_NOT_SET
 
 #define LINKBUS_MAX_MSG_LENGTH 50
 #define LINKBUS_MIN_MSG_LENGTH 3    /* shortest message: $TTY; */
@@ -39,6 +39,7 @@
 #define LINKBUS_MAX_MSG_NUMBER_OF_FIELDS 3
 #define LINKBUS_NUMBER_OF_RX_MSG_BUFFERS 3
 #define LINKBUS_NUMBER_OF_TX_MSG_BUFFERS 4
+#define LINKBUS_MAX_MSG_ID_LENGTH 3
 
 #define LINKBUS_POWERUP_DELAY_SECONDS 6
 

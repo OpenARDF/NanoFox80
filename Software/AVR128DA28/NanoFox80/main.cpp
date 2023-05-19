@@ -1109,6 +1109,8 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 
 	while((sb_buff = nextFullSBRxBuffer()))
 	{
+		sb_send_NewLine();
+
 		if(!g_WiFi_shutdown_seconds)
 		{
 			g_wifi_enable_delay = 2;
@@ -1547,6 +1549,7 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 						
 						len = MIN(MAX_PATTERN_TEXT_LENGTH, strlen(g_tempStr));
 						strncpy((char*)g_messages_text[STATION_ID], g_tempStr, len);
+						g_messages_text[STATION_ID][len] = '\0';
 					}
 					
 					if(g_cloningInProgress)

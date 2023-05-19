@@ -34,7 +34,7 @@
 
 /* Global Variables */
 static volatile bool g_bus_disabled = true;
-USART_Number_t g_linkbus_usart_number = USART_NOT_SET;
+USART_Number_t g_linkbus_usart_number = USART_NOT_SET; /* Disable linkbus until hardware and software are ready for it */
 
 static char g_tempMsgBuff[LINKBUS_MAX_MSG_LENGTH];
 
@@ -279,7 +279,7 @@ void linkbus_init(uint32_t baud, USART_Number_t usart)
 		{
 			USART0_initialization(baud);
 		}
-		else
+		else if(usart == USART_1)
 		{
 			USART1_initialization(baud);
 		}

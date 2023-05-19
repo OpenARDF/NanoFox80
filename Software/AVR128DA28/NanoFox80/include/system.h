@@ -47,7 +47,7 @@ extern "C" {
 
 void mcu_init(void)
 {
-	/* On AVR devices all peripherals are enable from power on reset, this
+	/* On AVR devices all peripherals are enabled from power on reset, this
 	 * disables all peripherals to save power. Driver shall enable
 	 * peripheral if used */
 
