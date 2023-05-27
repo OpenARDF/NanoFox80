@@ -195,7 +195,7 @@ void serial_Rx(uint8_t rx_char)
 						if(field_index == 0)    /* message ID received */
 						{
 							msg_ID = msg_ID * 10 + rx_char;
-							if(++field_len > SERIALBUS_MAX_MSG_ID_LENGTH) /* Invalid ID length = throw out everything */
+							if(field_len++ > SERIALBUS_MAX_MSG_ID_LENGTH) /* Invalid ID length = throw out everything */
 							{
 								rx_char = '\0';
 								buff->id = SB_INVALID_MESSAGE; /* print help message */
