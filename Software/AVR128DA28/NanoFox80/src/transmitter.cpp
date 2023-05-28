@@ -33,7 +33,7 @@
 // #include "port.h"
 
 static volatile bool g_tx_initialized = false;
-volatile Frequency_Hz g_80m_frequency = EEPROM_TX_80M_FREQUENCY_DEFAULT;
+volatile Frequency_Hz g_80m_frequency = EEPROM_FREQUENCY_DEFAULT;
 volatile uint16_t g_80m_power_level_mW = EEPROM_TX_80M_POWER_MW_DEFAULT;
 volatile Frequency_Hz g_rtty_offset = EEPROM_RTTY_OFFSET_FREQUENCY_DEFAULT;
 

@@ -395,19 +395,19 @@ bool fox2Text(char* str, Fox_t fox)
 		
 		case FOXORING_FOX1:
 		{
-			sprintf(str, "Foxoring Fox \"Low Freq\"");
+			sprintf(str, "Foxoring \"Low Freq\" Fox");
 		}
 		break;
 		
 		case FOXORING_FOX2:
 		{
-			sprintf(str, "Foxoring Fox \"Medium Freq\"");
+			sprintf(str, "Foxoring \"Medium Freq\" Fox");
 		}
 		break;
 		
 		case FOXORING_FOX3:
 		{
-			sprintf(str, "Foxoring Fox \"High Freq\"");
+			sprintf(str, "Foxoring \"High Freq\" Fox");
 		}
 		break;
 		

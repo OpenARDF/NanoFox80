@@ -53,7 +53,6 @@
 typedef enum {
 	ERROR_CODE_NO_ERROR = 0x00,
 	ERROR_CODE_REPORT_NO_ERROR = 0x01,
-//	ERROR_CODE_2M_BIAS_SM_NOT_READY = 0xC6,
 	ERROR_CODE_EVENT_STATION_ID_ERROR = 0xC7,
 	ERROR_CODE_EVENT_PATTERN_CODE_SPEED_NOT_SPECIFIED = 0xC8,
 	ERROR_CODE_EVENT_PATTERN_NOT_SPECIFIED = 0xC9,
@@ -113,6 +112,8 @@ typedef enum {
 	LED_AND_RF,
 	LED_ONLY
 	} Enunciation_t;
+	
+#define ENUNCIATION_BLINK_WPM 8
 
 /*******************************************************/
 
@@ -198,7 +199,7 @@ typedef uint16_t BatteryLevel;  /* in milliVolts */
 
 /******************************************************
  * EEPROM definitions */
-#define EEPROM_INITIALIZED_FLAG (uint16_t)0x0106
+#define EEPROM_INITIALIZED_FLAG (uint16_t)0x011F
 #define EEPROM_UNINITIALIZED 0x00
 
 #define EEPROM_STATION_ID_DEFAULT "FOXBOX"
@@ -210,6 +211,7 @@ typedef uint16_t BatteryLevel;  /* in milliVolts */
 #define EEPROM_EVENT_ENABLED_DEFAULT false
 #define EEPROM_ID_CODE_SPEED_DEFAULT 20
 #define EEPROM_PATTERN_CODE_SPEED_DEFAULT 8
+#define EEPROM_FOXORING_PATTERN_CODESPEED_DEFAULT 8
 #define EEPROM_ON_AIR_TIME_DEFAULT 60
 #define EEPROM_OFF_AIR_TIME_DEFAULT 240
 #define EEPROM_INTRA_CYCLE_DELAY_TIME_DEFAULT 0
@@ -242,15 +244,12 @@ typedef uint16_t BatteryLevel;  /* in milliVolts */
 #define EEPROM_FOX_SETTING_BLIND_DEFAULT FOX_1
 #define EEPROM_EVENT_SETTING_DEFAULT EVENT_FOXORING
 #define EEPROM_FOX_PATTERN_DEFAULT "MOE"
-#define EEPROM_FOX_FREQUENCY_DEFAULT 3550000
 #define EEPROM_FOXORING_PATTERN_DEFAULT "ME"
+#define EEPROM_FREQUENCY_DEFAULT 3700000
 #define EEPROM_FREQUENCY_LOW_DEFAULT 3520000
 #define EEPROM_FREQUENCY_MED_DEFAULT 3540000
 #define EEPROM_FREQUENCY_HI_DEFAULT 3560000
 #define EEPROM_FREQUENCY_BEACON_DEFAULT 3600000
-// #define EEPROM_FOXORING_FREQUENCYB_DEFAULT 3550000
-// #define EEPROM_FOXORING_FREQUENCYC_DEFAULT 3570000
-#define EEPROM_FOXORING_FOX_SETTING_DEFAULT FOXORING_FOX
 #define TEXT_SET_TIME_TXT (char*)"CLK T YYMMDDhhmmss <- Set current time\n"
 #define TEXT_SET_START_TXT (char*)"CLK S YYMMDDhhmmss <- Set start time\n"
 #define TEXT_SET_FINISH_TXT (char*)"CLK F YYMMDDhhmmss <- Set finish time\n"
@@ -266,7 +265,7 @@ typedef uint16_t BatteryLevel;  /* in milliVolts */
 #define TEXT_RESET_OCCURRED_TXT (char*)"Warning: CPU Reset! Need to set clock\n"
 #define TEXT_NOT_SLEEPING_TXT (char*)"NanoFox is not sleeping\n"
 #define TEXT_CURRENT_SETTINGS_TXT (char*)"\n   === NanoFox Settings ===\n"
-#define TEXT_EVENT_SETTINGS_TXT (char*)"\n    === Event Settings ===\n"
+#define TEXT_EVENT_SETTINGS_TXT (char*)"\n    === Event Frequency Settings ===\n"
 #define MINIMUM_VALID_EPOCH ((time_t)1609459200)  /* 1 Jan 2021 00:00:00 */
 #define YEAR_2000_EPOCH ((time_t)946684800)  /* 1 Jan 2000 00:00:00 */
 #define FOREVER_EPOCH ((time_t)4796712000) /* 1 Jan 2122 00:00:00 */
