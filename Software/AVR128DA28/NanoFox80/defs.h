@@ -33,12 +33,12 @@
 
 /******************************************************
  * Set the text that gets displayed to the user */
-#define SW_REVISION "0.70"
+#define SW_REVISION "0.71"
 
 //#define TRANQUILIZE_WATCHDOG
 
 #define PRODUCT_NAME_SHORT "NanoFox ARDF Tx"
-#define PRODUCT_NAME_LONG "NanoFox 80m ARDF Transmitter"
+#define PRODUCT_NAME_LONG "\n* NanoFox 80m ARDF Transmitter"
 
 /*******************************************************/
 
@@ -250,22 +250,22 @@ typedef uint16_t BatteryLevel;  /* in milliVolts */
 #define EEPROM_FREQUENCY_MED_DEFAULT 3540000
 #define EEPROM_FREQUENCY_HI_DEFAULT 3560000
 #define EEPROM_FREQUENCY_BEACON_DEFAULT 3600000
-#define TEXT_SET_TIME_TXT (char*)"CLK T YYMMDDhhmmss <- Set current time\n"
-#define TEXT_SET_START_TXT (char*)"CLK S YYMMDDhhmmss <- Set start time\n"
-#define TEXT_SET_FINISH_TXT (char*)"CLK F YYMMDDhhmmss <- Set finish time\n"
-#define TEXT_SET_ID_TXT (char*)"ID \"callsign\" <- Set callsign\n"
-#define TEXT_ERR_FINISH_BEFORE_START_TXT (char*)"Err: Finish before start!\n"
-#define TEXT_ERR_FINISH_IN_PAST_TXT (char*)"Err: Finish in past!\n"
-#define TEXT_ERR_START_IN_PAST_TXT (char*)"Err: Start in past!\n"
-#define TEXT_ERR_INVALID_TIME_TXT (char*)"Err: Invalid time!\n"
-#define TEXT_ERR_TIME_IN_PAST_TXT (char*)"Err: Time in past!\n"
-#define TEXT_RTC_NOT_RESPONDING_TXT (char*)"Error: No response from clock hardware\n"
-#define TEXT_TX_NOT_RESPONDING_TXT (char*)"Error: No response from transmit hardware\n"
-#define TEXT_WIFI_NOT_DETECTED_TXT (char*)"Warning: WiFi hardware not detected\n"
-#define TEXT_RESET_OCCURRED_TXT (char*)"Warning: CPU Reset! Need to set clock\n"
-#define TEXT_NOT_SLEEPING_TXT (char*)"NanoFox is not sleeping\n"
-#define TEXT_CURRENT_SETTINGS_TXT (char*)"\n   === NanoFox Settings ===\n"
-#define TEXT_EVENT_SETTINGS_TXT (char*)"\n    === Event Frequency Settings ===\n"
+#define TEXT_SET_TIME_TXT (char*)"* > CLK T YYMMDDhhmmss <- Set current time\n"
+#define TEXT_SET_START_TXT (char*)"* > CLK S YYMMDDhhmmss <- Set start time\n"
+#define TEXT_SET_FINISH_TXT (char*)"* > CLK F YYMMDDhhmmss <- Set finish time\n"
+#define TEXT_SET_ID_TXT (char*)"* > ID \"callsign\" <- Set callsign\n"
+#define TEXT_ERR_FINISH_BEFORE_START_TXT (char*)"* Err: Finish before start!\n"
+#define TEXT_ERR_FINISH_IN_PAST_TXT (char*)"* Err: Finish in past!\n"
+#define TEXT_ERR_START_IN_PAST_TXT (char*)"* Err: Start in past!\n"
+#define TEXT_ERR_INVALID_TIME_TXT (char*)"* Err: Invalid time!\n"
+#define TEXT_ERR_TIME_IN_PAST_TXT (char*)"* Err: Time in past!\n"
+#define TEXT_RTC_NOT_RESPONDING_TXT (char*)"* Error: No response from clock hardware\n"
+#define TEXT_TX_NOT_RESPONDING_TXT (char*)"* Error: No response from transmit hardware\n"
+#define TEXT_WIFI_NOT_DETECTED_TXT (char*)"* Warning: WiFi hardware not detected\n"
+#define TEXT_RESET_OCCURRED_TXT (char*)"* Warning: CPU Reset! Need to set clock\n"
+#define TEXT_NOT_SLEEPING_TXT (char*)"* NanoFox is not sleeping\n"
+#define TEXT_CURRENT_SETTINGS_TXT (char*)"\n*   === NanoFox Settings ===\n"
+#define TEXT_EVENT_SETTINGS_TXT (char*)"\n*    === Event Frequency Settings ===\n"
 #define MINIMUM_VALID_EPOCH ((time_t)1609459200)  /* 1 Jan 2021 00:00:00 */
 #define YEAR_2000_EPOCH ((time_t)946684800)  /* 1 Jan 2000 00:00:00 */
 #define FOREVER_EPOCH ((time_t)4796712000) /* 1 Jan 2122 00:00:00 */

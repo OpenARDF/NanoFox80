@@ -63,9 +63,10 @@ typedef enum {
 	SYNC_Waiting_for_CLK_S_reply,
 	SYNC_Waiting_for_CLK_F_reply,
 	SYNC_Waiting_for_ID_reply,
-	SYNC_Waiting_for_ID_Speed_reply,
-	SYNC_Waiting_for_Pattern_Speed_reply,
+	SYNC_Waiting_for_ID_CodeSpeed_reply,
+	SYNC_Waiting_for_Pattern_CodeSpeed_reply,
 	SYNC_Waiting_for_EVT_reply,
+	SYNC_Waiting_for_NoEvent_Freq_reply,
 	SYNC_Waiting_for_Freq_Low_reply,
 	SYNC_Waiting_for_Freq_Med_reply,
 	SYNC_Waiting_for_Freq_Hi_reply,
@@ -832,7 +833,7 @@ int main(void)
 	while((util_delay_ms(2000)) && (now == time(null)));
 	
 	sb_send_string((char*)PRODUCT_NAME_LONG);
-	sprintf(g_tempStr, "\nSW Ver: %s\n", SW_REVISION);
+	sprintf(g_tempStr, "\n* SW Ver: %s\n", SW_REVISION);
 	sb_send_string(g_tempStr);
 	sb_send_string(TEXT_RESET_OCCURRED_TXT);
 	
@@ -1119,7 +1120,7 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 
 	while((sb_buff = nextFullSBRxBuffer()))
 	{
-		sb_send_NewLine();
+		bool suppressResponse = false;
 
 		if(!g_WiFi_shutdown_seconds)
 		{
@@ -1531,7 +1532,7 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 			}
 			break;
 
-			case SB_MESSAGE_SYNC:
+			case SB_MESSAGE_GO:
 			{
 				if(sb_buff->fields[SB_FIELD1][0])
 				{
@@ -1636,17 +1637,29 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 							{
 								g_time_needed_for_ID = timeNeededForID();
 							}
+							
+							if(g_cloningInProgress)
+							{
+								g_event_checksum += speed;
+								sb_send_string((char*)"SPD I\r");
+							}
+						}
+						else if(c == 'P')
+						{
+							g_pattern_codespeed = speed;
+							g_ee_mgr.updateEEPROMVar(Pattern_Code_Speed, (void*)&g_pattern_codespeed);
+							
+							if(g_cloningInProgress)
+							{
+								g_event_checksum += speed;
+								sb_send_string((char*)"SPD P\r");
+							}
 						}
 						else if((c == 'F') || (g_event == EVENT_FOXORING))
 						{
 							g_foxoring_pattern_codespeed = speed;
 							g_ee_mgr.updateEEPROMVar(Foxoring_Pattern_Code_Speed, (void*)&g_pattern_codespeed);
 							if(g_event_commenced) g_code_throttle = throttleValue(getPatternCodeSpeed());
-						}
-						else if(c == 'P')
-						{
-							g_pattern_codespeed = speed;
-							g_ee_mgr.updateEEPROMVar(Pattern_Code_Speed, (void*)&g_pattern_codespeed);
 						}
 						else
 						{
@@ -1744,6 +1757,8 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 					{
 						g_event = EVENT_NONE;
 					}
+					
+					sb_send_string((char*)"EVT\r");
 					
 					g_ee_mgr.updateEEPROMVar(Event_setting, (void*)&g_event);
 					g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
@@ -1851,7 +1866,7 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 
 						if(g_cloningInProgress)
 						{
-							sb_send_string((char*)"CLK\r");
+							sb_send_string((char*)"CLK S\r");
 							g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
 							g_event_checksum += s;
 						}
@@ -1889,7 +1904,7 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 												
 						if(g_cloningInProgress)
 						{
-							sb_send_string((char*)"CLK\r");
+							sb_send_string((char*)"CLK F\r");
 							g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
 							g_event_checksum += f;
 						}
@@ -1950,8 +1965,8 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
  				sb_send_string(g_tempStr);
 			}
 			break;
-
-			default:
+			
+			case SB_MESSAGE_HELP:
 			{
 				if(!g_cloningInProgress)
 				{
@@ -1960,10 +1975,20 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 				}
 			}
 			break;
+
+			default:
+			{
+				suppressResponse = true;
+			}
+			break;
 		}
 
 		sb_buff->id = SB_MESSAGE_EMPTY;
-		sb_send_NewPrompt();
+		if(!(g_cloningInProgress) && !suppressResponse)
+		{
+			sb_send_NewLine();
+			sb_send_NewPrompt();
+		}
 
 // 		g_LED_timeout_countdown = LED_TIMEOUT_SECONDS;
 // 		g_config_error = NULL_CONFIG;   /* Trigger a new configuration enunciation */
@@ -3447,17 +3472,17 @@ void reportSettings(void)
 	
 	sb_send_string(TEXT_CURRENT_SETTINGS_TXT);
 	
-	sprintf(g_tempStr, "   Time: %s\n", convertEpochToTimeString(now, buf, 50));
+	sprintf(g_tempStr, "*   Time: %s\n", convertEpochToTimeString(now, buf, 50));
 	sb_send_string(g_tempStr);
 		
 	if(!event2Text(g_tempStr, g_event))
 	{
 		strcpy(buf, g_tempStr);
-		sprintf(g_tempStr, "   Event: %s\n", buf);
+		sprintf(g_tempStr, "*   Event: %s\n", buf);
 	}
 	else
 	{
-		sprintf(g_tempStr, "   Event: None Set\n");
+		sprintf(g_tempStr, "*   Event: None Set\n");
 	}
 	
 	sb_send_string(g_tempStr);
@@ -3467,39 +3492,39 @@ void reportSettings(void)
 	if(!fox2Text(g_tempStr, f))
 	{
 		strcpy(buf, g_tempStr);
-		sprintf(g_tempStr, "   Fox: %s\n", buf);
+		sprintf(g_tempStr, "*   Fox: %s\n", buf);
 	}
 	else
 	{
-		sprintf(g_tempStr, "   Fox: %u\n", (uint16_t)f);
+		sprintf(g_tempStr, "*   Fox: %u\n", (uint16_t)f);
 	}
 	
 	sb_send_string(g_tempStr);
 	
 	if(g_messages_text[STATION_ID][0])
 	{
-		sprintf(g_tempStr, "   ID: %s\n", g_messages_text[STATION_ID]);
+		sprintf(g_tempStr, "*   Callsign: %s\n", g_messages_text[STATION_ID]);
 		sb_send_string(g_tempStr);
 	}
 	else
 	{
-		sb_send_string((char*)"   ID: None\n");
+		sb_send_string((char*)"*   Callsign: None\n");
 	}
 		
-	sprintf(g_tempStr, "   ID Speed: %d wpm\n", g_id_codespeed);	
+	sprintf(g_tempStr, "*   Callsign WPM: %d wpm\n", g_id_codespeed);	
 	sb_send_string(g_tempStr);
 	
 	if(g_event == EVENT_FOXORING)
 	{
-			sprintf(g_tempStr, "   Foxoring Pattern: %s\n", g_messages_text[FOXORING_PATTERN_TEXT]);
+			sprintf(g_tempStr, "*   Foxoring Pattern: %s\n", g_messages_text[FOXORING_PATTERN_TEXT]);
 			sb_send_string(g_tempStr);
-			sprintf(g_tempStr, "   Foxoring Pattern Speed: %u\n", g_foxoring_pattern_codespeed);
+			sprintf(g_tempStr, "*   Foxoring Pattern WPM: %u\n", g_foxoring_pattern_codespeed);
 	}
 	else
 	{
-			sprintf(g_tempStr, "   Pattern: %s\n", g_messages_text[PATTERN_TEXT]);
+			sprintf(g_tempStr, "*   Pattern: %s\n", g_messages_text[PATTERN_TEXT]);
 			sb_send_string(g_tempStr);
-			sprintf(g_tempStr, "   Pattern Speed: %u\n", g_pattern_codespeed);
+			sprintf(g_tempStr, "*   Pattern WPM: %u\n", g_pattern_codespeed);
 	}
 	
 	sb_send_string(g_tempStr);
@@ -3510,74 +3535,74 @@ void reportSettings(void)
 	{
 		if(!frequencyString(buf, transmitter_freq))
 		{
-			sprintf(g_tempStr, "   Freq: %s\n", buf);						
+			sprintf(g_tempStr, "*   Freq: %s\n", buf);						
 		}
 		else
 		{
-			sprintf(g_tempStr, "   Freq: %lu\n", transmitter_freq);
+			sprintf(g_tempStr, "*   Freq: %lu\n", transmitter_freq);
 		}
 					
 		sb_send_string(g_tempStr);
 	}
 	else
 	{
-		sb_send_string((char*)"   Freq: None set\n");
+		sb_send_string((char*)"*   Freq: None set\n");
 	}
 	
-	sprintf(g_tempStr, "   Cal: %d\n", RTC_get_cal()); /* Read value directly from RTC */
+	sprintf(g_tempStr, "*   Cal: %d\n", RTC_get_cal()); /* Read value directly from RTC */
 	sb_send_string(g_tempStr);
-	sprintf(g_tempStr, "   Start:  %s\n", convertEpochToTimeString(g_event_start_epoch, buf, 50));
+	sprintf(g_tempStr, "*   Start:  %s\n", convertEpochToTimeString(g_event_start_epoch, buf, 50));
 	sb_send_string(g_tempStr);
-	sprintf(g_tempStr, "   Finish: %s\n", convertEpochToTimeString(g_event_finish_epoch, buf, 50));
+	sprintf(g_tempStr, "*   Finish: %s\n", convertEpochToTimeString(g_event_finish_epoch, buf, 50));
 	sb_send_string(g_tempStr);
 
   	ConfigurationState_t cfg = clockConfigurationCheck();
   	
  	if((cfg != WAITING_FOR_START) && (cfg != EVENT_IN_PROGRESS) && (cfg != SCHEDULED_EVENT_WILL_NEVER_RUN))
  	{
-		sb_send_string((char*)"\nNeeded Actions:\n");
+		sb_send_string((char*)"\n* Needed Actions:\n");
  		reportConfigErrors();
  	}
  	else
  	{
- 		reportTimeTill(now, g_event_start_epoch, "   * Starts in: ", "In progress\n");
+ 		reportTimeTill(now, g_event_start_epoch, "*    Starts in: ", "In progress\n");
  		reportTimeTill(g_event_start_epoch, g_event_finish_epoch, "   * Lasts: ", NULL);
  		if(g_event_start_epoch < now)
  		{
- 			reportTimeTill(now, g_event_finish_epoch, "   * Time Remaining: ", NULL);
+ 			reportTimeTill(now, g_event_finish_epoch, "*    Time Remaining: ", NULL);
  		}
 		 
 		if(!g_event_enabled)
 		{
-			sb_send_string((char*)"Start with > SYN 2\n");
+			sb_send_string((char*)"*   Start with > SYN 2\n");
 		}
  	}
 
-	sb_send_string(TEXT_EVENT_SETTINGS_TXT);
-		
 	if(g_event != EVENT_NONE)
 	{
+		sb_send_string(TEXT_EVENT_SETTINGS_TXT);
+		
 		if(!frequencyString(buf, g_frequency_low))
 		{
-			sprintf(g_tempStr, "   Freq Low: %s\n", buf);
+			sprintf(g_tempStr, "*   Freq Low: %s\n", buf);
 			sb_send_string(g_tempStr);
 		}
 
 		if(!frequencyString(buf, g_frequency_med))
 		{
-			sprintf(g_tempStr, "   Freq Med: %s\n", buf);
+			sprintf(g_tempStr, "*   Freq Med: %s\n", buf);
 			sb_send_string(g_tempStr);
 		}
 
 		if(!frequencyString(buf, g_frequency_hi))
 		{
-			sprintf(g_tempStr, "   Freq High: %s\n", buf);
+			sprintf(g_tempStr, "*   Freq High: %s\n", buf);
 			sb_send_string(g_tempStr);
 		}
 
 		if(!frequencyString(buf, g_frequency_beacon))
 		{
-			sprintf(g_tempStr, "   Beacon Freq: %s\n", buf);
+			sprintf(g_tempStr, "*   Beacon Freq: %s\n", buf);
 			sb_send_string(g_tempStr);
 		}
 	}
@@ -3958,18 +3983,19 @@ void handleSerialCloning(void)
 	}
 	
 	
-// 	SYNC_Searching_for_slave,
 // 	SYNC_Waiting_for_CLK_T_reply,
 // 	SYNC_Waiting_for_CLK_S_reply,
 // 	SYNC_Waiting_for_CLK_F_reply,
 // 	SYNC_Waiting_for_ID_reply,
-// 	SYNC_Waiting_for_ID_Speed_reply,
+// 	SYNC_Waiting_for_ID_CodeSpeed_reply,
 // 	SYNC_Waiting_for_Pattern_Speed_reply,
 // 	SYNC_Waiting_for_EVT_reply,
+// 	SYNC_Waiting_for_NoEvent_Freq_reply,
 // 	SYNC_Waiting_for_Freq_Low_reply,
 // 	SYNC_Waiting_for_Freq_Med_reply,
 // 	SYNC_Waiting_for_Freq_Hi_reply,
 // 	SYNC_Waiting_for_Freq_Beacon_reply,
+
 
 	switch(g_programming_state)
 	{
@@ -3998,7 +4024,7 @@ void handleSerialCloning(void)
 			time_t now = time(null);
 			if(now != holdTime)
 			{
-				g_event_checksum += now;
+				g_event_checksum = now;
 				sprintf(g_tempStr, "CLK T %lu\r", now); /* Set slave's RTC */
 				sb_send_master_string(g_tempStr);
 				g_programming_state = SYNC_Waiting_for_CLK_T_reply;
@@ -4109,7 +4135,7 @@ void handleSerialCloning(void)
 				if(msg_id == SB_MESSAGE_SET_STATION_ID)
 				{
 					g_event_checksum += g_id_codespeed;
-					g_programming_state = SYNC_Waiting_for_ID_Speed_reply;
+					g_programming_state = SYNC_Waiting_for_ID_CodeSpeed_reply;
 					sprintf(g_tempStr, "SPD I %u\r", g_id_codespeed);
 					sb_send_master_string(g_tempStr);
 					g_programming_msg_throttle = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
@@ -4120,7 +4146,7 @@ void handleSerialCloning(void)
 		break;
 
 
-		case SYNC_Waiting_for_ID_Speed_reply:
+		case SYNC_Waiting_for_ID_CodeSpeed_reply:
 		{
 			if(sb_buff)
 			{
@@ -4129,8 +4155,10 @@ void handleSerialCloning(void)
 				{
 					if(sb_buff->fields[SB_FIELD1][0] == 'I')
 					{
-						g_programming_state = SYNC_Waiting_for_Pattern_Speed_reply;
+						g_programming_state = SYNC_Waiting_for_Pattern_CodeSpeed_reply;
 						sprintf(g_tempStr, "SPD P %u\r", g_pattern_codespeed);
+						
+						g_event_checksum += g_pattern_codespeed;
 						sb_send_master_string(g_tempStr);
 						g_programming_msg_throttle = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
 						g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
@@ -4141,7 +4169,7 @@ void handleSerialCloning(void)
 		break;
 		
 		
-		case SYNC_Waiting_for_Pattern_Speed_reply:
+		case SYNC_Waiting_for_Pattern_CodeSpeed_reply:
 		{
 			if(sb_buff)
 			{
@@ -4168,13 +4196,13 @@ void handleSerialCloning(void)
 						{
 							c = 'N';
 						}
-					
+						
+						g_event_checksum += c;
 						sprintf(g_tempStr, "EVT %c\r", c);
 						sb_send_master_string(g_tempStr); /* Set slave's event */
 						g_programming_state = SYNC_Waiting_for_EVT_reply;
 						g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
 						g_cloningInProgress = true;
-						g_event_checksum = c;
 					}
 				}
 			}
@@ -4188,6 +4216,24 @@ void handleSerialCloning(void)
 			{
 				msg_id = sb_buff->id;
 				if(msg_id == SB_MESSAGE_EVENT) /* Slave responds with EVT message */
+				{
+					g_event_checksum += g_frequency;
+					g_programming_state = SYNC_Waiting_for_NoEvent_Freq_reply;
+					sprintf(g_tempStr, "FRE X %lu\r", g_frequency);
+					sb_send_master_string(g_tempStr);
+					g_programming_msg_throttle = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
+					g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
+				}
+			}
+		}
+		break;
+		
+		case SYNC_Waiting_for_NoEvent_Freq_reply:
+		{
+			if(sb_buff)
+			{
+				msg_id = sb_buff->id;
+				if(msg_id == SB_MESSAGE_TX_FREQ) /* Slave responds with EVT message */
 				{
 					g_event_checksum += g_frequency_low;
 					g_programming_state = SYNC_Waiting_for_Freq_Low_reply;
@@ -4207,7 +4253,7 @@ void handleSerialCloning(void)
 				msg_id = sb_buff->id;
 				if(msg_id == SB_MESSAGE_TX_FREQ)
 				{
-					g_event_checksum += g_frequency_low;
+					g_event_checksum += g_frequency_med;
 					g_programming_state = SYNC_Waiting_for_Freq_Med_reply;
 					sprintf(g_tempStr, "FRE M %lu\r", g_frequency_med);
 					sb_send_master_string(g_tempStr);
@@ -4227,7 +4273,7 @@ void handleSerialCloning(void)
 				{
 					g_event_checksum += g_frequency_hi;
 					g_programming_state = SYNC_Waiting_for_Freq_Hi_reply;
-					sprintf(g_tempStr, "FRE M %lu\r", g_frequency_hi);
+					sprintf(g_tempStr, "FRE H %lu\r", g_frequency_hi);
 					sb_send_master_string(g_tempStr);
 					g_programming_msg_throttle = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
 					g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
@@ -4245,7 +4291,7 @@ void handleSerialCloning(void)
 				{
 					g_event_checksum += g_frequency_beacon;
 					g_programming_state = SYNC_Waiting_for_Freq_Beacon_reply;
-					sprintf(g_tempStr, "FRE M %lu\r", g_frequency_beacon);
+					sprintf(g_tempStr, "FRE B %lu\r", g_frequency_beacon);
 					sb_send_master_string(g_tempStr);
 					g_programming_msg_throttle = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
 					g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
@@ -4259,7 +4305,7 @@ void handleSerialCloning(void)
 			if(sb_buff)
 			{
 				msg_id = sb_buff->id;
-				if(msg_id == SB_MESSAGE_CLOCK)
+				if(msg_id == SB_MESSAGE_TX_FREQ)
 				{
 					g_programming_state = SYNC_Waiting_for_ACK;
 					sprintf(g_tempStr, "MAS Q %lu\r", g_event_checksum);

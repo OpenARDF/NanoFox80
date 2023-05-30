@@ -79,7 +79,7 @@ typedef enum
 	SB_MESSAGE_SET_FOX = 'F' * 100 + 'O' * 10 + 'X',			/* Set the fox role to be used to define timing and signals */
 	SB_MESSAGE_VOLTS = 'B' * 100 + 'A' * 10 + 'T',				/* Battery voltage and threshold setting */
 	SB_MESSAGE_SET_STATION_ID = 'I' * 10 + 'D',					/* Sets amateur radio callsign text */
-	SB_MESSAGE_SYNC = 'S' * 100 + 'Y' * 10 + 'N',				/* Synchronizes transmissions */
+	SB_MESSAGE_GO = 'G' * 10 + 'O',								/* Start/stop transmissions */
 	SB_MESSAGE_CODE_SETTINGS = 'S' * 100 + 'P' * 10 + 'D',		/* Set Morse code speeds */
 	SB_MESSAGE_CLOCK = 'C' * 100 + 'L' * 10 + 'K',				/* Set or read the RTC */
 	SB_MESSAGE_MASTER = 'M' * 100 + 'A' * 10 + 'S',				/* Set master role command */
@@ -88,6 +88,7 @@ typedef enum
 	SB_MESSAGE_PATTERN = 'P' * 100 + 'A' *10 + 'T',				/* Set the transmit pattern */    
 	SB_MESSAGE_KEY = 'K' * 100 + 'E' * 10 + 'Y',				/* Key on/off */
 	SB_MESSAGE_SLP = 'S' * 100 + 'L' * 10 + 'P',				/* Sleep */
+	SB_MESSAGE_HELP = '?',										/* Help */
 
 	SB_INVALID_MESSAGE = MAX_UINT16								/* This value must never overlap a valid message ID */
 } SBMessageID;
@@ -134,7 +135,7 @@ typedef struct
 } SerialbusRxBuffer;
 
 #define WAITING_FOR_UPDATE -1
-#define HELP_TEXT_TXT (char*)"\nCommands:\n  CLK [T|S|F [\"YYMMDDhhmmss\"]] - Read/set time/start/finish\n  EVT [B|C|F|S] - Set event\n  FOX [fox]- Set fox role\n  FRE [frequency] - Set tx frequency\n  ID [callsign] -  Set callsign\n  KEY [1|0] - key down/up\n  MAS 1 - Set master\n  PAT [text] - Set xmit pattern\n  SPD S|P [wpm] - Set ID code speed\n  SYN 0-3 - Start event\n  BAT [v] - Battery volts\n\0"
+#define HELP_TEXT_TXT (char*)"\n* Commands:\n* > CLK [T|S|F [\"YYMMDDhhmmss\"]] - Read/set time/start/finish\n* > EVT [B|C|F|S] - Set event\n* > FOX [fox]- Set fox role\n* > FRE [frequency] - Set tx frequency\n* > ID [callsign] -  Set callsign\n* > KEY [1|0] - key down/up\n* > MAS 1 - Set master\n* > PAT [text] - Set xmit pattern\n* > SPD S|P [wpm] - Set ID code speed\n* > GO 0-3 - Start event\n* > BAT [v] - Battery volts\n\0"
 
 
 /**

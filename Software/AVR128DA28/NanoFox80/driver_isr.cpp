@@ -74,6 +74,7 @@ void serial_Rx(uint8_t rx_char)
 	static uint8_t field_len = 0;
 	static int msg_ID = 0;
 	static bool receiving_msg = false;
+	static bool ignoreAllInput = false;
 
 	if(!buff)
 	{
@@ -86,7 +87,15 @@ void serial_Rx(uint8_t rx_char)
 		rx_char = toupper(rx_char);
 		if(rx_char == '\n') rx_char = '\r';
 
-		if(ignoreCount)
+		if(ignoreAllInput)
+		{
+			if(rx_char == '\r')    /* Handle carriage return */
+			{
+				ignoreAllInput = false;
+				rx_char = '\0';
+			}
+		}
+		else if(ignoreCount)
 		{
 			rx_char = '\0';
 			ignoreCount--;
@@ -102,6 +111,11 @@ void serial_Rx(uint8_t rx_char)
 
 			ignoreCount = 2;        /* throw out the next two characters */
 		}
+		else if(rx_char == '*') /* Ignore all input until a carriage return is received */
+		{
+			ignoreAllInput = true;
+			rx_char = '\0';
+		}
 		else if(rx_char == '\r')    /* Handle carriage return */
 		{
 			if(receiving_msg)
@@ -109,14 +123,22 @@ void serial_Rx(uint8_t rx_char)
 				if(charIndex > 0)
 				{
 					buff->type = SERIALBUS_MSG_QUERY;
-					buff->id = (SBMessageID)msg_ID;
-
-					if(field_index > 0) /* terminate the last field */
+					
+					if((charIndex == 1) && (textBuff[0] == '?'))
 					{
-						buff->fields[field_index - 1][field_len] = 0;
+						buff->id = SB_MESSAGE_HELP; /* print help message */
 					}
+					else
+					{
+						buff->id = (SBMessageID)msg_ID;
 
-					textBuff[charIndex] = '\0'; /* terminate last-message buffer */
+						if(field_index > 0) /* terminate the last field */
+						{
+							buff->fields[field_index - 1][field_len] = 0;
+						}
+
+						textBuff[charIndex] = '\0'; /* terminate last-message buffer */
+					}
 				}
 			}
 			else
@@ -235,7 +257,7 @@ void serial_Rx(uint8_t rx_char)
 
 					msg_ID = 0;
 				}
-				else if(!isalnum(rx_char)) /* Handle Space and other non-alphanumeric characters */
+				else if(!isalnum(rx_char) && (rx_char != '?')) /* Handle Space and other non-alphanumeric characters */
 				{
 					rx_char = '\0';
 				}
