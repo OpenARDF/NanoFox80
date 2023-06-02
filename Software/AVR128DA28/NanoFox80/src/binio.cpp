@@ -72,6 +72,9 @@ uint8_t portDdebouncedVals(void)
 void BINIO_init(void)
 {
 	/* PORTA *************************************************************************************/
+// 	PORTA_set_pin_dir(unusedA0, PORT_DIR_OUT);
+// 	PORTA_set_pin_level(unusedA0, HIGH);
+	
  	PORTA_set_pin_dir(RF_OUT_ENABLE, PORT_DIR_OUT);
 	PORTA_set_pin_level(RF_OUT_ENABLE, LOW);
 

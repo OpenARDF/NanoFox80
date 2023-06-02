@@ -540,6 +540,10 @@ ISR(TCB0_INT_vect)
 					{
 						g_switch_presses_count++;
 						buttonReleased = false;
+						if(g_switch_presses_count == 1)
+						{
+							serialbus_init(SB_BAUD, SERIALBUS_USART);
+						}
 					}
 				}
 				else /* Switch is now open */
@@ -1104,6 +1108,10 @@ int main(void)
 			{	
 				LEDS.init();
 				g_wifi_enable_delay = 2; /* Ensure WiFi is enabled and countdown is reset */
+			}
+			else
+			{
+				serialbus_disable();
 			}
 
 			g_start_event = true;
@@ -2948,7 +2956,7 @@ void startEventUsingRTC(void)
 	if(state != CONFIGURATION_ERROR)
 	{
 		setupForFox(INVALID_FOX, START_EVENT_WITH_STARTFINISH_TIMES);
-		reportTimeTill(now, g_event_start_epoch, "Starts in: ", "In progress\n");
+		reportTimeTill(now, g_event_start_epoch, "\nStarts in: ", "In progress\n");
 
 		if(g_event_start_epoch < now)
 		{
