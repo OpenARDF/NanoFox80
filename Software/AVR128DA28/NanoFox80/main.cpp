@@ -1652,11 +1652,17 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 								sb_send_string((char*)"SPD I\r");
 							}
 						}
-						else if((c == 'F') || (g_event == EVENT_FOXORING))
+						else if((c == 'F') || ((g_event == EVENT_FOXORING) && !g_cloningInProgress))
 						{
 							g_foxoring_pattern_codespeed = speed;
 							g_ee_mgr.updateEEPROMVar(Foxoring_Pattern_Code_Speed, (void*)&g_foxoring_pattern_codespeed);
 							if(g_event_commenced) g_code_throttle = throttleValue(getPatternCodeSpeed());
+							
+							if(g_cloningInProgress)
+							{
+								g_event_checksum += speed;
+								sb_send_string((char*)"SPD F\r");
+							}
 						}
 						else if(c == 'P')
 						{
@@ -4014,6 +4020,7 @@ void handleSerialCloning(void)
 				msg_id = sb_buff->id;
 				if((msg_id == SB_MESSAGE_MASTER) && !(sb_buff->fields[SB_FIELD1][0])) /* Slave responds with MAS message */
 				{
+					g_cloningInProgress = true;
 					holdTime = time(null);
 					g_programming_state = SYNC_Align_to_Second_Transition;
 					g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
@@ -4210,7 +4217,6 @@ void handleSerialCloning(void)
 						sb_send_master_string(g_tempStr); /* Set slave's event */
 						g_programming_state = SYNC_Waiting_for_EVT_reply;
 						g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
-						g_cloningInProgress = true;
 					}
 				}
 			}
