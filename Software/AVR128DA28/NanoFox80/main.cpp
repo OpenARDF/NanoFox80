@@ -1652,6 +1652,12 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 								sb_send_string((char*)"SPD I\r");
 							}
 						}
+						else if((c == 'F') || (g_event == EVENT_FOXORING))
+						{
+							g_foxoring_pattern_codespeed = speed;
+							g_ee_mgr.updateEEPROMVar(Foxoring_Pattern_Code_Speed, (void*)&g_foxoring_pattern_codespeed);
+							if(g_event_commenced) g_code_throttle = throttleValue(getPatternCodeSpeed());
+						}
 						else if(c == 'P')
 						{
 							g_pattern_codespeed = speed;
@@ -1662,12 +1668,6 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 								g_event_checksum += speed;
 								sb_send_string((char*)"SPD P\r");
 							}
-						}
-						else if((c == 'F') || (g_event == EVENT_FOXORING))
-						{
-							g_foxoring_pattern_codespeed = speed;
-							g_ee_mgr.updateEEPROMVar(Foxoring_Pattern_Code_Speed, (void*)&g_pattern_codespeed);
-							if(g_event_commenced) g_code_throttle = throttleValue(getPatternCodeSpeed());
 						}
 						else
 						{
