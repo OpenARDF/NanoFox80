@@ -106,7 +106,7 @@ static volatile bool g_end_event = false;
 static volatile int32_t g_on_the_air = 0;
 static volatile int g_sendID_seconds_countdown = 0;
 static volatile uint16_t g_code_throttle = 50;
-static volatile uint8_t g_WiFi_shutdown_seconds = 120;
+static volatile uint8_t g_sleepshutdown_seconds = 120;
 static volatile bool g_report_seconds = false;
 static volatile bool g_wifi_active = false;
 static volatile uint8_t g_wifi_enable_delay = 0;
@@ -383,7 +383,7 @@ void handle_1sec_tasks(void)
 									* the transmitter is sleeping - which can cause problems with loading the next event */
 								if(timeRemaining > (g_off_air_seconds + g_on_air_seconds + 15))
 								{
-									if((g_off_air_seconds > 15) && !g_WiFi_shutdown_seconds)
+									if((g_off_air_seconds > 15) && !g_sleepshutdown_seconds)
 									{
 										time_t seconds_to_sleep = (time_t)(g_off_air_seconds - 10);
 										g_time_to_wake_up = temp_time + seconds_to_sleep;
@@ -457,18 +457,18 @@ void handle_1sec_tasks(void)
 		{
 			wifi_power(ON);     /* power on WiFi */
 			wifi_reset(OFF);    /* bring WiFi out of reset */
-			g_WiFi_shutdown_seconds = 120;
+			g_sleepshutdown_seconds = 120;
 		}
 	}
 	else
 	{
 		if(g_shutting_down_wifi || (!g_check_for_next_event && !g_waiting_for_next_event))
 		{
-			if(g_WiFi_shutdown_seconds)
+			if(g_sleepshutdown_seconds)
 			{
-				g_WiFi_shutdown_seconds--;
+				g_sleepshutdown_seconds--;
 
-				if(!g_WiFi_shutdown_seconds)
+				if(!g_sleepshutdown_seconds)
 				{
 					g_wifi_ready = false;
 					wifi_reset(ON);     /* put WiFi into reset */
@@ -859,7 +859,7 @@ int main(void)
 		wifi_power(OFF);
 		wifi_reset(ON);
 		g_wifi_enable_delay = 0;
-		g_WiFi_shutdown_seconds = 0;
+		g_sleepshutdown_seconds = 0;
 		g_hardware_error |= (int)HARDWARE_NO_WIFI;
 		sb_send_string(TEXT_WIFI_NOT_DETECTED_TXT);	
 	}
@@ -920,6 +920,7 @@ int main(void)
 			if(!isMasterCountdownSeconds)
 			{
 				g_isMaster = false;
+				g_sleepshutdown_seconds = 240; /* Ensure sleep occurs */
 				g_send_clone_success_countdown = 0;
 				g_start_event = eventEnabled(); /* Start any event stored in EEPROM */
 			}
@@ -972,13 +973,16 @@ int main(void)
 		{
 			g_long_button_press = false;
 			g_isMaster = !g_isMaster;
+			
 			if(g_isMaster)
 			{
 				isMasterCountdownSeconds = 600; /* Remain Master for 10 minutes */
+				g_sleepshutdown_seconds = 0;
 			}
 			else
 			{
 				isMasterCountdownSeconds = 0;
+				g_sleepshutdown_seconds = 240;
 				g_start_event = true;
 				sb_send_NewPrompt();
 				g_event_commenced = false;
@@ -1000,9 +1004,9 @@ int main(void)
 				SC status = STATUS_CODE_IDLE;
 				g_last_error_code = launchEvent(&status);
 			
-				if(g_WiFi_shutdown_seconds)
+				if(g_sleepshutdown_seconds)
 				{
-					g_WiFi_shutdown_seconds = MAX(g_WiFi_shutdown_seconds, 10);
+					g_sleepshutdown_seconds = MAX(g_sleepshutdown_seconds, 10);
 				}
 			}
 		}
@@ -1052,7 +1056,7 @@ int main(void)
 					lb_send_msg(LINKBUS_MSG_REPLY, LB_MESSAGE_ESP_LABEL, (char*)"1");
 					g_sleepType = SLEEP_FOREVER;	
 				}
-				else if(!g_WiFi_shutdown_seconds && !g_wifi_enable_delay)
+				else if(!g_sleepshutdown_seconds && !g_wifi_enable_delay)
 				{
 					g_wifi_enable_delay = 1;
 				}
@@ -1130,14 +1134,14 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 	{
 		bool suppressResponse = false;
 
-		if(!g_WiFi_shutdown_seconds)
+		if(!g_sleepshutdown_seconds)
 		{
 			g_wifi_enable_delay = 2;
 			LEDS.init();
 		}
 		else
 		{
-			g_WiFi_shutdown_seconds = 240;
+			g_sleepshutdown_seconds = 240;
 		}
 		
 		SBMessageID msg_id = sb_buff->id;
@@ -1731,15 +1735,9 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 						if((sb_buff->fields[SB_FIELD1][0] == 'M') || (sb_buff->fields[SB_FIELD1][0] == '1'))
 						{
  							g_isMaster = true;
+							g_sleepshutdown_seconds = 0;
 							isMasterCountdownSeconds = 600; /* Remain Master for 10 minutes */
 						}
-// 						else
-// 						{
-// 							g_isMaster = false;
-// 							isMasterCountdownSeconds = 0;
-// 							g_start_event = true;
-// 							reportSettings();
-// 						}
 					}
 				}
 			}
@@ -2032,7 +2030,7 @@ void __attribute__((optimize("O0"))) handleLinkBusMsgs()
 
 					suspendEvent();
 					linkbus_disable();
-					g_WiFi_shutdown_seconds = 0;    /* disable sleep */
+					g_sleepshutdown_seconds = 0;    /* disable sleep */
 					g_sleepType = DO_NOT_SLEEP;
 
 					if(result == 0)                 /* shut off power to WiFi */
@@ -2088,7 +2086,7 @@ void __attribute__((optimize("O0"))) handleLinkBusMsgs()
 						else if(c == '^') /* Prevent sleep shutdown */
 						{
 							suspendEvent();
-							g_WiFi_shutdown_seconds = 0;    /* disable sleep */
+							g_sleepshutdown_seconds = 0;    /* disable sleep */
 							g_sleepType = DO_NOT_SLEEP;
 						}
 						else
@@ -2123,7 +2121,7 @@ void __attribute__((optimize("O0"))) handleLinkBusMsgs()
 				if(f1 == 'Z')                                                       /* WiFi connected to browser - keep alive */
 				{
 					/* shut down WiFi after 2 minutes of inactivity */
-					g_WiFi_shutdown_seconds = 120;                                  /* wait 2 more minutes before shutting down WiFi */
+					g_sleepshutdown_seconds = 120;                                  /* wait 2 more minutes before shutting down WiFi */
 				}
 				else
 				{
@@ -2148,7 +2146,7 @@ void __attribute__((optimize("O0"))) handleLinkBusMsgs()
 					else if(f1 == '3')                      /* ESP is ready for power off" */
 					{			
 						g_wifi_enable_delay = 0;
-						g_WiFi_shutdown_seconds = 1;        /* Shut down WiFi in 1 seconds */
+						g_sleepshutdown_seconds = 1;        /* Shut down WiFi in 1 seconds */
 						g_waiting_for_next_event = false;   /* Prevents resetting shutdown settings */
 						g_wifi_active = false;
 						g_shutting_down_wifi = true;
@@ -2221,7 +2219,7 @@ void __attribute__((optimize("O0"))) handleLinkBusMsgs()
 							}
 							else
 							{
-								g_WiFi_shutdown_seconds = 60;
+								g_sleepshutdown_seconds = 60;
 							}
 							
 							new_event_parameter_count = 0;
