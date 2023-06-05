@@ -890,7 +890,17 @@ int main(void)
 		{
 			if(g_handle_counted_presses == 1)
 			{
-				if(!g_isMaster && !g_cloningInProgress) startEventNow(PROGRAMMATIC);
+				if(!g_isMaster && !g_cloningInProgress)
+				{
+					if(g_event_enabled)
+					{
+						setupForFox(INVALID_FOX, START_EVENT_NOW); // Immediately start transmissions
+					}
+					else
+					{
+						startEventNow(PROGRAMMATIC);						
+					}
+				}
 			}
 			else if (g_handle_counted_presses == 2)
 			{
@@ -1373,22 +1383,27 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 							if(freqTier == 'L')
 							{
 								g_frequency_low = f;
+								g_ee_mgr.updateEEPROMVar(Frequency_Low, (void*)&f);
 							}
 							else if(freqTier == 'M')
 							{
 								g_frequency_med = f;
+								g_ee_mgr.updateEEPROMVar(Frequency_Med, (void*)&f);
 							}
 							else if(freqTier == 'H')
 							{
 								g_frequency_hi = f;
+								g_ee_mgr.updateEEPROMVar(Frequency_Hi, (void*)&f);
 							}
 							else if(freqTier == 'B')
 							{
 								g_frequency_beacon = f;
+								g_ee_mgr.updateEEPROMVar(Frequency_Beacon, (void*)&f);
 							}
 							else
 							{
 								g_frequency = f;
+								g_ee_mgr.updateEEPROMVar(Frequency, (void*)&f);
 							}
 							
 							g_event_checksum += f;
@@ -2922,8 +2937,6 @@ void startEventNow(EventActionSource_t activationSource)
 			}
 		}
 	}
-
-// 	g_LED_enunciating = false;
 }
 
 void stopEventNow(EventActionSource_t activationSource)
