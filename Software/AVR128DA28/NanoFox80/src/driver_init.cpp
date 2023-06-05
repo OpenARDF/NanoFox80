@@ -80,12 +80,18 @@ void system_sleep_config()
 	PORTA_set_pin_level(unusedA0, LOW);
 	PORTA_set_pin_dir(RF_OUT_ENABLE, PORT_DIR_OUT);
 	PORTA_set_pin_level(RF_OUT_ENABLE, LOW);
+	PORTA_set_pin_dir(V3V3_PWR_ENABLE, PORT_DIR_OUT);
+	PORTA_set_pin_level(V3V3_PWR_ENABLE, LOW);
 	PORTA_set_pin_dir(WIFI_MODULE_DETECT, PORT_DIR_OUT);
 	PORTA_set_pin_level(WIFI_MODULE_DETECT, LOW);
 	PORTA_set_pin_dir(TO_WIFI_RX, PORT_DIR_OUT);
 	PORTA_set_pin_level(TO_WIFI_RX, LOW);
 	PORTA_set_pin_dir(TO_WIFI_TX, PORT_DIR_OUT);
 	PORTA_set_pin_level(TO_WIFI_TX, LOW);
+	PORTA_set_pin_dir(WIFI_RESET, PORT_DIR_OUT);
+	PORTA_set_pin_level(WIFI_RESET, LOW);
+	PORTA_set_pin_dir(WIFI_ENABLE, PORT_DIR_OUT);
+	PORTA_set_pin_level(WIFI_ENABLE, LOW);
 
 	PORTC_set_pin_dir(SERIAL_TX, PORT_DIR_OUT);
 	PORTC_set_pin_level(SERIAL_TX, LOW); /* Leave port serial line low */

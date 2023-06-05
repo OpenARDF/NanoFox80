@@ -106,7 +106,7 @@ static volatile bool g_end_event = false;
 static volatile int32_t g_on_the_air = 0;
 static volatile int g_sendID_seconds_countdown = 0;
 static volatile uint16_t g_code_throttle = 50;
-static volatile uint8_t g_sleepshutdown_seconds = 120;
+static volatile uint16_t g_sleepshutdown_seconds = 120;
 static volatile bool g_report_seconds = false;
 static volatile bool g_wifi_active = false;
 static volatile uint8_t g_wifi_enable_delay = 0;
@@ -456,8 +456,12 @@ void handle_1sec_tasks(void)
 
 		if(!g_wifi_enable_delay)
 		{
-			wifi_power(ON);     /* power on WiFi */
-			wifi_reset(OFF);    /* bring WiFi out of reset */
+			if(!(g_hardware_error & (int)HARDWARE_NO_WIFI))
+			{
+				wifi_power(ON);     /* power on WiFi */
+				wifi_reset(OFF);    /* bring WiFi out of reset */
+			}
+			
 			g_sleepshutdown_seconds = 120;
 		}
 	}
@@ -476,7 +480,7 @@ void handle_1sec_tasks(void)
 					wifi_power(OFF);    /* power off WiFi */
 					g_shutting_down_wifi = false;
 					g_wifi_active = false;
-					
+
 					if((g_sleepType == DO_NOT_SLEEP) && (g_hardware_error & (int)HARDWARE_NO_WIFI)) /* There is no WiFi hardware to provide a new event */
 					{
 						if(!g_event_commenced && !eventScheduled()) /* There is no ongoing event, and none scheduled for the future */
@@ -886,12 +890,10 @@ int main(void)
 		{
 			if(g_handle_counted_presses == 1)
 			{
-//				sb_send_string((char*)"\n1 press\n");
 				if(!g_isMaster && !g_cloningInProgress) startEventNow(PROGRAMMATIC);
 			}
 			else if (g_handle_counted_presses == 2)
 			{
-//				sb_send_string((char*)"\n2 presses\n");
 				suspendEvent();
 			}
 			
@@ -1007,7 +1009,7 @@ int main(void)
 			
 				if(g_sleepshutdown_seconds)
 				{
-					g_sleepshutdown_seconds = MAX(g_sleepshutdown_seconds, 10);
+					g_sleepshutdown_seconds = MAX(g_sleepshutdown_seconds, 10u);
 				}
 			}
 		}
@@ -1075,13 +1077,13 @@ int main(void)
 			serialbus_disable();
 			wifi_power(OFF);
 			shutdown_transmitter();	
-			powerDown3V3();
+
 			if(g_sleepType == SLEEP_FOREVER)
 			{
 				g_time_to_wake_up = FOREVER_EPOCH;
 			}
-			system_sleep_config();
 			
+			system_sleep_config();
 			g_waiting_for_next_event = false;
 
 			SLPCTRL_set_sleep_mode(SLPCTRL_SMODE_STDBY_gc);		
