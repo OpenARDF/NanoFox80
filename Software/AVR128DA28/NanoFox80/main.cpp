@@ -210,8 +210,9 @@ time_t String2Epoch(bool *error, char *datetime);
 void reportSettings(void);
 uint16_t timeNeededForID(void);
 Frequency_Hz getFrequencySetting(void);
-char* getPatternText(void);
+char* getCurrentPatternText(void);
 int getPatternCodeSpeed(void);
+int getFoxCodeSpeed(void);
 Fox_t getFoxSetting(void);
 void handleSerialCloning(void);
 bool eventScheduled(void);
@@ -367,7 +368,7 @@ void handle_1sec_tasks(void)
 								extendedOnAirTime = 0;
 							
 								repeat = true;
-								makeMorse(getPatternText(), &repeat, NULL);    /* Reset pattern to start */
+								makeMorse(getCurrentPatternText(), &repeat, NULL);    /* Reset pattern to start */
 								g_last_status_code = STATUS_CODE_EVENT_STARTED_WAITING_FOR_TIME_SLOT;
 								LEDS.setRed(OFF);
 
@@ -412,7 +413,7 @@ void handle_1sec_tasks(void)
 						g_on_the_air = g_on_air_seconds;
 						g_code_throttle = throttleValue(getPatternCodeSpeed());
 						bool repeat = true;
-						makeMorse(getPatternText(), &repeat, NULL);
+						makeMorse(getCurrentPatternText(), &repeat, NULL);
 					}
 				}
 			}
@@ -436,7 +437,7 @@ void handle_1sec_tasks(void)
 					g_sendID_seconds_countdown = g_on_air_seconds - g_time_needed_for_ID;
 					g_code_throttle = throttleValue(getPatternCodeSpeed());
 					bool repeat = true;
-					makeMorse(getPatternText(), &repeat, NULL);
+					makeMorse(getCurrentPatternText(), &repeat, NULL);
 				}
 
 				g_event_commenced = true;
@@ -628,7 +629,7 @@ ISR(TCB0_INT_vect)
 							g_last_status_code = STATUS_CODE_EVENT_STARTED_NOW_TRANSMITTING;
 							g_code_throttle = throttleValue(getPatternCodeSpeed());
 							repeat = true;
-							makeMorse(getPatternText(), &repeat, NULL);
+							makeMorse(getCurrentPatternText(), &repeat, NULL);
 							key = makeMorse(NULL, &repeat, &finished);
 							g_muteAfterID = g_sending_station_ID && g_off_air_seconds;
 							g_sending_station_ID = false;
@@ -859,7 +860,7 @@ int main(void)
 		wifi_power(OFF);
 		wifi_reset(ON);
 		g_wifi_enable_delay = 0;
-		g_sleepshutdown_seconds = 0;
+//		g_sleepshutdown_seconds = 120;
 		g_hardware_error |= (int)HARDWARE_NO_WIFI;
 		sb_send_string(TEXT_WIFI_NOT_DETECTED_TXT);	
 	}
@@ -977,7 +978,7 @@ int main(void)
 			if(g_isMaster)
 			{
 				isMasterCountdownSeconds = 600; /* Remain Master for 10 minutes */
-				g_sleepshutdown_seconds = 0;
+				g_sleepshutdown_seconds = 720;
 			}
 			else
 			{
@@ -1735,7 +1736,7 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 						if((sb_buff->fields[SB_FIELD1][0] == 'M') || (sb_buff->fields[SB_FIELD1][0] == '1'))
 						{
  							g_isMaster = true;
-							g_sleepshutdown_seconds = 0;
+							g_sleepshutdown_seconds = 720;
 							isMasterCountdownSeconds = 600; /* Remain Master for 10 minutes */
 						}
 					}
@@ -2180,7 +2181,6 @@ void __attribute__((optimize("O0"))) handleLinkBusMsgs()
 					{
 						/* Set the Morse code pattern and speed */
 						g_event_enabled = false; // prevent interrupts from affecting the settings
-//						g_code_throttle = throttleValue(getPatternCodeSpeed());
 						g_event_start_epoch = 1;                     /* have it start a long time ago */
 						g_event_finish_epoch = MAX_TIME;             /* run for a long long time */
 						g_on_air_seconds = 9999;                    /* on period is very long */
@@ -2406,7 +2406,6 @@ void __attribute__((optimize("O0"))) handleLinkBusMsgs()
 						{
 							g_pattern_codespeed = speed;
 							new_event_parameter_count++;
-//							g_code_throttle = throttleValue(getPatternCodeSpeed());
 						}
 						
 						g_Event_Configuration_Check |= PATTERN_CODE_SPEED_RECEIVED_b;
@@ -2605,19 +2604,18 @@ bool __attribute__((optimize("O0"))) eventEnabled()
 		return(true);
 	}
 	
-	time_t now = time(null);
-	int32_t dif = timeDif(now, g_event_finish_epoch);
 	g_go_to_sleep_now = false;
-
-	if(dif >= 0) /* Event has already finished */
+	
+	if(!eventScheduled()) /* A future event has not been set */
 	{
 		g_sleepType = SLEEP_FOREVER;
 		g_time_to_wake_up = MAX_TIME;
 		g_wifi_enable_delay = 2;
 		return(false); /* completed events are never enabled */
 	}
-
-	dif = timeDif(now, g_event_start_epoch);
+	
+	time_t now = time(null);
+	int32_t dif = timeDif(now, g_event_start_epoch);
 
 	if(dif >= -30)  /* Don't sleep if the event starts in 30 seconds or less, or has already started */
 	{
@@ -2671,9 +2669,16 @@ EC __attribute__((optimize("O0"))) launchEvent(SC* statusCode)
 
 EC activateEventUsingCurrentSettings(SC* statusCode)
 {
+	time_t now = time(null);
+	
 	/* Make sure everything has been sanely initialized */
 	if(!g_run_event_forever)
 	{
+		if(now < MINIMUM_VALID_EPOCH) /* The RTC has not been set */
+		{
+			return( ERROR_CODE_EVENT_NOT_CONFIGURED);
+		}
+		
 		if(!g_event_start_epoch)
 		{
 			return( ERROR_CODE_EVENT_MISSING_START_TIME);
@@ -2695,7 +2700,8 @@ EC activateEventUsingCurrentSettings(SC* statusCode)
 		return( ERROR_CODE_EVENT_TIMING_ERROR);
 	}
 
-	if(g_messages_text[PATTERN_TEXT][0] == '\0')
+	char *c = getCurrentPatternText();
+	if(c[0] == '\0')
 	{
 		return( ERROR_CODE_EVENT_PATTERN_NOT_SPECIFIED);
 	}
@@ -2719,8 +2725,6 @@ EC activateEventUsingCurrentSettings(SC* statusCode)
 		g_time_needed_for_ID = 0;   /* ID will never be sent */
 	}
 
-	time_t now = time(null);
-	
 	if(!g_run_event_forever && (g_event_finish_epoch < now))   /* the event has already finished */
 	{
 		if(statusCode)
@@ -2735,7 +2739,6 @@ EC activateEventUsingCurrentSettings(SC* statusCode)
 			g_last_status_code = STATUS_CODE_EVENT_STARTED_NOW_TRANSMITTING;
 			g_on_the_air = g_on_air_seconds;
 			g_sendID_seconds_countdown = g_on_air_seconds - g_time_needed_for_ID;
-//			g_code_throttle = throttleValue(getPatternCodeSpeed());
 			LEDS.init();
 			g_event_enabled = true;
 			g_event_commenced = true;
@@ -2802,7 +2805,6 @@ EC activateEventUsingCurrentSettings(SC* statusCode)
 				{
 					bool hold = g_event_enabled;
 					g_event_enabled = false; // prevent interrupts from affecting the settings
-//					g_code_throttle = throttleValue(getPatternCodeSpeed());
 					g_event_enabled = hold;
 				}
 				else
@@ -2859,7 +2861,7 @@ void suspendEvent()
 	bool repeat = false;
 	makeMorse((char*)"\0", &repeat, null);  /* reset makeMorse */
 	LEDS.init();
-	g_event_enabled = eventScheduled();
+	g_event_enabled = eventEnabled();
 }
 
 void startEventNow(EventActionSource_t activationSource)
@@ -2981,7 +2983,7 @@ void startEventUsingRTC(void)
 
 void setupForFox(Fox_t fox, EventAction_t action)
 {
-	bool patternNotSet = true;
+	bool delayNotSet = true;
 	
 	g_run_event_forever = false;
 	
@@ -2998,51 +3000,41 @@ void setupForFox(Fox_t fox, EventAction_t action)
 	{
 		case FOX_1:
 		{
-			if(patternNotSet)
-			{
-				sprintf(g_messages_text[PATTERN_TEXT], "MOE");
-				patternNotSet = false;
-				g_intra_cycle_delay_time = 0;
-			}
+			delayNotSet = false;
+			g_intra_cycle_delay_time = 0;
 		}
 		case FOX_2:
 		{
-			if(patternNotSet)
+			if(delayNotSet)
 			{
-				sprintf(g_messages_text[PATTERN_TEXT], "MOI");
-				patternNotSet = false;
+				delayNotSet = false;
 				g_intra_cycle_delay_time = 60;
 			}
 		}
 		case FOX_3:
 		{
-			if(patternNotSet)
+			if(delayNotSet)
 			{
-				sprintf(g_messages_text[PATTERN_TEXT], "MOS");
-				patternNotSet = false;
+				delayNotSet = false;
 				g_intra_cycle_delay_time = 120;
 			}
 		}
 		case FOX_4:
 		{
-			if(patternNotSet)
+			if(delayNotSet)
 			{
-				sprintf(g_messages_text[PATTERN_TEXT], "MOH");
-				patternNotSet = false;
+				delayNotSet = false;
 				g_intra_cycle_delay_time = 180;
 			}
 		}
 		case FOX_5:
 		{
 			/* Set the Morse code pattern and speed */
-			if(patternNotSet)
+			if(delayNotSet)
 			{
-				sprintf(g_messages_text[PATTERN_TEXT], "MO5");
 				g_intra_cycle_delay_time = 240;
 			}
 			
-// 			g_code_throttle = throttleValue(getPatternCodeSpeed());
-// 
 			g_sendID_seconds_countdown = 60;			/* wait 1 minute to send the ID */
 			g_on_air_seconds = 60;						/* on period is very long */
 			g_off_air_seconds = 240;                    /* off period is very short */
@@ -3051,51 +3043,44 @@ void setupForFox(Fox_t fox, EventAction_t action)
 
 		case SPRINT_S1:
 		{
-			if(patternNotSet)
+			if(delayNotSet)
 			{
-				sprintf(g_messages_text[PATTERN_TEXT], "ME");
-				patternNotSet = false;
+				delayNotSet = false;
 				g_intra_cycle_delay_time = 0;
 			}
 		}
 		case SPRINT_S2:
 		{
-			if(patternNotSet)
+			if(delayNotSet)
 			{
-				sprintf(g_messages_text[PATTERN_TEXT], "MI");
-				patternNotSet = false;
+				delayNotSet = false;
 				g_intra_cycle_delay_time = 12;
 			}
 		}
 		case SPRINT_S3:
 		{
-			if(patternNotSet)
+			if(delayNotSet)
 			{
-				sprintf(g_messages_text[PATTERN_TEXT], "MS");
-				patternNotSet = false;
+				delayNotSet = false;
 				g_intra_cycle_delay_time = 24;
 			}
 		}
 		case SPRINT_S4:
 		{
-			if(patternNotSet)
+			if(delayNotSet)
 			{
-				sprintf(g_messages_text[PATTERN_TEXT], "MH");
-				patternNotSet = false;
+				delayNotSet = false;
 				g_intra_cycle_delay_time = 36;
 			}
 		}
 		case SPRINT_S5:
 		{
 			{
-				if(patternNotSet)
+				if(delayNotSet)
 				{
-					sprintf(g_messages_text[PATTERN_TEXT], "M5");
 					g_intra_cycle_delay_time = 48;
 				}
 			}
-			
-// 			g_code_throttle = throttleValue(getPatternCodeSpeed());
 
 			g_sendID_seconds_countdown = 600;			/* wait 10 minutes send the ID */
 			g_on_air_seconds = 12;						/* on period is very long */
@@ -3105,49 +3090,39 @@ void setupForFox(Fox_t fox, EventAction_t action)
 
 		case SPRINT_F1:
 		{
-			if(patternNotSet)
-			{
-				sprintf(g_messages_text[PATTERN_TEXT], "OE");
-				patternNotSet = false;
-				g_intra_cycle_delay_time = 0;
-			}
+			delayNotSet = false;
+			g_intra_cycle_delay_time = 0;
 		}
 		case SPRINT_F2:
 		{
-			if(patternNotSet)
+			if(delayNotSet)
 			{
-				sprintf(g_messages_text[PATTERN_TEXT], "OI");
-				patternNotSet = false;
+				delayNotSet = false;
 				g_intra_cycle_delay_time = 12;
 			}
 		}
 		case SPRINT_F3:
 		{
-			if(patternNotSet)
+			if(delayNotSet)
 			{
-				sprintf(g_messages_text[PATTERN_TEXT], "OS");
-				patternNotSet = false;
+				delayNotSet = false;
 				g_intra_cycle_delay_time = 24;
 			}
 		}
 		case SPRINT_F4:
 		{
-			if(patternNotSet)
+			if(delayNotSet)
 			{
-				sprintf(g_messages_text[PATTERN_TEXT], "OH");
-				patternNotSet = false;
+				delayNotSet = false;
 				g_intra_cycle_delay_time = 36;
 			}
 		}
 		case SPRINT_F5:
 		{
-			if(patternNotSet)
+			if(delayNotSet)
 			{
-				sprintf(g_messages_text[PATTERN_TEXT], "O5");
 				g_intra_cycle_delay_time = 48;
 			}
-			
-// 			g_code_throttle = throttleValue(getPatternCodeSpeed());
 
 			g_sendID_seconds_countdown = 600;			/* wait 10 minutes send the ID */
 			g_on_air_seconds = 12;						/* on period is very long */
@@ -3175,9 +3150,6 @@ void setupForFox(Fox_t fox, EventAction_t action)
 		{
 			init_transmitter(getFrequencySetting());
 			g_intra_cycle_delay_time = 0;
-			g_pattern_codespeed = CLAMP(5, eeprom_read_byte((uint8_t*)(&(EepromManager::ee_vars.pattern_codespeed))), 20);
-// 			g_code_throttle = throttleValue(getPatternCodeSpeed());
-
 			g_sendID_seconds_countdown = 600;			/* wait 10 minutes send the ID */
 			g_on_air_seconds = 60;						/* on period is very long */
 			g_off_air_seconds = 0;						/* off period is very short */
@@ -3185,18 +3157,10 @@ void setupForFox(Fox_t fox, EventAction_t action)
 		break;
 
 		case SPECTATOR:
-		{
-			sprintf(g_messages_text[PATTERN_TEXT], "S");
-			patternNotSet = false;
-			g_intra_cycle_delay_time = 0;
-		} /* Intentional fall-through */
 		case BEACON:
 		default:
 		{
-			sprintf(g_messages_text[PATTERN_TEXT], "MO");			
 			g_intra_cycle_delay_time = 0;
-// 			g_code_throttle = throttleValue(getPatternCodeSpeed());
-
 			g_sendID_seconds_countdown = 600;			/* wait 10 minutes send the ID */
 			g_on_air_seconds = 60;						/* on period is very long */
 			g_off_air_seconds = 0;						/* off period is very short */
@@ -3213,21 +3177,13 @@ void setupForFox(Fox_t fox, EventAction_t action)
 	}
 	else if(action == START_EVENT_NOW)
 	{
-// 		time_t now = time(null);
 		g_run_event_forever = true;
 		SC status = STATUS_CODE_IDLE;
 		launchEvent(&status);
 		g_wifi_enable_delay = 2; /* Ensure WiFi is enabled and countdown is reset */
-
-// 		if(!result)
-// 		{
-// 			g_ee_mgr.saveAllEEPROM();
-// 		}
 	}
 	else if(action == START_TRANSMISSIONS_NOW)                                  /* Immediately start transmitting, regardless RTC or time slot */
 	{
-// 		g_code_throttle = throttleValue(getPatternCodeSpeed());
-
 		g_on_the_air = g_on_air_seconds;			/* start out transmitting */
 		g_event_commenced = true;                   /* get things running immediately */
 		g_event_enabled = true;                     /* get things running immediately */
@@ -3526,19 +3482,9 @@ void reportSettings(void)
 	sprintf(g_tempStr, "*   Callsign WPM: %d wpm\n", g_id_codespeed);	
 	sb_send_string(g_tempStr);
 	
-	if(g_event == EVENT_FOXORING)
-	{
-			sprintf(g_tempStr, "*   Foxoring Pattern: %s\n", g_messages_text[FOXORING_PATTERN_TEXT]);
-			sb_send_string(g_tempStr);
-			sprintf(g_tempStr, "*   Foxoring Pattern WPM: %u\n", g_foxoring_pattern_codespeed);
-	}
-	else
-	{
-			sprintf(g_tempStr, "*   Pattern: %s\n", g_messages_text[PATTERN_TEXT]);
-			sb_send_string(g_tempStr);
-			sprintf(g_tempStr, "*   Pattern WPM: %u\n", g_pattern_codespeed);
-	}
-	
+	sprintf(g_tempStr, "*   Xmit Pattern: %s\n", getCurrentPatternText());
+	sb_send_string(g_tempStr);
+	sprintf(g_tempStr, "*   Xmit Pattern WPM: %u\n", getFoxCodeSpeed());
 	sb_send_string(g_tempStr);
 	
 	Frequency_Hz transmitter_freq = getFrequencySetting();
@@ -3745,28 +3691,31 @@ Fox_t getFoxSetting(void)
 	return g_fox[g_event];
 }
 
+int getFoxCodeSpeed(void)
+{
+	if(g_fox[g_event] == BEACON)
+	{
+		return(g_pattern_codespeed);
+	}
+	else if(g_event == EVENT_FOXORING)
+	{
+		return(g_foxoring_pattern_codespeed);
+	}
+	
+	return(g_pattern_codespeed);
+}
+
 int getPatternCodeSpeed(void)
 {
 	if(!g_event_commenced)
 	{
 		return ENUNCIATION_BLINK_WPM;
 	}
-	else
-	{
-		if(g_fox[EVENT_FOXORING] == BEACON)
-		{
-			return(g_pattern_codespeed);
-		}
-		else if(g_event == EVENT_FOXORING)
-		{
-			return(g_foxoring_pattern_codespeed);
-	}
-	}
 	
-	return(g_pattern_codespeed);
+	return(getFoxCodeSpeed());
 }
 
-char* getPatternText(void)
+char* getCurrentPatternText(void)
 {
 	char* c;
 	
