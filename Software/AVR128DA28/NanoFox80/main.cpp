@@ -807,15 +807,15 @@ ISR(PORTD_PORT_vect)
 
 void powerDown3V3(void)
 {
-	PORTA_set_pin_level(V3V3_PWR_ENABLE, LOW);
 	PORTA_set_pin_level(RF_OUT_ENABLE, LOW);
+	PORTA_set_pin_level(V3V3_PWR_ENABLE, LOW);
 	PORTD_set_pin_level(VDIV_ENABLE, LOW);
 }
 
 void powerUp3V3(void)
 {
-	PORTA_set_pin_level(RF_OUT_ENABLE, LOW);
 	PORTA_set_pin_level(V3V3_PWR_ENABLE, HIGH);	
+	PORTA_set_pin_level(RF_OUT_ENABLE, LOW);
 	PORTD_set_pin_level(VDIV_ENABLE, HIGH);
 }
 
@@ -996,7 +996,6 @@ int main(void)
 			{
 				isMasterCountdownSeconds = 0;
 				g_sleepshutdown_seconds = 240;
-				g_start_event = true;
 				sb_send_NewPrompt();
 				g_event_commenced = false;
 				g_start_event = true;

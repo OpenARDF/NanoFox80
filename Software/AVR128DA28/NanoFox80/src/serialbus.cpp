@@ -48,7 +48,7 @@ extern bool g_cloningInProgress;
 
 volatile uint16_t g_serial_timeout_ticks = 200;
 USART_Number_t g_serialbus_usart_number = USART_NOT_SET;
-static volatile bool g_bus_disabled = true;
+static volatile bool g_serialbus_disabled = true;
 static const char crlf[] = "\n";
 static char lineTerm[8] = "\n";
 static const char textPrompt[] = "> ";
@@ -284,14 +284,14 @@ void serialbus_init(uint32_t baud, USART_Number_t usart)
 		g_serialbus_usart_number = usart;
 	}
 
-	g_bus_disabled = false;
+	g_serialbus_disabled = false;
 }
 
 void serialbus_disable(void)
 {
 	uint8_t bufferIndex;
 
-	g_bus_disabled = true;
+	g_serialbus_disabled = true;
 
 	if(g_serialbus_usart_number == USART_0)
 	{	
@@ -316,7 +316,7 @@ bool serialbus_send_text(char* text)
 {
 	bool err = true;
 
-	if(g_bus_disabled)
+	if(g_serialbus_disabled)
 	{
 		return( err);
 	}
@@ -354,7 +354,7 @@ void sb_send_NewPrompt(void)
 {
 	if(g_isMaster || g_cloningInProgress) return;
 	
-	if(g_bus_disabled)
+	if(g_serialbus_disabled)
 	{
 		return;
 	}
@@ -369,7 +369,7 @@ void sb_send_NewLine(void)
 {
 	if(g_isMaster || g_cloningInProgress) return;
 	
-	if(g_bus_disabled)
+	if(g_serialbus_disabled)
 	{
 		return;
 	}
@@ -380,7 +380,7 @@ void sb_echo_char(uint8_t c)
 {
 	if(g_isMaster || g_cloningInProgress) return;
 	
-	if(g_bus_disabled)
+	if(g_serialbus_disabled)
 	{
 		return;
 	}
@@ -403,7 +403,7 @@ bool sb_send_master_string(char* str)
 	uint16_t length, lengthToSend, lengthSent=0;
 	bool done = false;
 
-	if(g_bus_disabled)
+	if(g_serialbus_disabled)
 	{
 		return( true);
 	}
@@ -450,7 +450,7 @@ void sb_send_value(uint16_t value, char* label)
 {
 	bool err;
 
-	if(g_bus_disabled)
+	if(g_serialbus_disabled)
 	{
 		return;
 	}
@@ -471,5 +471,5 @@ void sb_send_value(uint16_t value, char* label)
 
 bool sb_enabled(void)
 {
-	return( !g_bus_disabled);
+	return( !g_serialbus_disabled);
 }

@@ -33,7 +33,7 @@
 #include <avr/wdt.h>
 
 /* Global Variables */
-static volatile bool g_bus_disabled = true;
+static volatile bool g_linkbus_disabled = true;
 USART_Number_t g_linkbus_usart_number = USART_NOT_SET; /* Disable linkbus until hardware and software are ready for it */
 
 static char g_tempMsgBuff[LINKBUS_MAX_MSG_LENGTH];
@@ -238,12 +238,12 @@ void USART1_initialization(uint32_t baud)
 {
 
 	// Set Rx pin direction to input
-	PC1_set_dir(PORT_DIR_IN);
-	PC1_set_pull_mode(PORT_PULL_OFF);
+// 	PC1_set_dir(PORT_DIR_IN);
+// 	PC1_set_pull_mode(PORT_PULL_OFF);
 
 	// Set Tx pin direction to output
-	PC0_set_dir(PORT_DIR_OUT);
-	PC0_set_level(HIGH);
+// 	PC0_set_dir(PORT_DIR_OUT);
+// 	PC0_set_level(HIGH);
 
 	USART1_init(baud, false);
 }
@@ -268,10 +268,10 @@ void linkbus_init(uint32_t baud, USART_Number_t usart)
 	memset(rx_buffer, 0, sizeof(rx_buffer));
 	linkbus_end_tx();
 
-	for(int bufferIndex=0; bufferIndex<LINKBUS_NUMBER_OF_TX_MSG_BUFFERS; bufferIndex++)
-	{
-		tx_buffer[bufferIndex][0] = '\0';
-	}
+ 	for(int bufferIndex=0; bufferIndex<LINKBUS_NUMBER_OF_TX_MSG_BUFFERS; bufferIndex++)
+ 	{
+ 		tx_buffer[bufferIndex][0] = '\0';
+ 	}
 
 	if((usart != USART_DO_NOT_CHANGE) || (g_linkbus_usart_number == USART_NOT_SET))
 	{
@@ -287,14 +287,14 @@ void linkbus_init(uint32_t baud, USART_Number_t usart)
 		g_linkbus_usart_number = usart;
 	}
 
-	g_bus_disabled = false;
+// 	g_linkbus_disabled = false;
 }
 
 void linkbus_disable(void)
 {
 	uint8_t bufferIndex;
 
-	g_bus_disabled = true;
+	g_linkbus_disabled = true;
 
 	if(g_linkbus_usart_number == USART_0)
 	{	
@@ -318,7 +318,7 @@ void linkbus_enable(void)
 {
 	uint8_t bufferIndex;
 
-	g_bus_disabled = false;
+	g_linkbus_disabled = false;
 
 	if(g_linkbus_usart_number == USART_0)
 	{	
@@ -343,7 +343,7 @@ bool lb_send_text(char* text)
 	bool err = true;
 	uint16_t tries = 200;
 
-	if(g_bus_disabled) return err;
+	if(g_linkbus_disabled) return err;
 
 	if(text)
 	{
