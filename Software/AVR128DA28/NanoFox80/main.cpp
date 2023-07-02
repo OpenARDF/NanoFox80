@@ -62,6 +62,7 @@ typedef enum {
 	SYNC_Waiting_for_CLK_T_reply,
 	SYNC_Waiting_for_CLK_S_reply,
 	SYNC_Waiting_for_CLK_F_reply,
+	SYNC_Waiting_for_CLK_D_reply,
 	SYNC_Waiting_for_ID_reply,
 	SYNC_Waiting_for_ID_CodeSpeed_reply,
 	SYNC_Waiting_for_Pattern_CodeSpeed_reply,
@@ -134,6 +135,7 @@ volatile float g_battery_voltage = 0.;
 volatile bool g_sending_station_ID = false;											/* Allows a small extension of transmissions to ensure the ID is fully sent */
 volatile bool g_muteAfterID = false;												/* Inhibit any transmissions after the ID has been sent */
 volatile uint32_t g_event_checksum = 0;
+volatile bool g_run_daily = false;
 extern uint16_t g_clock_calibration;
 
 static volatile bool g_run_event_forever = false;
@@ -216,6 +218,7 @@ int getFoxCodeSpeed(void);
 Fox_t getFoxSetting(void);
 void handleSerialCloning(void);
 bool eventScheduled(void);
+bool eventRunningNow(void);
 
 /*******************************/
 /* Hardcoded event support     */
@@ -308,12 +311,24 @@ void handle_1sec_tasks(void)
 				g_check_for_next_event = true;
 				g_wifi_enable_delay = 2;
 				LEDS.init();
-				g_sleepType = SLEEP_FOREVER;
-					
-				if(g_hardware_error & (int)HARDWARE_NO_WIFI)
+				
+				if(g_run_daily)
 				{
+					g_event_start_epoch += SECONDS_24H;
+					g_event_finish_epoch += SECONDS_24H;
+					g_sleepType = SLEEP_UNTIL_START_TIME;
 					g_check_for_next_event = false;
 					g_go_to_sleep_now = true;
+				}
+				else
+				{
+					g_sleepType = SLEEP_FOREVER;
+								
+					if(g_hardware_error & (int)HARDWARE_NO_WIFI)
+					{
+						g_check_for_next_event = false;
+						g_go_to_sleep_now = true;
+					}
 				}
 			}
 		}
@@ -1849,7 +1864,9 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 
 			case SB_MESSAGE_CLOCK:
 			{
-				if(!sb_buff->fields[SB_FIELD1][0] || sb_buff->fields[SB_FIELD1][0] == 'T')   /* Current time format "YYMMDDhhmmss" */
+				char f1 = sb_buff->fields[SB_FIELD1][0];
+				
+				if(!f1 || f1 == 'T')   /* Current time format "YYMMDDhhmmss" */
 				{		 
 					if(sb_buff->fields[SB_FIELD2][0])
 					{
@@ -1884,7 +1901,7 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
  						}
 					}
 				}
-				else if(sb_buff->fields[SB_FIELD1][0] == 'S')  /* Event start time */
+				else if(f1 == 'S')  /* Event start time */
 				{
 					strncpy(g_tempStr, sb_buff->fields[SB_FIELD2], 12);
 					time_t s;
@@ -1912,7 +1929,15 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 						}
 						else
 						{
- 							g_event_finish_epoch = MAX(g_event_finish_epoch, (g_event_start_epoch + SECONDS_24H));
+							if(g_run_daily)
+							{
+								g_event_finish_epoch = CLAMP(g_event_start_epoch + 6*HOUR, g_event_finish_epoch, g_event_start_epoch + SECONDS_24H - HOUR);
+							}
+							else
+							{
+ 								g_event_finish_epoch = MAX(g_event_finish_epoch, (g_event_start_epoch + SECONDS_24H));
+							}
+							
 							g_ee_mgr.updateEEPROMVar(Event_finish_epoch, (void*)&g_event_finish_epoch);
  							setupForFox(INVALID_FOX, START_EVENT_WITH_STARTFINISH_TIMES);
 							if(eventScheduled())
@@ -1922,7 +1947,7 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
  						}
 					 }
 				}
-				else if(sb_buff->fields[SB_FIELD1][0] == 'F')  /* Event finish time */
+				else if(f1 == 'F')  /* Event finish time */
 				{
 					strncpy(g_tempStr, sb_buff->fields[SB_FIELD2], 12);
 					time_t f;
@@ -1939,7 +1964,15 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
  
  					if(f || g_cloningInProgress)
  					{
-						g_event_finish_epoch = f;
+						if(g_run_daily)
+						{
+							g_event_finish_epoch = MIN(g_event_start_epoch + SECONDS_24H - HOUR, f);
+						}
+						else
+						{
+							g_event_finish_epoch = f;
+						}
+
 						g_ee_mgr.updateEEPROMVar(Event_finish_epoch, (void*)&g_event_finish_epoch);
 												
 						if(g_cloningInProgress)
@@ -1958,7 +1991,43 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 						}
  					}
 				}
-				else if(sb_buff->fields[SB_FIELD1][0] == 'C' && !g_cloningInProgress)  /* Clock calibration */
+				else if(f1 == 'D') /* Run the event each day */
+				{
+					char d = sb_buff->fields[SB_FIELD2][0];
+					
+					if(d == '1')
+					{
+						g_run_daily = true;
+					}
+					else if(d == '0')
+					{
+						g_run_daily = false;
+					}
+					else
+					{
+						d = '\0';
+					}
+					
+					if(d)
+					{
+						g_ee_mgr.updateEEPROMVar(Run_daily, (void*)&g_run_daily);
+					
+						if(g_cloningInProgress)
+						{
+							sb_send_string((char*)"CLK D\r");
+							g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
+							g_event_checksum += d;
+						}
+						else
+						{
+							g_event_finish_epoch = MIN(g_event_start_epoch + DAY - HOUR, g_event_finish_epoch);
+							eventScheduled();
+							g_ee_mgr.updateEEPROMVar(Event_start_epoch, (void*)&g_event_start_epoch);
+							g_ee_mgr.updateEEPROMVar(Event_finish_epoch, (void*)&g_event_finish_epoch);
+						}
+					}
+				}
+				else if(f1 == 'C' && !g_cloningInProgress)  /* Clock calibration */
 				{
 					strncpy(g_tempStr, sb_buff->fields[SB_FIELD2], 12);
 					uint16_t cal;
@@ -1989,7 +2058,7 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 					}
 					else
 					{
-						sb_send_string((char*)"Err: 0.1 V < thresh < 15.0 V\n");
+						sb_send_string((char*)"\nErr: 0.1 V < thresh < 15.0 V\n");
 					}
 
 				}
@@ -2633,7 +2702,7 @@ bool __attribute__((optimize("O0"))) eventEnabled()
 	
 	g_go_to_sleep_now = false;
 	
-	if(!eventScheduled()) /* A future event has not been set */
+	if(!eventScheduled() && !eventRunningNow()) /* A future event has not been set, and no event is schedule to run right now */
 	{
 		g_sleepType = SLEEP_FOREVER;
 		g_time_to_wake_up = MAX_TIME;
@@ -2830,9 +2899,7 @@ EC activateEventUsingCurrentSettings(SC* statusCode)
 
 				if(turnOnTransmitter)
 				{
-					bool hold = g_event_enabled;
-					g_event_enabled = false; // prevent interrupts from affecting the settings
-					g_event_enabled = hold;
+					LEDS.init();
 				}
 				else
 				{
@@ -3534,6 +3601,13 @@ void reportSettings(void)
 	
 	sprintf(g_tempStr, "*   Cal: %d\n", RTC_get_cal()); /* Read value directly from RTC */
 	sb_send_string(g_tempStr);
+	
+	if(g_run_daily)
+	{
+		sprintf(g_tempStr, "\n*   == Runs Daily ==\n");
+		sb_send_string(g_tempStr);
+	}
+	
 	sprintf(g_tempStr, "*   Start:  %s\n", convertEpochToTimeString(g_event_start_epoch, buf, 50));
 	sb_send_string(g_tempStr);
 	sprintf(g_tempStr, "*   Finish: %s\n", convertEpochToTimeString(g_event_finish_epoch, buf, 50));
@@ -3549,7 +3623,7 @@ void reportSettings(void)
  	else
  	{
  		reportTimeTill(now, g_event_start_epoch, "*    Starts in: ", "In progress\n");
- 		reportTimeTill(g_event_start_epoch, g_event_finish_epoch, "   * Lasts: ", NULL);
+ 		reportTimeTill(g_event_start_epoch, g_event_finish_epoch, "*    Lasts: ", NULL);
  		if(g_event_start_epoch < now)
  		{
  			reportTimeTill(now, g_event_finish_epoch, "*    Time Remaining: ", NULL);
@@ -4070,6 +4144,27 @@ void handleSerialCloning(void)
 				{
 					if(sb_buff->fields[SB_FIELD1][0] == 'F')
 					{
+						char daily = g_run_daily ? '1':'0';
+						g_event_checksum += daily;
+						g_programming_state = SYNC_Waiting_for_CLK_D_reply;
+ 						sprintf(g_tempStr, "CLK D %c\r", daily);
+ 						sb_send_master_string(g_tempStr);
+						g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
+					}
+				}
+			}
+		}
+		break;
+				
+		case SYNC_Waiting_for_CLK_D_reply:
+		{
+			if(sb_buff)
+			{
+				msg_id = sb_buff->id;
+				if(msg_id == SB_MESSAGE_CLOCK)
+				{
+					if(sb_buff->fields[SB_FIELD1][0] == 'D')
+					{
 						g_programming_msg_throttle = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
 						g_programming_state = SYNC_Waiting_for_ID_reply;
 						
@@ -4331,9 +4426,50 @@ void handleSerialCloning(void)
 
 }
 
+bool eventRunningNow(void)
+{
+	time_t now = time(null);	
+	bool result = false;
+	
+	if((now > MINIMUM_VALID_EPOCH) && (g_event_start_epoch > MINIMUM_VALID_EPOCH))
+	{
+		result = ((g_event_start_epoch < now) && (g_event_finish_epoch > now));
+	}
+	
+	return(result);
+}
+
 bool eventScheduled(void)
 {
 	time_t now = time(null);	
-	bool result = ((now > MINIMUM_VALID_EPOCH) && (g_event_start_epoch > now) && (g_event_finish_epoch > g_event_start_epoch));
+	bool result = false;
+	
+	if(now > MINIMUM_VALID_EPOCH)
+	{
+		result = ((g_event_start_epoch > now) && (g_event_finish_epoch > g_event_start_epoch));
+		
+		if(!result && g_run_daily)
+		{ 
+			if((g_event_start_epoch > MINIMUM_VALID_EPOCH) && (g_event_finish_epoch > g_event_start_epoch))
+			{
+				uint16_t days = 365;
+				time_t s = g_event_start_epoch;
+				time_t f = g_event_finish_epoch;
+				
+				while((s < now) && days--)
+				{
+					s += SECONDS_24H;
+					f += SECONDS_24H;
+				}
+				
+				if(days > 0)
+				{
+					g_event_start_epoch = s;
+					g_event_finish_epoch = f;
+					result = true;
+				}
+			}
+		}
+	}
 	return(result);
 }

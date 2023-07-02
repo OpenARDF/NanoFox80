@@ -33,7 +33,7 @@
 
 /******************************************************
  * Set the text that gets displayed to the user */
-#define SW_REVISION "0.81"
+#define SW_REVISION "0.82"
 
 //#define TRANQUILIZE_WATCHDOG
 
@@ -199,7 +199,7 @@ typedef uint16_t BatteryLevel;  /* in milliVolts */
 
 /******************************************************
  * EEPROM definitions */
-#define EEPROM_INITIALIZED_FLAG (uint16_t)0x011F
+#define EEPROM_INITIALIZED_FLAG (uint16_t)0x0123
 #define EEPROM_UNINITIALIZED 0x00
 
 #define EEPROM_STATION_ID_DEFAULT "FOXBOX"
@@ -246,9 +246,9 @@ typedef uint16_t BatteryLevel;  /* in milliVolts */
 #define EEPROM_FOX_PATTERN_DEFAULT "MOE"
 #define EEPROM_FOXORING_PATTERN_DEFAULT "ME"
 #define EEPROM_FREQUENCY_DEFAULT 3700000
-#define EEPROM_FREQUENCY_LOW_DEFAULT 3520000
-#define EEPROM_FREQUENCY_MED_DEFAULT 3540000
-#define EEPROM_FREQUENCY_HI_DEFAULT 3560000
+#define EEPROM_FREQUENCY_LOW_DEFAULT 3530000
+#define EEPROM_FREQUENCY_MED_DEFAULT 3550000
+#define EEPROM_FREQUENCY_HI_DEFAULT 3570000
 #define EEPROM_FREQUENCY_BEACON_DEFAULT 3600000
 #define TEXT_SET_TIME_TXT (char*)"* > CLK T YYMMDDhhmmss <- Set current time\n"
 #define TEXT_SET_START_TXT (char*)"* > CLK S YYMMDDhhmmss <- Set start time\n"
