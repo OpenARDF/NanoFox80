@@ -132,7 +132,8 @@ volatile float g_battery_voltage = 0.;
 volatile bool g_sending_station_ID = false;											/* Allows a small extension of transmissions to ensure the ID is fully sent */
 volatile bool g_muteAfterID = false;												/* Inhibit any transmissions after the ID has been sent */
 volatile uint32_t g_event_checksum = 0;
-volatile bool g_run_daily = false;
+volatile uint8_t g_days_to_run = 1;
+volatile uint8_t g_days_run = 0;
 extern uint16_t g_clock_calibration;
 
 static volatile bool g_run_event_forever = false;
@@ -308,13 +309,14 @@ void handle_1sec_tasks(void)
 				g_wifi_enable_delay = 2;
 				LEDS.init();
 				
-				if(g_run_daily)
+				if(g_days_run < g_days_to_run)
 				{
 					g_event_start_epoch += SECONDS_24H;
 					g_event_finish_epoch += SECONDS_24H;
 					g_sleepType = SLEEP_UNTIL_START_TIME;
 					g_check_for_next_event = false;
 					g_go_to_sleep_now = true;
+					g_days_run++;
 				}
 				else
 				{
@@ -1881,14 +1883,10 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 						}
 						else
 						{
-							if(g_run_daily)
-							{
-								g_event_finish_epoch = CLAMP(g_event_start_epoch + 6*HOUR, g_event_finish_epoch, g_event_start_epoch + SECONDS_24H - HOUR);
-							}
-							else
-							{
- 								g_event_finish_epoch = MAX(g_event_finish_epoch, (g_event_start_epoch + SECONDS_24H));
-							}
+							g_days_to_run = 1;
+							g_days_run = 0;
+							
+ 							g_event_finish_epoch = MAX(g_event_finish_epoch, (g_event_start_epoch + SECONDS_24H));
 							
 							g_ee_mgr.updateEEPROMVar(Event_finish_epoch, (void*)&g_event_finish_epoch);
  							setupForFox(INVALID_FOX, START_EVENT_WITH_STARTFINISH_TIMES);
@@ -1916,14 +1914,7 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
  
  					if(f || g_cloningInProgress)
  					{
-						if(g_run_daily)
-						{
-							g_event_finish_epoch = MIN(g_event_start_epoch + SECONDS_24H - HOUR, f);
-						}
-						else
-						{
-							g_event_finish_epoch = f;
-						}
+						g_event_finish_epoch = f;
 
 						g_ee_mgr.updateEEPROMVar(Event_finish_epoch, (void*)&g_event_finish_epoch);
 												
@@ -1935,6 +1926,9 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 						}
 						else
 						{
+							g_days_to_run = 1;
+							g_days_run = 0;
+
  							setupForFox(INVALID_FOX, START_EVENT_WITH_STARTFINISH_TIMES);
 							if(eventScheduled())
 							{
@@ -1943,32 +1937,33 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 						}
  					}
 				}
-				else if(f1 == 'D') /* Run the event each day */
+				else if(f1 == 'D') /* Run the event multiple days */
 				{
-					char d = sb_buff->fields[SB_FIELD2][0];
+					if(sb_buff->fields[SB_FIELD2][0])
+					{
+						strncpy(g_tempStr, sb_buff->fields[SB_FIELD2], 12);
+						uint8_t days;
 					
-					if(d == '1')
-					{
-						g_run_daily = true;
-					}
-					else if(d == '0')
-					{
-						g_run_daily = false;
-					}
-					else
-					{
-						d = '\0';
-					}
+						days = atol(g_tempStr);
 					
-					if(d)
-					{
-						g_ee_mgr.updateEEPROMVar(Run_daily, (void*)&g_run_daily);
+						if(days > 1)
+						{
+							g_days_to_run = days;
+						}
+						else
+						{
+							g_days_to_run = 1;
+						}
+						
+						g_days_run = 0;
+					
+						g_ee_mgr.updateEEPROMVar(Days_to_run, (void*)&g_days_to_run);
 					
 						if(g_cloningInProgress)
 						{
 							sb_send_string((char*)"CLK D\r");
 							g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
-							g_event_checksum += d;
+							g_event_checksum += g_days_to_run;
 						}
 						else
 						{
@@ -1976,7 +1971,14 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 							eventScheduled();
 							g_ee_mgr.updateEEPROMVar(Event_start_epoch, (void*)&g_event_start_epoch);
 							g_ee_mgr.updateEEPROMVar(Event_finish_epoch, (void*)&g_event_finish_epoch);
-						}
+						}	
+					}
+					else
+					{
+						sprintf(g_tempStr, "\nDays to run: %d\n", g_days_to_run);
+						sb_send_string(g_tempStr);
+						suppressResponse = true;
+						sb_send_NewPrompt();
 					}
 				}
 				else if(f1 == 'C' && !g_cloningInProgress)  /* Clock calibration */
@@ -1987,11 +1989,8 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 					cal = atoi(g_tempStr);
 					RTC_set_calibration(cal);
 				}
-//  				else if(sb_buff->fields[SB_FIELD1][0] == '*')  /* Sync seconds to zero */
-//  				{
-//  				}
 
-				if(!(g_cloningInProgress)) reportSettings();
+				if(!(g_cloningInProgress) && !suppressResponse) reportSettings();
 			}
 			break;
 
@@ -2424,7 +2423,7 @@ void startEventUsingRTC(void)
 	if(state != CONFIGURATION_ERROR)
 	{
 		setupForFox(INVALID_FOX, START_EVENT_WITH_STARTFINISH_TIMES);
-		reportTimeTill(now, g_event_start_epoch, "\nStarts in: ", "In progress\n");
+		reportTimeTill(now, g_event_start_epoch, "\nStarts in: ", "\nIn progress\n");
 
 		if(g_event_start_epoch < now)
 		{
@@ -2972,10 +2971,15 @@ void reportSettings(void)
 	sprintf(g_tempStr, "*   Cal: %d\n", RTC_get_cal()); /* Read value directly from RTC */
 	sb_send_string(g_tempStr);
 	
-	if(g_run_daily)
+	if(g_days_to_run > 1)
 	{
-		sprintf(g_tempStr, "\n*   == Runs Daily ==\n");
-		sb_send_string(g_tempStr);
+		uint8_t days_remaining = g_days_to_run - g_days_run;
+		
+		if(days_remaining)
+		{
+			sprintf(g_tempStr, "\n*   == Runs for %d days ==\n", days_remaining);
+			sb_send_string(g_tempStr);
+		}
 	}
 	
 	sprintf(g_tempStr, "*   Start:  %s\n", convertEpochToTimeString(g_event_start_epoch, buf, 50));
@@ -2992,7 +2996,7 @@ void reportSettings(void)
  	}
  	else
  	{
- 		reportTimeTill(now, g_event_start_epoch, "*    Starts in: ", "In progress\n");
+ 		reportTimeTill(now, g_event_start_epoch, "*    Starts in: ", "*    In progress\n");
  		reportTimeTill(g_event_start_epoch, g_event_finish_epoch, "*    Lasts: ", NULL);
  		if(g_event_start_epoch < now)
  		{
@@ -3514,10 +3518,9 @@ void handleSerialCloning(void)
 				{
 					if(sb_buff->fields[SB_FIELD1][0] == 'F')
 					{
-						char daily = g_run_daily ? '1':'0';
-						g_event_checksum += daily;
+						g_event_checksum += g_days_to_run;
 						g_programming_state = SYNC_Waiting_for_CLK_D_reply;
- 						sprintf(g_tempStr, "CLK D %c\r", daily);
+ 						sprintf(g_tempStr, "CLK D %d\r", g_days_to_run);
  						sb_send_master_string(g_tempStr);
 						g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
 					}
@@ -3818,28 +3821,33 @@ bool eventScheduled(void)
 	{
 		result = ((g_event_start_epoch > now) && (g_event_finish_epoch > g_event_start_epoch));
 		
-		if(!result && g_run_daily)
+		if(!result)
 		{ 
-			if((g_event_start_epoch > MINIMUM_VALID_EPOCH) && (g_event_finish_epoch > g_event_start_epoch))
+			uint8_t days_remaining = g_days_to_run - g_days_run;
+			if(days_remaining > 0)
 			{
-				uint16_t days = 365;
-				time_t s = g_event_start_epoch;
-				time_t f = g_event_finish_epoch;
-				
-				while((s < now) && days--)
+				if((g_event_start_epoch > MINIMUM_VALID_EPOCH) && (g_event_finish_epoch > g_event_start_epoch))
 				{
-					s += SECONDS_24H;
-					f += SECONDS_24H;
-				}
+					uint16_t days = days_remaining;
+					time_t s = g_event_start_epoch;
+					time_t f = g_event_finish_epoch;
 				
-				if(days > 0)
-				{
-					g_event_start_epoch = s;
-					g_event_finish_epoch = f;
-					result = true;
+					while((s < now) && days--)
+					{
+						s += SECONDS_24H;
+						f += SECONDS_24H;
+					}
+				
+					if(s > now)
+					{
+						g_event_start_epoch = s;
+						g_event_finish_epoch = f;
+						result = true;
+					}
 				}
 			}
 		}
 	}
+	
 	return(result);
 }

@@ -109,6 +109,8 @@ const struct EE_prom EEMEM EepromManager::ee_vars
 	0x00000000, // float voltage_threshold
 	0x00000000, // 	Guard
 	0x0000, // uint16_t clock_calibration
+	0x00000000, //  Guard
+	0x00        // uint8_t days_to_run;
 };
 
 extern bool g_isMaster;
@@ -137,7 +139,7 @@ extern volatile int16_t g_ID_period_seconds;
 extern volatile int16_t g_intra_cycle_delay_time;
 extern volatile float g_voltage_threshold;
 extern uint16_t g_clock_calibration;
-extern bool g_run_daily;
+extern uint8_t g_days_to_run;
 
 extern char g_tempStr[];
 
@@ -543,17 +545,11 @@ void EepromManager::updateEEPROMVar(EE_var_t v, void* val)
 		break;
 		
 				
-		case Run_daily:
+		case Days_to_run:
 		{
-			uint8_t v = eeprom_read_byte(&(EepromManager::ee_vars.run_daily));
-			uint8_t vv;
-			bool w = *(uint8_t*)val;
-			
-			vv = w?1:0;
-			
-			if(v != vv)
+			if(*(uint8_t*)val != eeprom_read_byte(&(EepromManager::ee_vars.days_to_run)))
 			{
-				avr_eeprom_write_byte(Run_daily, vv);
+				avr_eeprom_write_byte(Days_to_run, *(uint8_t*)val);
 			}
 		}
 		break;
@@ -602,7 +598,7 @@ void EepromManager::saveAllEEPROM(void)
 	updateEEPROMVar(Intra_Cycle_Delay_Seconds, (void*)&g_intra_cycle_delay_time);
 	updateEEPROMVar(Voltage_threshold, (void*)&g_voltage_threshold);
 	updateEEPROMVar(Clock_calibration, (void*)&g_clock_calibration);
-	updateEEPROMVar(Run_daily, (void*)&g_run_daily);
+	updateEEPROMVar(Days_to_run, (void*)&g_days_to_run);
 }
 
 
@@ -691,8 +687,8 @@ bool EepromManager::readNonVols(void)
 		
 		g_clock_calibration = eeprom_read_word(&(EepromManager::ee_vars.clock_calibration));
 
-		uint8_t foo = eeprom_read_byte((uint8_t*)(&(EepromManager::ee_vars.run_daily)));
-		g_run_daily = foo==1 ? true:false;
+		g_days_to_run = eeprom_read_byte((uint8_t*)(&(EepromManager::ee_vars.days_to_run)));
+
 		failure = false;
 	}
 
@@ -825,8 +821,8 @@ bool EepromManager::readNonVols(void)
 			g_clock_calibration = EEPROM_CLOCK_CALIBRATION_DEFAULT;
 			avr_eeprom_write_word(Clock_calibration, g_clock_calibration);
 
-			g_run_daily = false;
-			avr_eeprom_write_byte(Run_daily, g_run_daily);
+			g_days_to_run = 1;
+			avr_eeprom_write_byte(Days_to_run, g_days_to_run);
 			
 			/* Done */
 

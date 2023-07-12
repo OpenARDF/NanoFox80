@@ -100,7 +100,7 @@ struct EE_prom
 	uint32_t guard4_30;
 	uint16_t clock_calibration;
 	uint32_t guard4_31;
-	uint8_t run_daily;
+	uint8_t days_to_run;
 };
 
 typedef enum
@@ -167,7 +167,7 @@ typedef enum
 	Guard4_30 = Voltage_threshold + sizeof(float),					/**** Guard = 4 bytes ****/
 	Clock_calibration =  Guard4_30 + GUARDSIZE,   /* 2 bytes */
 	Guard4_31 = Clock_calibration + sizeof(uint16_t),					/**** Guard = 2 bytes ****/
-	Run_daily = Guard4_31 + GUARDSIZE   /* 1 byte */
+	Days_to_run = Guard4_31 + GUARDSIZE   /* 1 byte */
 } EE_var_t;
 
 
