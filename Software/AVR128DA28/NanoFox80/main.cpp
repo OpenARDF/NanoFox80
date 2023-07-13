@@ -129,6 +129,7 @@ volatile bool g_check_for_next_event = false;
 volatile bool g_waiting_for_next_event = false;
 volatile float g_voltage_threshold = EEPROM_BATTERY_THRESHOLD_V;
 volatile float g_battery_voltage = 0.;
+volatile bool g_seconds_transition = false;
 volatile bool g_sending_station_ID = false;											/* Allows a small extension of transmissions to ensure the ID is fully sent */
 volatile bool g_muteAfterID = false;												/* Inhibit any transmissions after the ID has been sent */
 volatile uint32_t g_event_checksum = 0;
@@ -216,6 +217,7 @@ Fox_t getFoxSetting(void);
 void handleSerialCloning(void);
 bool eventScheduled(void);
 bool eventRunningNow(void);
+void syncSystemTimeToRTC(void);
 
 /*******************************/
 /* Hardcoded event support     */
@@ -242,17 +244,23 @@ ISR(RTC_CNT_vect)
     {
         system_tick();
 
+		if(g_on_the_air < 0)
+		{
+			g_on_the_air++;
+		}
+		else if(g_on_the_air > 0)
+		{
+			g_on_the_air--;
+		}
+		
+		g_seconds_transition = true;
+
 		if(g_sleeping)
 		{
 			if(g_sleepType != SLEEP_FOREVER)
 			{
 				if(g_sleepType == SLEEP_UNTIL_NEXT_XMSN)
 				{
-					if(g_on_the_air < 0) 
-					{
-						g_on_the_air++;
-					}
-				
 					if((g_on_the_air > -6) || (g_time_to_wake_up <= time(null))) /* Always wake up at least 5 seconds before showtime */
 					{
 						g_go_to_sleep_now = false;
@@ -287,7 +295,6 @@ One-second counter based on RTC.
 */
 void handle_1sec_tasks(void)
 {
-	static uint16_t extendedOnAirTime = 0;
 	time_t temp_time = 0;
 	
 	if(isMasterCountdownSeconds) isMasterCountdownSeconds--;
@@ -332,129 +339,44 @@ void handle_1sec_tasks(void)
 		}
 	}
 
-	if(g_event_enabled)
+	if(g_event_enabled && !g_isMaster)
 	{
-		if(g_event_commenced)
+		if(g_event_commenced) /* an event is in progress */
 		{
-			bool repeat;
-
 			if(g_sendID_seconds_countdown)
 			{
 				g_sendID_seconds_countdown--;
 			}
-
-			if(g_on_the_air)
+		}
+		else /* waiting for the start time to arrive */
+		{
+			if(g_event_start_epoch > MINIMUM_VALID_EPOCH) /* a start time has been set */
 			{
-				if(g_on_the_air > 0)    /* on the air */
+				temp_time = time(null);
+
+				if(temp_time >= g_event_start_epoch) /* Time for the event to start */
 				{
-					g_on_the_air--;
-
-					if(!g_sendID_seconds_countdown && g_time_needed_for_ID)
+					powerToTransmitter(ON);
+				
+					if(g_intra_cycle_delay_time)
 					{
-						if(g_on_the_air == g_time_needed_for_ID)    /* wait until the end of a transmission */
-						{
-							g_last_status_code = STATUS_CODE_SENDING_ID;
-							g_sendID_seconds_countdown = g_ID_period_seconds;
-							g_code_throttle = throttleValue(g_id_codespeed);
-							repeat = false;
-							makeMorse(g_messages_text[STATION_ID], &repeat, NULL);  /* Send only once */
-							g_sending_station_ID = true;
-							extendedOnAirTime=0;
-						}
+						g_last_status_code = STATUS_CODE_EVENT_STARTED_WAITING_FOR_TIME_SLOT;
+						g_on_the_air = -g_intra_cycle_delay_time;
+						g_sendID_seconds_countdown = g_intra_cycle_delay_time + g_on_air_seconds - g_time_needed_for_ID;
 					}
-
-
-					if(!g_on_the_air) /* On-the-air time has just expired */
+					else
 					{
-						if(g_sending_station_ID)
-						{
-							g_on_the_air++; /* Continue sending ID */
-							extendedOnAirTime++; /* Remove this time from the off-the-air period */
-						}
-						else
-						{
-							if(g_off_air_seconds) /* If there will be a pause in transmissions before resuming */
-							{
-								keyTransmitter(OFF);
-								g_on_the_air -= g_off_air_seconds;
-								g_on_the_air += extendedOnAirTime;
-								extendedOnAirTime = 0;
-							
-								repeat = true;
-								makeMorse(getCurrentPatternText(), &repeat, NULL);    /* Reset pattern to start */
-								g_last_status_code = STATUS_CODE_EVENT_STARTED_WAITING_FOR_TIME_SLOT;
-								LEDS.setRed(OFF);
-
-								/* Enable sleep during off-the-air periods */
-								int32_t timeRemaining = 0;
-								temp_time = time(null);
-								if(temp_time < g_event_finish_epoch)
-								{
-									timeRemaining = timeDif(g_event_finish_epoch, temp_time);
-								}
-
-								/* Don't sleep for the last cycle to ensure that the event doesn't end while
-									* the transmitter is sleeping - which can cause problems with loading the next event */
-								if(timeRemaining > (g_off_air_seconds + g_on_air_seconds + 15))
-								{
-									if((g_off_air_seconds > 15) && !g_sleepshutdown_seconds)
-									{
-										time_t seconds_to_sleep = (time_t)(g_off_air_seconds - 10);
-										g_time_to_wake_up = temp_time + seconds_to_sleep;
-										g_sleepType = SLEEP_UNTIL_NEXT_XMSN;
-										g_go_to_sleep_now = true;
-										g_sendID_seconds_countdown = MAX(0, g_sendID_seconds_countdown - (int)seconds_to_sleep);
-									}
-								}
-							}
-							else /* Transmissions are continuous */
-							{
-								g_on_the_air = g_on_air_seconds;
-								g_code_throttle = throttleValue(getPatternCodeSpeed());
-							}
-						}
-					}
-				}
-				else if(g_on_the_air < 0)   /* off the air - g_on_the_air = 0 means all transmissions are disabled */
-				{
-					g_on_the_air++;
-
-					if(!g_on_the_air)       /* off-the-air time has expired */
-					{
-						g_muteAfterID = false;
 						g_last_status_code = STATUS_CODE_EVENT_STARTED_NOW_TRANSMITTING;
 						g_on_the_air = g_on_air_seconds;
-						g_code_throttle = throttleValue(getPatternCodeSpeed());
+						g_sendID_seconds_countdown = g_on_air_seconds - g_time_needed_for_ID;
+						g_code_throttle = throttleValue(g_pattern_codespeed);
 						bool repeat = true;
 						makeMorse(getCurrentPatternText(), &repeat, NULL);
 					}
-				}
-			}
-		}
-		else if(g_event_start_epoch > MINIMUM_VALID_EPOCH) /* off the air - waiting for the start time to arrive */
-		{
-			temp_time = time(null);
 
-			if(temp_time >= g_event_start_epoch) /* Time for the event to start */
-			{
-				if(g_intra_cycle_delay_time)
-				{
-					g_last_status_code = STATUS_CODE_EVENT_STARTED_WAITING_FOR_TIME_SLOT;
-					g_on_the_air = -g_intra_cycle_delay_time;
-					g_sendID_seconds_countdown = g_intra_cycle_delay_time + g_on_air_seconds - g_time_needed_for_ID;
+					g_event_commenced = true;
+					LEDS.init();
 				}
-				else
-				{
-					g_last_status_code = STATUS_CODE_EVENT_STARTED_NOW_TRANSMITTING;
-					g_on_the_air = g_on_air_seconds;
-					g_sendID_seconds_countdown = g_on_air_seconds - g_time_needed_for_ID;
-					g_code_throttle = throttleValue(getPatternCodeSpeed());
-					bool repeat = true;
-					makeMorse(getCurrentPatternText(), &repeat, NULL);
-				}
-
-				g_event_commenced = true;
-				LEDS.init();
 			}
 		}
 	}
@@ -526,6 +448,8 @@ ISR(TCB0_INT_vect)
 {
 	static bool initializeManualTransmissions = true;
 	static uint8_t fiftyMS = 6;
+	static bool on_air_finished = false;
+	static bool transitionPrepped = false;
 	
 	uint8_t x = TCB0.INTFLAGS;
 	
@@ -539,6 +463,7 @@ ISR(TCB0_INT_vect)
 		uint8_t holdSwitch;
 		static uint8_t buttonReleased = false;
 		static uint8_t longPressEnabled = true;
+		static bool muteAfterID = false;				/* Inhibit any transmissions immediately after the ID has been sent */
 		
 		fiftyMS++;
 		if(!(fiftyMS % 6))
@@ -627,12 +552,25 @@ ISR(TCB0_INT_vect)
 							
 		static bool key = false;
 
-		if(g_event_enabled && g_event_commenced && !g_isMaster && !g_cloningInProgress) /* Handle cycling transmissions */
+		if(g_event_enabled && g_event_commenced) /* Handle cycling transmissions */
 		{
 			initializeManualTransmissions = true;
 			
-			if(g_on_the_air > 0)
+			if((g_on_the_air > 0) || (g_sending_station_ID) || (!g_off_air_seconds))
 			{
+				on_air_finished = true;
+				transitionPrepped = false;
+				
+				if(!g_sending_station_ID && (!g_off_air_seconds || (g_on_the_air <= g_time_needed_for_ID)) && !g_sendID_seconds_countdown && g_time_needed_for_ID)
+				{
+					g_last_status_code = STATUS_CODE_SENDING_ID;
+					g_code_throttle = throttleValue(g_id_codespeed);
+					repeat = false;
+					makeMorse(g_messages_text[STATION_ID], &repeat, NULL);  /* Send only once */
+					g_sending_station_ID = true;
+					g_sendID_seconds_countdown = g_ID_period_seconds;
+				}
+				
 				if(codeInc)
 				{
 					codeInc--;
@@ -640,41 +578,107 @@ ISR(TCB0_INT_vect)
 					if(!codeInc)
 					{
 						key = makeMorse(NULL, &repeat, &finished);
-
+						
 						if(!repeat && finished) /* ID has completed, so resume pattern */
 						{
 							g_last_status_code = STATUS_CODE_EVENT_STARTED_NOW_TRANSMITTING;
-							g_code_throttle = throttleValue(getPatternCodeSpeed());
+							g_code_throttle = throttleValue(g_pattern_codespeed);
 							repeat = true;
 							makeMorse(getCurrentPatternText(), &repeat, NULL);
-							key = makeMorse(NULL, &repeat, &finished);
-							g_muteAfterID = g_sending_station_ID && g_off_air_seconds;
+							muteAfterID = g_sending_station_ID && g_off_air_seconds;
 							g_sending_station_ID = false;
+							if(!g_off_air_seconds)
+							{
+								g_on_the_air = g_on_air_seconds;
+							}
 						}
+						
+						codeInc = g_code_throttle;
 					}
 				}
 				else
 				{
-					if(g_muteAfterID) 
-					{
-						key = OFF;
-					}
-					
-					keyTransmitter(key);
-					LEDS.setRed(key);
 					codeInc = g_code_throttle;
 				}
+				
+				if(muteAfterID)
+				{
+					key = OFF;
+				}
+				
+				keyTransmitter(key);
+				LEDS.setRed(key);
+			}
+			else if(g_on_the_air < 0)
+			{
+				transitionPrepped = false;
 			}
 			else if(!g_on_the_air)
 			{
-				g_muteAfterID = false;
-				
-				if(key)
+				if(!transitionPrepped)
 				{
-					key = OFF;
-					keyTransmitter(OFF);
-					LEDS.setRed(OFF);
-					g_last_status_code = STATUS_CODE_EVENT_STARTED_WAITING_FOR_TIME_SLOT;
+					transitionPrepped = true;
+					
+					if(on_air_finished)
+					{
+// 						if(g_off_air_seconds)
+// 						{
+						keyTransmitter(OFF);
+				
+						if(key)
+						{
+							key = OFF;
+							keyTransmitter(OFF);
+						}
+						
+						g_on_the_air = -g_off_air_seconds;
+						on_air_finished = false;							
+						/* Enable sleep during off-the-air periods */
+						int32_t timeRemaining = 0;
+						time_t temp_time = time(null);
+						if(temp_time < g_event_finish_epoch)
+						{
+							timeRemaining = timeDif(g_event_finish_epoch, temp_time);
+							g_last_status_code = STATUS_CODE_EVENT_STARTED_WAITING_FOR_TIME_SLOT;
+						}
+
+						/* Don't sleep for the last cycle to ensure that the event doesn't end while
+						* the transmitter is sleeping - which can cause problems with loading the next event */
+						if(timeRemaining > (g_off_air_seconds + g_on_air_seconds + 15))
+						{
+							if((g_off_air_seconds > 15) && !g_sleepshutdown_seconds)
+							{
+								time_t seconds_to_sleep = (time_t)(g_off_air_seconds - 10);
+								g_time_to_wake_up = temp_time + seconds_to_sleep;
+								g_sleepType = SLEEP_UNTIL_NEXT_XMSN;
+								g_go_to_sleep_now = true;
+								g_sendID_seconds_countdown = MAX(0, g_ID_period_seconds - (int)seconds_to_sleep);
+							}
+						}
+// 						}
+// 						else /* Transmissions are continuous */
+// 						{
+// 							g_on_the_air = g_on_air_seconds;
+// 							g_code_throttle = throttleValue(g_pattern_codespeed);
+// 						}
+	
+						muteAfterID = false;
+						g_sending_station_ID = false;
+				
+						/* Resume normal pattern */
+						repeat = true;
+						makeMorse(getCurrentPatternText(), &repeat, NULL);    /* Reset pattern to start */
+						LEDS.setRed(OFF);
+					}
+					else /* Off-the-air period just finished, or the event just began while off the air */
+					{
+						g_on_the_air = g_on_air_seconds;
+						on_air_finished = false;
+						g_code_throttle = throttleValue(g_pattern_codespeed);
+						repeat = true;
+						makeMorse(getCurrentPatternText(), &repeat, NULL);
+						codeInc = g_code_throttle;
+					}
 				}
 			}
 		}
@@ -992,6 +996,7 @@ int main(void)
 			
 			if(g_isMaster)
 			{
+				g_event_commenced = false;
 				isMasterCountdownSeconds = 600; /* Remain Master for 10 minutes */
 				g_sleepshutdown_seconds = 720;
 			}
@@ -1839,6 +1844,7 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
   
   						if(t)
   						{
+							RTC_zero();
  							set_system_time(t);
 							 
 							if(g_cloningInProgress)
@@ -2082,16 +2088,16 @@ bool __attribute__((optimize("O0"))) eventEnabled()
 	time_t now = time(null);
 	int32_t dif = timeDif(now, g_event_start_epoch);
 
-	g_time_to_wake_up = g_event_start_epoch - 5;
-
 	if(dif >= -30)  /* Don't sleep if the event starts in 30 seconds or less, or has already started */
 	{
 		g_sleepType = DO_NOT_SLEEP;
+		g_time_to_wake_up = g_event_start_epoch - 5;
 		return( true);
 	}
 
 	/* If we reach here, we have an event that will not start for at least 30 seconds. It needs to be enabled, and a sleep time needs to be calculated
 	 * while allowing time for power-up (coming out of sleep) prior to the event start */
+	g_time_to_wake_up = g_event_start_epoch - 10;
 	g_sleepType = SLEEP_UNTIL_START_TIME;
 
 	return( true);
@@ -2109,6 +2115,12 @@ uint16_t throttleValue(uint8_t speed)
 	speed = CLAMP(5, (int8_t)speed, 20);
 	temp = (3544L / (uint16_t)speed) / 10L; /* tune numerator to achieve "PARIS " sent 8 times in 60 seconds at 8 WPM */
 	return( (uint16_t)temp);
+}
+
+void syncSystemTimeToRTC(void)
+{
+	g_seconds_transition = false;  /* Sync to RTC second transition */
+	while(!g_seconds_transition);
 }
 
 EC __attribute__((optimize("O0"))) launchEvent(SC* statusCode)
@@ -2638,6 +2650,7 @@ void setupForFox(Fox_t fox, EventAction_t action)
 	}
 	else if(action == START_EVENT_NOW)
 	{
+		syncSystemTimeToRTC();
 		g_run_event_forever = true;
 		SC status = STATUS_CODE_IDLE;
 		launchEvent(&status);
@@ -3393,8 +3406,6 @@ Frequency_Hz getFrequencySetting(void)
 
 void handleSerialCloning(void)
 {
-	static time_t holdTime=0;
-	
 	if(!g_programming_countdown)
 	{
 		g_programming_state = SYNC_Searching_for_slave;
@@ -3441,7 +3452,7 @@ void handleSerialCloning(void)
 				if((msg_id == SB_MESSAGE_MASTER) && !(sb_buff->fields[SB_FIELD1][0])) /* Slave responds with MAS message */
 				{
 					g_cloningInProgress = true;
-					holdTime = time(null);
+					g_seconds_transition = false;
 					g_programming_state = SYNC_Align_to_Second_Transition;
 					g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
 				}
@@ -3456,9 +3467,9 @@ void handleSerialCloning(void)
 		
 		case SYNC_Align_to_Second_Transition:
 		{
-			time_t now = time(null);
-			if(now != holdTime)
+			if(g_seconds_transition)
 			{
+				time_t now = time(null);
 				g_event_checksum = now;
 				sprintf(g_tempStr, "CLK T %lu\r", now); /* Set slave's RTC */
 				sb_send_master_string(g_tempStr);
@@ -3819,7 +3830,7 @@ bool eventScheduled(void)
 	
 	if(now > MINIMUM_VALID_EPOCH)
 	{
-		result = ((g_event_start_epoch > now) && (g_event_finish_epoch > g_event_start_epoch));
+		result = ((g_event_start_epoch > now) && (g_event_finish_epoch > g_event_start_epoch)) || eventRunningNow();
 		
 		if(!result)
 		{ 
