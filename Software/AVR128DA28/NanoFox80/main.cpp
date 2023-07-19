@@ -2241,6 +2241,7 @@ void suspendEvent()
 	g_event_commenced = false;  /* get things stopped immediately */
 	g_run_event_forever = false;
 	g_sleepshutdown_seconds = 120;
+	g_sleepType = SLEEP_FOREVER;
 	keyTransmitter(OFF);
 	bool repeat = false;
 	makeMorse((char*)"\0", &repeat, null);  /* reset makeMorse */
