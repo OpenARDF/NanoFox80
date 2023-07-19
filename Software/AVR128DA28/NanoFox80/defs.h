@@ -33,7 +33,7 @@
 
 /******************************************************
  * Set the text that gets displayed to the user */
-#define SW_REVISION "0.85"
+#define SW_REVISION "0.86"
 
 //#define TRANQUILIZE_WATCHDOG
 
@@ -154,6 +154,10 @@ typedef unsigned char uint8_t;
 
 #ifndef YEAR
 #define YEAR 31536000UL
+#endif
+
+#ifndef UINT16_MAX
+#define UINT16_MAX 0xFFFFU
 #endif
 
 /*******************************************************/
@@ -395,7 +399,7 @@ typedef enum
 typedef enum
 {
 	START_NOTHING,
-	START_EVENT_NOW,
+	START_EVENT_NOW_AND_RUN_FOREVER,
 	START_TRANSMISSIONS_NOW,
 	START_EVENT_WITH_STARTFINISH_TIMES
 } EventAction_t;

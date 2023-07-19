@@ -49,7 +49,7 @@ typedef enum
 	HARDWARE_OK,
 	HARDWARE_NO_RTC = 0x01,
 	HARDWARE_NO_SI5351 = 0x02,
-	HARDWARE_NO_WIFI = 0x04
+//	HARDWARE_NO_WIFI = 0x04
 } HardwareError_t;
 
 
@@ -99,17 +99,12 @@ static volatile bool g_battery_measurements_active = false;
 static volatile uint16_t g_maximum_battery = 0;
 
 static volatile bool g_start_event = false;
-static volatile bool g_end_event = false;
 
 static volatile int32_t g_on_the_air = 0;
 static volatile int g_sendID_seconds_countdown = 0;
 static volatile uint16_t g_code_throttle = 50;
 static volatile uint16_t g_sleepshutdown_seconds = 120;
 static volatile bool g_report_seconds = false;
-static volatile bool g_wifi_active = false;
-static volatile uint8_t g_wifi_enable_delay = 0;
-static volatile bool g_shutting_down_wifi = false;
-static volatile bool g_wifi_ready = false;
 static volatile int g_hardware_error = (int)HARDWARE_OK;
 
 char g_messages_text[STATION_ID+1][MAX_PATTERN_TEXT_LENGTH + 1];
@@ -125,8 +120,6 @@ volatile time_t g_event_start_epoch = EEPROM_START_TIME_DEFAULT;
 volatile time_t g_event_finish_epoch = EEPROM_FINISH_TIME_DEFAULT;
 volatile bool g_event_enabled = EEPROM_EVENT_ENABLED_DEFAULT;                        /* indicates that the conditions for executing the event are set */
 volatile bool g_event_commenced = false;
-volatile bool g_check_for_next_event = false;
-volatile bool g_waiting_for_next_event = false;
 volatile float g_voltage_threshold = EEPROM_BATTERY_THRESHOLD_V;
 volatile float g_battery_voltage = 0.;
 volatile bool g_seconds_transition = false;
@@ -216,7 +209,8 @@ int getFoxCodeSpeed(void);
 Fox_t getFoxSetting(void);
 void handleSerialCloning(void);
 bool eventScheduled(void);
-bool eventRunningNow(void);
+bool eventScheduledForNow(void);
+bool eventScheduledForTheFuture(void);
 void syncSystemTimeToRTC(void);
 
 /*******************************/
@@ -301,7 +295,7 @@ void handle_1sec_tasks(void)
 
 	if(g_event_commenced && !g_run_event_forever)
 	{
-		if(g_event_finish_epoch && !g_check_for_next_event && !g_shutting_down_wifi)
+		if(g_event_finish_epoch)
 		{
 			temp_time = time(null);
 
@@ -312,8 +306,7 @@ void handle_1sec_tasks(void)
 				keyTransmitter(OFF);
 				g_event_enabled = false;
 				g_event_commenced = false;
-				g_check_for_next_event = true;
-				g_wifi_enable_delay = 2;
+				g_sleepshutdown_seconds = 120;
 				LEDS.init();
 				
 				if(g_days_run < g_days_to_run)
@@ -321,19 +314,13 @@ void handle_1sec_tasks(void)
 					g_event_start_epoch += SECONDS_24H;
 					g_event_finish_epoch += SECONDS_24H;
 					g_sleepType = SLEEP_UNTIL_START_TIME;
-					g_check_for_next_event = false;
 					g_go_to_sleep_now = true;
 					g_days_run++;
 				}
 				else
 				{
 					g_sleepType = SLEEP_FOREVER;
-								
-					if(g_hardware_error & (int)HARDWARE_NO_WIFI)
-					{
-						g_check_for_next_event = false;
-						g_go_to_sleep_now = true;
-					}
+					g_go_to_sleep_now = true;
 				}
 			}
 		}
@@ -383,59 +370,27 @@ void handle_1sec_tasks(void)
 
 
 	/**************************************
-	* Delay before re-enabling linkbus receive
+	* Delay before sleep
 	***************************************/
-	if(g_wifi_enable_delay)
-	{
-		g_wifi_enable_delay--;
+	if(g_sleepshutdown_seconds) g_sleepshutdown_seconds--;
 
-		if(!g_wifi_enable_delay)
+	if(!g_sleepshutdown_seconds)
+	{
+ 		if(g_sleepType == DO_NOT_SLEEP)
 		{
-			if(!(g_hardware_error & (int)HARDWARE_NO_WIFI))
+			if(!g_event_enabled && !eventScheduled()) 
 			{
-// 				wifi_power(ON);     /* power on WiFi */
-// 				wifi_reset(OFF);    /* bring WiFi out of reset */
+				g_sleepType = SLEEP_FOREVER;
 			}
-			
+		}
+		else if(g_isMaster || g_event_commenced || g_cloningInProgress)
+		{
 			g_sleepshutdown_seconds = 120;
 		}
-	}
-	else
-	{
-		if(g_shutting_down_wifi || (!g_check_for_next_event && !g_waiting_for_next_event))
+		else
 		{
-			if(g_sleepshutdown_seconds)
-			{
-				g_sleepshutdown_seconds--;
-
-				if(!g_sleepshutdown_seconds)
-				{
-					g_wifi_ready = false;
-// 					wifi_reset(ON);     /* put WiFi into reset */
-// 					wifi_power(OFF);    /* power off WiFi */
-					g_shutting_down_wifi = false;
-					g_wifi_active = false;
-
-					if((g_sleepType == DO_NOT_SLEEP) && (g_hardware_error & (int)HARDWARE_NO_WIFI)) /* There is no WiFi hardware to provide a new event */
-					{
-						if(!g_event_commenced && !eventScheduled()) /* There is no ongoing event, and none scheduled for the future */
-						{
-							g_sleepType = SLEEP_FOREVER;
-						}
-					}
-							
- 					if((g_sleepType != DO_NOT_SLEEP) && !g_isMaster && !g_event_commenced && !g_cloningInProgress)
-					{
-						LEDS.init();
-						g_go_to_sleep_now = true;								
-					}
-				}
-			}
-		}
-
-		if(g_wifi_active)
-		{
-			g_report_seconds = true;
+			LEDS.init();
+			g_go_to_sleep_now = true;								
 		}
 	}
 }
@@ -646,7 +601,7 @@ ISR(TCB0_INT_vect)
 						* the transmitter is sleeping - which can cause problems with loading the next event */
 						if(timeRemaining > (g_off_air_seconds + g_on_air_seconds + 15))
 						{
-							if((g_off_air_seconds > 15) && !g_sleepshutdown_seconds)
+							if(g_off_air_seconds > 15) /* Don't bother to sleep if the off-air time is short */
 							{
 								time_t seconds_to_sleep = (time_t)(g_off_air_seconds - 10);
 								g_time_to_wake_up = temp_time + seconds_to_sleep;
@@ -814,8 +769,9 @@ ISR(PORTD_PORT_vect)
 			g_go_to_sleep_now = false;
 			g_sleeping = false;
 			g_awakenedBy = AWAKENED_BY_BUTTONPRESS;	
-			g_waiting_for_next_event = false; /* Ensure the wifi module does not get shut off prematurely */
 		}
+		
+		g_sleepshutdown_seconds = MAX(120U, g_sleepshutdown_seconds);
 	}
 	
 	VPORTD.INTFLAGS = 0xFF; /* Clear all flags */
@@ -865,9 +821,7 @@ int main(void)
 		sb_send_string(TEXT_RTC_NOT_RESPONDING_TXT);	
 	}
 	
-	g_wifi_enable_delay = 0;
-//		g_sleepshutdown_seconds = 120;
-	g_hardware_error |= (int)HARDWARE_NO_WIFI;
+	g_sleepshutdown_seconds = 120;
 	
 	if(init_transmitter(getFrequencySetting()) != ERROR_CODE_NO_ERROR)
 	{
@@ -896,7 +850,7 @@ int main(void)
 						
 						if(!g_run_event_forever)
 						{
-							setupForFox(INVALID_FOX, START_EVENT_NOW); // Immediately start transmissions
+							setupForFox(INVALID_FOX, START_EVENT_NOW_AND_RUN_FOREVER); // Immediately start transmissions
 						}
 						else
 						{
@@ -943,6 +897,7 @@ int main(void)
 				g_sleepshutdown_seconds = 240; /* Ensure sleep occurs */
 				g_send_clone_success_countdown = 0;
 				g_start_event = eventEnabled(); /* Start any event stored in EEPROM */
+				LEDS.init();
 			}
 		}
 		else
@@ -976,11 +931,15 @@ int main(void)
 					}
 					else
 					{
-						if(eventScheduled())
+						if(eventScheduledForNow()) /* An event should be running now, but isn't = error */
+						{
+							LEDS.blink(LEDS_RED_BLINK_FAST);
+						}
+						else if(eventScheduled()) /* An event is scheduled to run in the future = OK */
 						{
 							LEDS.sendCode((char*)"E  ");
 						}
-						else
+						else /* No event is scheduled to run now, nor in the future = warning */
 						{
 							LEDS.blink(LEDS_RED_BLINK_FAST);
 						}
@@ -1003,7 +962,7 @@ int main(void)
 			else
 			{
 				isMasterCountdownSeconds = 0;
-				g_sleepshutdown_seconds = 240;
+				g_sleepshutdown_seconds = 120;
 				sb_send_NewPrompt();
 				g_event_commenced = false;
 				g_start_event = true;
@@ -1023,44 +982,10 @@ int main(void)
 			{
 				SC status = STATUS_CODE_IDLE;
 				g_last_error_code = launchEvent(&status);
-			
-				if(g_sleepshutdown_seconds)
-				{
-					g_sleepshutdown_seconds = MAX(g_sleepshutdown_seconds, 10u);
-				}
+				g_sleepshutdown_seconds = 120;
 			}
 		}
-		
-		if(g_end_event)
-		{
-			g_end_event = false;		
-			suspendEvent();	
-		}
-		
-		if(g_check_for_next_event)
-		{
-			if(g_hardware_error & (int)HARDWARE_NO_WIFI)
-			{
-				g_check_for_next_event = false;
-				g_wifi_enable_delay = 1;
-				g_sleepType = SLEEP_FOREVER;
-			}
-			else
-			{
-				if(g_wifi_ready)
-				{
-					g_check_for_next_event = false;
-					g_waiting_for_next_event = true;
-					sprintf(g_tempStr, "%u", g_last_status_code);
-					g_sleepType = SLEEP_FOREVER;	
-				}
-				else if(!g_sleepshutdown_seconds && !g_wifi_enable_delay)
-				{
-					g_wifi_enable_delay = 1;
-				}
-			}
-		}
-		
+				
 		/********************************
 		 * Handle sleep
 		 ******************************/
@@ -1076,7 +1001,6 @@ int main(void)
 			}
 			
 			system_sleep_config();
-			g_waiting_for_next_event = false;
 
 			SLPCTRL_set_sleep_mode(SLPCTRL_SMODE_STDBY_gc);		
 			g_sleeping = true;
@@ -1106,7 +1030,7 @@ int main(void)
 			if(g_awakenedBy == AWAKENED_BY_BUTTONPRESS)
 			{	
 				LEDS.init();
-				g_wifi_enable_delay = 2; /* Ensure WiFi is enabled and countdown is reset */
+				g_sleepshutdown_seconds = 120;
 				g_handle_counted_presses = 0;
 				g_switch_presses_count = 0;
 			}
@@ -1131,16 +1055,6 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 	{
 		bool suppressResponse = false;
 
-		if(!g_sleepshutdown_seconds)
-		{
-			g_wifi_enable_delay = 2;
-			LEDS.init();
-		}
-		else
-		{
-			g_sleepshutdown_seconds = 240;
-		}
-		
 		SBMessageID msg_id = sb_buff->id;
 
 		switch(msg_id)
@@ -1343,6 +1257,7 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 					}
 					else
 					{
+						g_sleepType = SLEEP_FOREVER;
 						g_go_to_sleep_now = true;
 					}
 				}
@@ -2077,29 +1992,27 @@ bool __attribute__((optimize("O0"))) eventEnabled()
 	
 	g_go_to_sleep_now = false;
 	
-	if(!eventScheduled() && !eventRunningNow()) /* A future event has not been set, and no event is schedule to run right now */
+	if(!eventScheduled()) /* A future event has not been set, and no event is scheduled to run right now */
 	{
 		g_sleepType = SLEEP_FOREVER;
 		g_time_to_wake_up = MAX_TIME;
-		g_wifi_enable_delay = 2;
+		g_sleepshutdown_seconds = 120;
 		return(false); /* completed events are never enabled */
 	}
 	
 	time_t now = time(null);
 	int32_t dif = timeDif(now, g_event_start_epoch);
 
+	g_sleepType = SLEEP_UNTIL_START_TIME;
+	g_time_to_wake_up = g_event_start_epoch - 10; /* sleep time needs to be calculated to allow time for power-up (coming out of sleep) prior to the event start */
+	
 	if(dif >= -30)  /* Don't sleep if the event starts in 30 seconds or less, or has already started */
 	{
-		g_sleepType = DO_NOT_SLEEP;
-		g_time_to_wake_up = g_event_start_epoch - 5;
+		g_sleepshutdown_seconds = 120;
 		return( true);
 	}
 
-	/* If we reach here, we have an event that will not start for at least 30 seconds. It needs to be enabled, and a sleep time needs to be calculated
-	 * while allowing time for power-up (coming out of sleep) prior to the event start */
-	g_time_to_wake_up = g_event_start_epoch - 10;
-	g_sleepType = SLEEP_UNTIL_START_TIME;
-
+	/* If we reach here, we have an event that will not start for at least 30 seconds. */
 	return( true);
 }
 
@@ -2146,6 +2059,7 @@ EC __attribute__((optimize("O0"))) launchEvent(SC* statusCode)
 
 EC activateEventUsingCurrentSettings(SC* statusCode)
 {
+	syncSystemTimeToRTC();
 	time_t now = time(null);
 	
 	/* Make sure everything has been sanely initialized */
@@ -2278,11 +2192,7 @@ EC activateEventUsingCurrentSettings(SC* statusCode)
 					}
 				}
 
-				if(turnOnTransmitter)
-				{
-					LEDS.init();
-				}
-				else
+				if(!turnOnTransmitter)
 				{
 					keyTransmitter(OFF);
 				}
@@ -2299,8 +2209,6 @@ EC activateEventUsingCurrentSettings(SC* statusCode)
 				keyTransmitter(OFF);
 			}
 		}
-
-		g_waiting_for_next_event = false;
 	}
 
 	return( ERROR_CODE_NO_ERROR);
@@ -2332,11 +2240,12 @@ void suspendEvent()
 	g_on_the_air = 0;           /*  stop transmitting */
 	g_event_commenced = false;  /* get things stopped immediately */
 	g_run_event_forever = false;
+	g_sleepshutdown_seconds = 120;
 	keyTransmitter(OFF);
 	bool repeat = false;
 	makeMorse((char*)"\0", &repeat, null);  /* reset makeMorse */
 	LEDS.init();
-	g_event_enabled = eventEnabled();
+//	g_event_enabled = eventEnabled();
 }
 
 void startEventNow(EventActionSource_t activationSource)
@@ -2358,11 +2267,11 @@ void startEventNow(EventActionSource_t activationSource)
 	{
 		if(conf == CONFIGURATION_ERROR)                                                                                             /* Start immediately */
 		{
-			setupForFox(INVALID_FOX, START_EVENT_NOW);
+			setupForFox(INVALID_FOX, START_EVENT_NOW_AND_RUN_FOREVER);
 		}
 		else if((conf == SCHEDULED_EVENT_WILL_NEVER_RUN) || (conf == SCHEDULED_EVENT_DID_NOT_START)) /* Start immediately */
 		{
-			setupForFox(INVALID_FOX, START_EVENT_NOW);
+			setupForFox(INVALID_FOX, START_EVENT_NOW_AND_RUN_FOREVER);
 		}
 		else if((conf == WAITING_FOR_START))
 		{
@@ -2370,14 +2279,14 @@ void startEventNow(EventActionSource_t activationSource)
 		}
 		else                                                                                                                        /*if((conf == EVENT_IN_PROGRESS) */
 		{
-			setupForFox(INVALID_FOX, START_EVENT_NOW);                                                                  /* Let the RTC start the event */
+			setupForFox(INVALID_FOX, START_EVENT_NOW_AND_RUN_FOREVER);                                                                  /* Let the RTC start the event */
 		}
 	}
 	else                                                                                                                            /* PUSHBUTTON */
 	{
 		if(conf == CONFIGURATION_ERROR)                                                                                             /* No scheduled event */
 		{
-			setupForFox(INVALID_FOX, START_EVENT_NOW);
+			setupForFox(INVALID_FOX, START_EVENT_NOW_AND_RUN_FOREVER);
 		}
 		else                                                                                                                        /* if(buttonActivated) */
 		{
@@ -2459,6 +2368,7 @@ void setupForFox(Fox_t fox, EventAction_t action)
 	bool delayNotSet = true;
 	
 	g_run_event_forever = false;
+	g_sleepshutdown_seconds = 120;
 	
 	if(fox == INVALID_FOX)
 	{
@@ -2648,13 +2558,13 @@ void setupForFox(Fox_t fox, EventAction_t action)
 		keyTransmitter(OFF);
 		LEDS.setRed(OFF);
 	}
-	else if(action == START_EVENT_NOW)
+	else if(action == START_EVENT_NOW_AND_RUN_FOREVER)
 	{
 		syncSystemTimeToRTC();
 		g_run_event_forever = true;
+		g_sleepshutdown_seconds = UINT16_MAX;
 		SC status = STATUS_CODE_IDLE;
 		launchEvent(&status);
-		g_wifi_enable_delay = 2; /* Ensure WiFi is enabled and countdown is reset */
 	}
 	else if(action == START_TRANSMISSIONS_NOW)                                  /* Immediately start transmitting, regardless RTC or time slot */
 	{
@@ -3000,28 +2910,6 @@ void reportSettings(void)
 	sprintf(g_tempStr, "*   Finish: %s\n", convertEpochToTimeString(g_event_finish_epoch, buf, 50));
 	sb_send_string(g_tempStr);
 
-  	ConfigurationState_t cfg = clockConfigurationCheck();
-  	
- 	if((cfg != WAITING_FOR_START) && (cfg != EVENT_IN_PROGRESS) && (cfg != SCHEDULED_EVENT_WILL_NEVER_RUN))
- 	{
-		sb_send_string((char*)"\n* Needed Actions:\n");
- 		reportConfigErrors();
- 	}
- 	else
- 	{
- 		reportTimeTill(now, g_event_start_epoch, "*    Starts in: ", "*    In progress\n");
- 		reportTimeTill(g_event_start_epoch, g_event_finish_epoch, "*    Lasts: ", NULL);
- 		if(g_event_start_epoch < now)
- 		{
- 			reportTimeTill(now, g_event_finish_epoch, "*    Time Remaining: ", NULL);
- 		}
-		 
-		if(!g_event_enabled)
-		{
-			sb_send_string((char*)"*   Start with > GO 2\n");
-		}
- 	}
-
 	if(g_event != EVENT_NONE)
 	{
 		sb_send_string(TEXT_EVENT_SETTINGS_TXT);
@@ -3048,6 +2936,28 @@ void reportSettings(void)
 		{
 			sprintf(g_tempStr, "*   Beacon Freq: %s\n", buf);
 			sb_send_string(g_tempStr);
+		}
+	}
+	
+	ConfigurationState_t cfg = clockConfigurationCheck();
+	  	
+	if((cfg != WAITING_FOR_START) && (cfg != EVENT_IN_PROGRESS) && (cfg != SCHEDULED_EVENT_WILL_NEVER_RUN))
+	{
+		sb_send_string((char*)"\n* Needed Actions:\n");
+		reportConfigErrors();
+	}
+	else
+	{
+		reportTimeTill(now, g_event_start_epoch, "*    Starts in: ", "*    In progress\n");
+		reportTimeTill(g_event_start_epoch, g_event_finish_epoch, "*    Lasts: ", NULL);
+		if(g_event_start_epoch < now)
+		{
+			reportTimeTill(now, g_event_finish_epoch, "*    Time Remaining: ", NULL);
+		}
+		  	
+		if(!g_event_enabled)
+		{
+			sb_send_string((char*)"*   Start with > GO 2\n");
 		}
 	}
 }
@@ -3810,7 +3720,7 @@ void handleSerialCloning(void)
 
 }
 
-bool eventRunningNow(void)
+bool eventScheduledForNow(void)
 {
 	time_t now = time(null);	
 	bool result = false;
@@ -3823,6 +3733,19 @@ bool eventRunningNow(void)
 	return(result);
 }
 
+bool eventScheduledForTheFuture(void)
+{
+	time_t now = time(null);	
+	bool result = false;
+	
+	if(now > MINIMUM_VALID_EPOCH)
+	{
+		result = ((g_event_start_epoch > now) && (g_event_finish_epoch > g_event_start_epoch));
+	}
+	
+	return(result);
+}
+
 bool eventScheduled(void)
 {
 	time_t now = time(null);	
@@ -3830,7 +3753,7 @@ bool eventScheduled(void)
 	
 	if(now > MINIMUM_VALID_EPOCH)
 	{
-		result = ((g_event_start_epoch > now) && (g_event_finish_epoch > g_event_start_epoch)) || eventRunningNow();
+		result = eventScheduledForTheFuture() || eventScheduledForNow();
 		
 		if(!result)
 		{ 
