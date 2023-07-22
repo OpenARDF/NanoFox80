@@ -503,7 +503,7 @@ ISR(TCB0_INT_vect)
 			g_util_tick_countdown--;
 		}
 		
-		if(g_programming_countdown) g_programming_countdown--;
+		if(g_programming_countdown > 0) g_programming_countdown--;
 		if(g_programming_msg_throttle) g_programming_msg_throttle--;
 		if(g_send_clone_success_countdown) g_send_clone_success_countdown--;
 							
@@ -3313,10 +3313,11 @@ Frequency_Hz getFrequencySetting(void)
 
 void handleSerialCloning(void)
 {
-	if(!g_programming_countdown)
+	if(g_programming_countdown == 0)
 	{
 		g_programming_state = SYNC_Searching_for_slave;
 		g_cloningInProgress = false;
+		g_programming_countdown = -1;
 	}
 	
 	SerialbusRxBuffer* sb_buff = nextFullSBRxBuffer();
@@ -3332,6 +3333,7 @@ void handleSerialCloning(void)
 	{
 		sb_send_master_string((char*)"MAS P\r"); /* Set slave to active cloning state */
 		g_programming_msg_throttle = 600;
+		g_programming_state = SYNC_Searching_for_slave;
 	}
 	
 	
@@ -3342,7 +3344,7 @@ void handleSerialCloning(void)
 			if(sb_buff)
 			{
 				msg_id = sb_buff->id;
-				if((msg_id == SB_MESSAGE_MASTER) && !(sb_buff->fields[SB_FIELD1][0])) /* Slave responds with MAS message */
+				if(msg_id == SB_MESSAGE_MASTER) /* Slave responds with MAS message */
 				{
 					g_cloningInProgress = true;
 					g_seconds_transition = false;
