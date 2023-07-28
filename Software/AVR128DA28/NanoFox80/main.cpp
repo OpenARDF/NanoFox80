@@ -48,8 +48,8 @@ typedef enum
 {
 	HARDWARE_OK,
 	HARDWARE_NO_RTC = 0x01,
-	HARDWARE_NO_SI5351 = 0x02,
-//	HARDWARE_NO_WIFI = 0x04
+	HARDWARE_NO_SI5351 = 0x02
+//	,HARDWARE_NO_WIFI = 0x04
 } HardwareError_t;
 
 
@@ -211,7 +211,7 @@ void handleSerialCloning(void);
 bool eventScheduled(void);
 bool eventScheduledForNow(void);
 bool eventScheduledForTheFuture(void);
-void syncSystemTimeToRTC(void);
+time_t pauseUntilSecTransition(void);
 
 /*******************************/
 /* Hardcoded event support     */
@@ -378,21 +378,37 @@ void handle_1sec_tasks(void)
 
 	if(!g_sleepshutdown_seconds)
 	{
- 		if(g_sleepType == DO_NOT_SLEEP)
-		{
-			if(!g_event_enabled && !eventScheduled()) 
-			{
-				g_sleepType = SLEEP_FOREVER;
-			}
-		}
-		else if(g_isMaster || g_cloningInProgress)
-		{
-			g_sleepshutdown_seconds = 120;
-		}
+ 		if(g_isMaster || g_cloningInProgress)
+ 		{
+	 		g_sleepshutdown_seconds = 120;
+ 		}
 		else
 		{
-			LEDS.init();
-			g_go_to_sleep_now = true;								
+			if(g_sleepType == DO_NOT_SLEEP)
+			{
+				if(!g_event_enabled && !eventScheduled())
+				{
+					g_sleepType = SLEEP_FOREVER;
+				}
+			}
+			else
+			{
+				if(g_sleepType == SLEEP_FOREVER)
+				{
+					if(eventScheduledForTheFuture())
+					{
+						g_sleepType = SLEEP_UNTIL_START_TIME;
+					}
+
+					LEDS.init();
+					g_go_to_sleep_now = true;
+				}
+				else
+				{
+					LEDS.init();
+					g_go_to_sleep_now = true;
+				}
+			}
 		}
 	}
 }
@@ -974,6 +990,7 @@ int main(void)
 			g_programming_countdown = 0;
 			g_send_clone_success_countdown = 0;
 			LEDS.init();
+			g_text_buff.reset();
 		}
 		
 		if(g_start_event)
@@ -2031,10 +2048,11 @@ uint16_t throttleValue(uint8_t speed)
 	return( (uint16_t)temp);
 }
 
-void syncSystemTimeToRTC(void)
+time_t pauseUntilSecTransition(void)
 {
 	g_seconds_transition = false;  /* Sync to RTC second transition */
 	while(!g_seconds_transition);
+	return(time(null));
 }
 
 EC __attribute__((optimize("O0"))) launchEvent(SC* statusCode)
@@ -2055,8 +2073,7 @@ EC __attribute__((optimize("O0"))) launchEvent(SC* statusCode)
 
 EC activateEventUsingCurrentSettings(SC* statusCode)
 {
-	syncSystemTimeToRTC();
-	time_t now = time(null);
+	time_t now = pauseUntilSecTransition();
 	
 	/* Make sure everything has been sanely initialized */
 	if(!g_run_event_forever)
@@ -2560,7 +2577,6 @@ void setupForFox(Fox_t fox, EventAction_t action)
 	}
 	else if(action == START_EVENT_NOW_AND_RUN_FOREVER)
 	{
-		syncSystemTimeToRTC();
 		g_run_event_forever = true;
 		g_sleepshutdown_seconds = UINT16_MAX;
 		launchEvent((SC*)&g_last_status_code);
