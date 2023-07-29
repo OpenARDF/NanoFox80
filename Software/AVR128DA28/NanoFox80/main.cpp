@@ -107,7 +107,7 @@ static volatile uint16_t g_sleepshutdown_seconds = 120;
 static volatile bool g_report_seconds = false;
 static volatile int g_hardware_error = (int)HARDWARE_OK;
 
-char g_messages_text[STATION_ID+1][MAX_PATTERN_TEXT_LENGTH + 1];
+char g_messages_text[STATION_ID+1][MAX_PATTERN_TEXT_LENGTH + 2];
 volatile uint8_t g_id_codespeed = EEPROM_ID_CODE_SPEED_DEFAULT;
 volatile uint8_t g_pattern_codespeed = EEPROM_PATTERN_CODE_SPEED_DEFAULT;
 volatile uint8_t g_foxoring_pattern_codespeed = EEPROM_FOXORING_PATTERN_CODESPEED_DEFAULT;
@@ -177,7 +177,7 @@ Frequency_Hz g_frequency_hi = EEPROM_FREQUENCY_HI_DEFAULT;
 Frequency_Hz g_frequency_beacon = EEPROM_FREQUENCY_BEACON_DEFAULT;
 
 int8_t g_utc_offset;
-uint8_t g_unlockCode[UNLOCK_CODE_SIZE + 1];
+uint8_t g_unlockCode[UNLOCK_CODE_SIZE + 2];
 
 volatile bool g_enable_manual_transmissions = false;
 
@@ -358,10 +358,11 @@ void handle_1sec_tasks(void)
 							g_last_status_code = STATUS_CODE_EVENT_STARTED_NOW_TRANSMITTING;
 							g_on_the_air = g_on_air_seconds;
 							g_sendID_seconds_countdown = g_on_air_seconds - g_time_needed_for_ID;
-							g_code_throttle = throttleValue(g_pattern_codespeed);
-							bool repeat = true;
-							makeMorse(getCurrentPatternText(), &repeat, NULL);
 						}
+						
+						g_code_throttle = throttleValue(g_pattern_codespeed);
+						bool repeat = true;
+						makeMorse(getCurrentPatternText(), &repeat, NULL);
 
 						g_event_commenced = true;
 						LEDS.init();
@@ -594,8 +595,7 @@ ISR(TCB0_INT_vect)
 					
 					if(on_air_finished)
 					{
-// 						if(g_off_air_seconds)
-// 						{
+						on_air_finished = false;							
 						keyTransmitter(OFF);
 				
 						if(key)
@@ -605,7 +605,6 @@ ISR(TCB0_INT_vect)
 						}
 						
 						g_on_the_air = -g_off_air_seconds;
-						on_air_finished = false;							
 						/* Enable sleep during off-the-air periods */
 						int32_t timeRemaining = 0;
 						time_t temp_time = time(null);
@@ -628,12 +627,6 @@ ISR(TCB0_INT_vect)
 								g_sendID_seconds_countdown = MAX(0, g_ID_period_seconds - (int)seconds_to_sleep);
 							}
 						}
-// 						}
-// 						else /* Transmissions are continuous */
-// 						{
-// 							g_on_the_air = g_on_air_seconds;
-// 							g_code_throttle = throttleValue(g_pattern_codespeed);
-// 						}
 	
 						muteAfterID = false;
 						g_sending_station_ID = false;
@@ -646,7 +639,6 @@ ISR(TCB0_INT_vect)
 					else /* Off-the-air period just finished, or the event just began while off the air */
 					{
 						g_on_the_air = g_on_air_seconds;
-						on_air_finished = false;
 						g_code_throttle = throttleValue(g_pattern_codespeed);
 						repeat = true;
 						makeMorse(getCurrentPatternText(), &repeat, NULL);
@@ -1425,16 +1417,16 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 					{
 						if(strlen(sb_buff->fields[SB_FIELD1]) <= MAX_PATTERN_TEXT_LENGTH)
 						{
-							strcpy(g_tempStr, sb_buff->fields[SB_FIELD1]);
+							strncpy(g_tempStr, sb_buff->fields[SB_FIELD1], MAX_PATTERN_TEXT_LENGTH);
 						
 							if(g_event == EVENT_FOXORING)
 							{
-								strcpy(g_messages_text[FOXORING_PATTERN_TEXT], g_tempStr);
+								strncpy(g_messages_text[FOXORING_PATTERN_TEXT], g_tempStr, MAX_PATTERN_TEXT_LENGTH);
 								g_ee_mgr.updateEEPROMVar(Foxoring_pattern_text, g_messages_text[FOXORING_PATTERN_TEXT]);
 							}
 							else
 							{
-								strcpy(g_messages_text[PATTERN_TEXT], g_tempStr);
+								strncpy(g_messages_text[PATTERN_TEXT], g_tempStr, MAX_PATTERN_TEXT_LENGTH);
 							}
 						}
 						else
@@ -1962,6 +1954,17 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 				txt[5] = '\0';
  				sprintf(g_tempStr, "thresh =%s Volts\n", txt);
  				sb_send_string(g_tempStr);
+			}
+			break;
+			
+			case SB_MESSAGE_VER:
+			{
+				if(!g_cloningInProgress)
+				{
+					sb_send_string((char*)PRODUCT_NAME_LONG);
+					sprintf(g_tempStr, "\n* SW Ver: %s\n", SW_REVISION);
+					sb_send_string(g_tempStr);
+				}
 			}
 			break;
 			
@@ -2842,7 +2845,7 @@ void reportSettings(void)
 		
 	if(!event2Text(g_tempStr, g_event))
 	{
-		strcpy(buf, g_tempStr);
+		strncpy(buf, g_tempStr,50);
 		sprintf(g_tempStr, "*   Event: %s\n", buf);
 	}
 	else
@@ -2856,7 +2859,7 @@ void reportSettings(void)
 	
 	if(!fox2Text(g_tempStr, f))
 	{
-		strcpy(buf, g_tempStr);
+		strncpy(buf, g_tempStr, 50);
 		sprintf(g_tempStr, "*   Fox: %s\n", buf);
 	}
 	else
@@ -3493,7 +3496,7 @@ void handleSerialCloning(void)
 						}
 						else
 						{
-							strcpy(g_tempStr, "ID \"\"\r");
+							strncpy(g_tempStr, "ID \"\"\r", 50);
 						}
  
 						sb_send_master_string(g_tempStr);
