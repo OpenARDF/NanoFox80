@@ -360,7 +360,7 @@ void handle_1sec_tasks(void)
 							g_sendID_seconds_countdown = g_on_air_seconds - g_time_needed_for_ID;
 						}
 						
-						g_code_throttle = throttleValue(g_pattern_codespeed);
+						g_code_throttle = throttleValue(getFoxCodeSpeed());
 						bool repeat = true;
 						makeMorse(getCurrentPatternText(), &repeat, NULL);
 
@@ -556,7 +556,7 @@ ISR(TCB0_INT_vect)
 						if(!repeat && finished) /* ID has completed, so resume pattern */
 						{
 							g_last_status_code = STATUS_CODE_EVENT_STARTED_NOW_TRANSMITTING;
-							g_code_throttle = throttleValue(g_pattern_codespeed);
+							g_code_throttle = throttleValue(getFoxCodeSpeed());
 							repeat = true;
 							makeMorse(getCurrentPatternText(), &repeat, NULL);
 							muteAfterID = g_sending_station_ID && g_off_air_seconds;
@@ -632,6 +632,7 @@ ISR(TCB0_INT_vect)
 						g_sending_station_ID = false;
 				
 						/* Resume normal pattern */
+						g_code_throttle = throttleValue(getFoxCodeSpeed());
 						repeat = true;
 						makeMorse(getCurrentPatternText(), &repeat, NULL);    /* Reset pattern to start */
 						LEDS.setRed(OFF);
@@ -639,7 +640,7 @@ ISR(TCB0_INT_vect)
 					else /* Off-the-air period just finished, or the event just began while off the air */
 					{
 						g_on_the_air = g_on_air_seconds;
-						g_code_throttle = throttleValue(g_pattern_codespeed);
+						g_code_throttle = throttleValue(getFoxCodeSpeed());
 						repeat = true;
 						makeMorse(getCurrentPatternText(), &repeat, NULL);
 						codeInc = g_code_throttle;
