@@ -438,6 +438,7 @@ ISR(TCB0_INT_vect)
 		static uint8_t buttonReleased = false;
 		static uint8_t longPressEnabled = true;
 		static bool muteAfterID = false;				/* Inhibit any transmissions immediately after the ID has been sent */
+		static bool holdMasterSetting = g_isMaster;
 		
 		fiftyMS++;
 		if(!(fiftyMS % 6))
@@ -526,10 +527,16 @@ ISR(TCB0_INT_vect)
 							
 		static bool key = false;
 		
+		if(holdMasterSetting != g_isMaster)
+		{
+			holdMasterSetting = g_isMaster;
+			initializeManualTransmissions = true;
+		}
+		
 		if(g_event_enabled && g_event_commenced && !g_isMaster) /* Handle cycling transmissions */
 		{
 			initializeManualTransmissions = true;
-			
+
 			if((g_on_the_air > 0) || (g_sending_station_ID) || (!g_off_air_seconds))
 			{
 				on_air_finished = true;
