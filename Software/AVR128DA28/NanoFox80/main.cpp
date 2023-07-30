@@ -525,8 +525,8 @@ ISR(TCB0_INT_vect)
 		if(g_send_clone_success_countdown) g_send_clone_success_countdown--;
 							
 		static bool key = false;
-
-		if(g_event_enabled && g_event_commenced) /* Handle cycling transmissions */
+		
+		if(g_event_enabled && g_event_commenced && !g_isMaster) /* Handle cycling transmissions */
 		{
 			initializeManualTransmissions = true;
 			
