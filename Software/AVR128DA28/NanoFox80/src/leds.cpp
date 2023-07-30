@@ -17,7 +17,7 @@
 #define SLOW_OFF 500
 #define BRIEF_ON 15
 #define BRIEF_OFF 50
-#define LED_TIMEOUT_DELAY 180000
+#define LED_TIMEOUT_DELAY 60000
 
 extern volatile bool g_event_enabled;
 extern volatile bool g_enable_manual_transmissions;

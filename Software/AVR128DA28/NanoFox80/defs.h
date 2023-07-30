@@ -33,7 +33,7 @@
 
 /******************************************************
  * Set the text that gets displayed to the user */
-#define SW_REVISION "0.93"
+#define SW_REVISION "0.94"
 
 //#define TRANQUILIZE_WATCHDOG
 
@@ -102,7 +102,9 @@ typedef enum {
 typedef enum {
 	DO_NOT_SLEEP,
 	SLEEP_UNTIL_START_TIME,
+	SLEEP_AFTER_EVENT,
 	SLEEP_UNTIL_NEXT_XMSN,
+	SLEEP_USER_OVERRIDE,
 	SLEEP_FOREVER
 	} SleepType;
 	

@@ -39,6 +39,7 @@ typedef enum
 
 typedef enum
 {
+	AWAKENED_INIT,
 	POWER_UP_START,
 	AWAKENED_BY_CLOCK,
 	AWAKENED_BY_BUTTONPRESS
@@ -322,7 +323,7 @@ void handle_1sec_tasks(void)
 					else
 					{
 						g_sleepType = SLEEP_FOREVER;
-						g_go_to_sleep_now = true;
+						g_sleepshutdown_seconds = 3;
 					}
 				}
 			}
@@ -381,8 +382,12 @@ void handle_1sec_tasks(void)
 	{
  		if(g_isMaster || g_cloningInProgress)
  		{
-	 		g_sleepshutdown_seconds = 120;
+	 		g_sleepshutdown_seconds = 120; /* Never sleep while cloning or while master */
  		}
+		else if(g_event_commenced && g_event_enabled && ((g_sleepType != SLEEP_UNTIL_NEXT_XMSN) && (g_sleepType != SLEEP_UNTIL_START_TIME)))
+		{
+			g_sleepshutdown_seconds = 120; /* Never sleep during active transmissions */
+		}
 		else
 		{
 			if(g_sleepType == DO_NOT_SLEEP)
@@ -400,15 +405,10 @@ void handle_1sec_tasks(void)
 					{
 						g_sleepType = SLEEP_UNTIL_START_TIME;
 					}
-
-					LEDS.init();
-					g_go_to_sleep_now = true;
 				}
-				else
-				{
-					LEDS.init();
-					g_go_to_sleep_now = true;
-				}
+				
+				/* If we reach here, g_sleepType = 	SLEEP_UNTIL_START_TIME, SLEEP_UNTIL_NEXT_XMSN, SLEEP_USER_OVERRIDE, or SLEEP_FOREVER */
+				g_go_to_sleep_now = true;
 			}
 		}
 	}
@@ -877,6 +877,7 @@ int main(void)
 			else if (g_handle_counted_presses == 2)
 			{
 				suspendEvent();
+				g_sleepType = SLEEP_USER_OVERRIDE;
 			}
 			
 			g_handle_counted_presses = 0;
@@ -1006,7 +1007,7 @@ int main(void)
 			serialbus_disable();
 			shutdown_transmitter();	
 
-			if(g_sleepType == SLEEP_FOREVER)
+			if((g_sleepType == SLEEP_FOREVER) || (g_sleepType == SLEEP_USER_OVERRIDE))
 			{
 				g_time_to_wake_up = FOREVER_EPOCH;
 			}
@@ -1015,6 +1016,7 @@ int main(void)
 
 			SLPCTRL_set_sleep_mode(SLPCTRL_SMODE_STDBY_gc);		
 			g_sleeping = true;
+			g_awakenedBy = AWAKENED_INIT;
 			
 			/* Disable BOD? */
 			
@@ -1037,11 +1039,11 @@ int main(void)
 			RTC_set_calibration(g_clock_calibration);
 			while(util_delay_ms(2000));
 			init_transmitter();
+			g_sleepshutdown_seconds = 120;
 			
 			if(g_awakenedBy == AWAKENED_BY_BUTTONPRESS)
 			{	
 				LEDS.init();
-				g_sleepshutdown_seconds = 120;
 				g_handle_counted_presses = 0;
 				g_switch_presses_count = 0;
 			}
@@ -1049,8 +1051,11 @@ int main(void)
 			{
 				serialbus_disable();
 			}
-
-			g_start_event = true;
+			
+			if(g_sleepType != SLEEP_UNTIL_NEXT_XMSN)
+			{
+				g_start_event = true;
+			}
 
  			g_last_status_code = STATUS_CODE_RETURNED_FROM_SLEEP;
 		}
@@ -1269,7 +1274,7 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 					else
 					{
 						g_sleepType = SLEEP_FOREVER;
-						g_go_to_sleep_now = true;
+						g_sleepshutdown_seconds = 3;
 					}
 				}
 				else
@@ -2025,15 +2030,16 @@ bool __attribute__((optimize("O0"))) eventEnabled()
 	time_t now = time(null);
 	int32_t dif = timeDif(now, g_event_start_epoch);
 
-	g_sleepType = SLEEP_UNTIL_START_TIME;
-	g_time_to_wake_up = g_event_start_epoch - 10; /* sleep time needs to be calculated to allow time for power-up (coming out of sleep) prior to the event start */
+	g_time_to_wake_up = g_event_start_epoch - 15; /* sleep time needs to be calculated to allow time for power-up (coming out of sleep) prior to the event start */
 	
 	if(dif >= -30)  /* Don't sleep if the event starts in 30 seconds or less, or has already started */
 	{
+		g_sleepType = SLEEP_AFTER_EVENT;
 		g_sleepshutdown_seconds = 120;
 		return( true);
 	}
 
+	g_sleepType = SLEEP_UNTIL_START_TIME;
 	/* If we reach here, we have an event that will not start for at least 30 seconds. */
 	return( true);
 }
@@ -2142,6 +2148,11 @@ EC activateEventUsingCurrentSettings(SC* statusCode)
 	}
 	else
 	{
+		g_last_status_code = STATUS_CODE_EVENT_STARTED_NOW_TRANSMITTING;
+		g_code_throttle = throttleValue(getFoxCodeSpeed());
+		bool repeat = true;
+		makeMorse(getCurrentPatternText(), &repeat, NULL);
+	
 		if(g_run_event_forever)
 		{
 			g_last_status_code = STATUS_CODE_EVENT_STARTED_NOW_TRANSMITTING;
@@ -2152,7 +2163,7 @@ EC activateEventUsingCurrentSettings(SC* statusCode)
 			g_event_commenced = true;
 		}
 		else
-		{			
+		{		
 			int32_t dif = timeDif(now, g_event_start_epoch); /* returns arg1 - arg2 */
 
 			if(dif >= 0)                                    /* start time is in the past */
@@ -2258,7 +2269,6 @@ void suspendEvent()
 	g_event_commenced = false;  /* get things stopped immediately */
 	g_run_event_forever = false;
 	g_sleepshutdown_seconds = 120;
-// 	g_sleepType = SLEEP_FOREVER;
 	keyTransmitter(OFF);
 	bool repeat = false;
 	makeMorse((char*)"\0", &repeat, null);  /* reset makeMorse */
@@ -2582,7 +2592,7 @@ void setupForFox(Fox_t fox, EventAction_t action)
 	else if(action == START_EVENT_NOW_AND_RUN_FOREVER)
 	{
 		g_run_event_forever = true;
-		g_sleepshutdown_seconds = UINT16_MAX;
+		g_sleepshutdown_seconds = 120;
 		launchEvent((SC*)&g_last_status_code);
 	}
 	else if(action == START_TRANSMISSIONS_NOW)                                  /* Immediately start transmitting, regardless RTC or time slot */
@@ -2880,7 +2890,7 @@ void reportSettings(void)
 		sb_send_string((char*)"*   Callsign: None\n");
 	}
 		
-	sprintf(g_tempStr, "*   Callsign WPM: %d wpm\n", g_id_codespeed);	
+	sprintf(g_tempStr, "*   Callsign WPM: %d\n", g_id_codespeed);	
 	sb_send_string(g_tempStr);
 	
 	sprintf(g_tempStr, "*   Xmit Pattern: %s\n", getCurrentPatternText());
@@ -2965,16 +2975,16 @@ void reportSettings(void)
 	}
 	else
 	{
-		reportTimeTill(now, g_event_start_epoch, "*    Starts in: ", "*    In progress\n");
-		reportTimeTill(g_event_start_epoch, g_event_finish_epoch, "*    Lasts: ", NULL);
+		reportTimeTill(now, g_event_start_epoch, "\n*   Starts in: ", "\n*   In progress\n");
+		reportTimeTill(g_event_start_epoch, g_event_finish_epoch, "*   Lasts: ", NULL);
 		if(g_event_start_epoch < now)
 		{
-			reportTimeTill(now, g_event_finish_epoch, "*    Time Remaining: ", NULL);
+			reportTimeTill(now, g_event_finish_epoch, "*   Time Remaining: ", NULL);
 		}
 		  	
 		if(!g_event_enabled)
 		{
-			sb_send_string((char*)"*   Start with > GO 2\n");
+			sb_send_string((char*)"\n*  Start with > GO 2\n");
 		}
 	}
 }
