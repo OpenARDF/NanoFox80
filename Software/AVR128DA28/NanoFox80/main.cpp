@@ -212,6 +212,7 @@ void handleSerialCloning(void);
 bool eventScheduled(void);
 bool eventScheduledForNow(void);
 bool eventScheduledForTheFuture(void);
+bool noEventWillRun(void);
 time_t pauseUntilSecTransition(void);
 
 /*******************************/
@@ -364,7 +365,8 @@ void handle_1sec_tasks(void)
 						g_code_throttle = throttleValue(getFoxCodeSpeed());
 						bool repeat = true;
 						makeMorse(getCurrentPatternText(), &repeat, NULL);
-
+						g_enable_manual_transmissions = false;
+						
 						g_event_commenced = true;
 						LEDS.init();
 					}
@@ -392,7 +394,7 @@ void handle_1sec_tasks(void)
 		{
 			if(g_sleepType == DO_NOT_SLEEP)
 			{
-				if(!g_event_enabled && !eventScheduled())
+				if(noEventWillRun()) /* Should never evaluate to true, but checking just in case */
 				{
 					g_sleepType = SLEEP_FOREVER;
 				}
@@ -401,7 +403,7 @@ void handle_1sec_tasks(void)
 			{
 				if(g_sleepType == SLEEP_FOREVER)
 				{
-					if(eventScheduledForTheFuture())
+					if(eventScheduledForTheFuture()) /* Should never evaluate to true, but checking just in case */
 					{
 						g_sleepType = SLEEP_UNTIL_START_TIME;
 					}
@@ -434,11 +436,12 @@ ISR(TCB0_INT_vect)
 		static uint16_t codeInc = 0;
 		bool repeat, finished;
 		static uint16_t switch_closures_count_period = 0;
-		uint8_t holdSwitch;
+		uint8_t holdSwitch = 0;
 		static uint8_t buttonReleased = false;
 		static uint8_t longPressEnabled = true;
 		static bool muteAfterID = false;				/* Inhibit any transmissions immediately after the ID has been sent */
 		static bool holdMasterSetting = g_isMaster;
+		static bool holdManualTransmissions = g_enable_manual_transmissions;
 		
 		fiftyMS++;
 		if(!(fiftyMS % 6))
@@ -450,35 +453,35 @@ ISR(TCB0_INT_vect)
 			{	
 				if(holdSwitch) /* Switch was open, so now it must be closed */
 				{
-					if(!LEDS.active())
-					{
-						LEDS.init();
-					}
-					else
+					if(LEDS.active())
 					{
 						g_switch_presses_count++;
 						buttonReleased = false;
-						if(g_switch_presses_count == 1)
-						{
-							serialbus_init(SB_BAUD, SERIALBUS_USART);
-						}
 					}
 				}
 				else /* Switch is now open */
 				{
-					g_switch_closed_time = 0;
-					buttonReleased = true;
-					longPressEnabled = true;
-					
-					if(g_send_clone_success_countdown || g_cloningInProgress) 
+					if(!LEDS.active())
 					{
-						g_send_clone_success_countdown = 0;
-						g_cloningInProgress = false;
-						g_programming_msg_throttle = 0;
+						LEDS.init();
+						serialbus_init(SB_BAUD, SERIALBUS_USART);
+					}
+					else
+					{
+						g_switch_closed_time = 0;
+						buttonReleased = true;
+						longPressEnabled = true;
+					
+						if(g_send_clone_success_countdown || g_cloningInProgress) 
+						{
+							g_send_clone_success_countdown = 0;
+							g_cloningInProgress = false;
+							g_programming_msg_throttle = 0;
+						}
 					}
 				}
 			}
-			else if(!holdSwitch) /* Switch closed */
+			else if(!holdSwitch && LEDS.active()) /* Switch closed, LEDs operating */
 			{
 				if(!g_long_button_press && longPressEnabled)
 				{
@@ -530,6 +533,12 @@ ISR(TCB0_INT_vect)
 		if(holdMasterSetting != g_isMaster)
 		{
 			holdMasterSetting = g_isMaster;
+			initializeManualTransmissions = true;
+		}
+		
+		if(holdManualTransmissions != g_enable_manual_transmissions)
+		{
+			holdManualTransmissions = g_enable_manual_transmissions;
 			initializeManualTransmissions = true;
 		}
 		
@@ -950,7 +959,7 @@ int main(void)
 					}
 					else
 					{
-						if(eventScheduledForNow()) /* An event should be running now, but isn't = error */
+						if(noEventWillRun()) /* No event is running now, nor will one run in the future */
 						{
 							LEDS.blink(LEDS_RED_BLINK_FAST);
 						}
@@ -958,7 +967,7 @@ int main(void)
 						{
 							LEDS.sendCode((char*)"E  ");
 						}
-						else /* No event is scheduled to run now, nor in the future = warning */
+						else /* Should not reach here, but if we do, it is an error */
 						{
 							LEDS.blink(LEDS_RED_BLINK_FAST);
 						}
@@ -1010,7 +1019,7 @@ int main(void)
 		 ******************************/
 		if(g_go_to_sleep_now && !g_cloningInProgress)
 		{
-			LEDS.blink(LEDS_OFF);
+			LEDS.deactivate();
 			serialbus_disable();
 			shutdown_transmitter();	
 
@@ -2159,7 +2168,8 @@ EC activateEventUsingCurrentSettings(SC* statusCode)
 		g_code_throttle = throttleValue(getFoxCodeSpeed());
 		bool repeat = true;
 		makeMorse(getCurrentPatternText(), &repeat, NULL);
-	
+		g_enable_manual_transmissions = false;	
+		
 		if(g_run_event_forever)
 		{
 			g_last_status_code = STATUS_CODE_EVENT_STARTED_NOW_TRANSMITTING;
@@ -2279,6 +2289,7 @@ void suspendEvent()
 	keyTransmitter(OFF);
 	bool repeat = false;
 	makeMorse((char*)"\0", &repeat, null);  /* reset makeMorse */
+	g_enable_manual_transmissions = false;
 	LEDS.init();
 }
 
@@ -3740,6 +3751,15 @@ void handleSerialCloning(void)
 	
 	if(sb_buff) sb_buff->id = SB_MESSAGE_EMPTY;
 
+}
+
+bool noEventWillRun(void)
+{
+	bool result;
+	
+	result = !eventScheduled() || !g_event_enabled || ((g_sleepType == SLEEP_USER_OVERRIDE) || (g_sleepType == SLEEP_FOREVER));
+	
+	return result;
 }
 
 bool eventScheduledForNow(void)

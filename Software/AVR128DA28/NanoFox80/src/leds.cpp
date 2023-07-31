@@ -157,6 +157,17 @@ bool leds::active(void)
 	return(led_timeout_count && (TCB1.INTCTRL & (1 << TCB_CAPT_bp)));
 }
 
+void leds::deactivate(void)
+{
+	TCB1.INTCTRL &= ~TCB_CAPT_bm; /* Disable timer interrupt */
+	LED_set_RED_level(OFF);
+	LED_set_GREEN_level(OFF);
+	g_text_buff.reset();
+	g_enable_manual_transmissions = false;
+	timer_blink_inhibit = true; /* Disable timer LED control */
+	led_timeout_count = 0;
+}
+
 void leds::setRed(bool on)
 {
 	if(!led_timeout_count) return;
