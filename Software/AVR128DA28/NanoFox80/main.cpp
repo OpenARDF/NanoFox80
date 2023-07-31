@@ -364,8 +364,7 @@ void handle_1sec_tasks(void)
 						
 						g_code_throttle = throttleValue(getFoxCodeSpeed());
 						bool repeat = true;
-						makeMorse(getCurrentPatternText(), &repeat, NULL);
-						g_enable_manual_transmissions = false;
+						makeMorse(getCurrentPatternText(), &repeat, NULL, CALLER_AUTOMATED_EVENT);
 						
 						g_event_commenced = true;
 						LEDS.init();
@@ -422,7 +421,6 @@ Periodic tasks not requiring precise timing. Rate = 300 Hz
 */
 ISR(TCB0_INT_vect)
 {
-	static bool initializeManualTransmissions = true;
 	static uint8_t fiftyMS = 6;
 	static bool on_air_finished = false;
 	static bool transitionPrepped = false;
@@ -440,8 +438,6 @@ ISR(TCB0_INT_vect)
 		static uint8_t buttonReleased = false;
 		static uint8_t longPressEnabled = true;
 		static bool muteAfterID = false;				/* Inhibit any transmissions immediately after the ID has been sent */
-		static bool holdMasterSetting = g_isMaster;
-		static bool holdManualTransmissions = g_enable_manual_transmissions;
 		
 		fiftyMS++;
 		if(!(fiftyMS % 6))
@@ -458,6 +454,10 @@ ISR(TCB0_INT_vect)
 						g_switch_presses_count++;
 						buttonReleased = false;
 					}
+					else
+					{
+						longPressEnabled = false;
+					}
 				}
 				else /* Switch is now open */
 				{
@@ -470,7 +470,6 @@ ISR(TCB0_INT_vect)
 					{
 						g_switch_closed_time = 0;
 						buttonReleased = true;
-						longPressEnabled = true;
 					
 						if(g_send_clone_success_countdown || g_cloningInProgress) 
 						{
@@ -479,6 +478,8 @@ ISR(TCB0_INT_vect)
 							g_programming_msg_throttle = 0;
 						}
 					}
+					
+					longPressEnabled = true;
 				}
 			}
 			else if(!holdSwitch && LEDS.active()) /* Switch closed, LEDs operating */
@@ -530,22 +531,8 @@ ISR(TCB0_INT_vect)
 							
 		static bool key = false;
 		
-		if(holdMasterSetting != g_isMaster)
-		{
-			holdMasterSetting = g_isMaster;
-			initializeManualTransmissions = true;
-		}
-		
-		if(holdManualTransmissions != g_enable_manual_transmissions)
-		{
-			holdManualTransmissions = g_enable_manual_transmissions;
-			initializeManualTransmissions = true;
-		}
-		
 		if(g_event_enabled && g_event_commenced && !g_isMaster) /* Handle cycling transmissions */
 		{
-			initializeManualTransmissions = true;
-
 			if((g_on_the_air > 0) || (g_sending_station_ID) || (!g_off_air_seconds))
 			{
 				on_air_finished = true;
@@ -556,7 +543,7 @@ ISR(TCB0_INT_vect)
 					g_last_status_code = STATUS_CODE_SENDING_ID;
 					g_code_throttle = throttleValue(g_id_codespeed);
 					repeat = false;
-					makeMorse(g_messages_text[STATION_ID], &repeat, NULL);  /* Send only once */
+					makeMorse(g_messages_text[STATION_ID], &repeat, NULL, CALLER_AUTOMATED_EVENT);  /* Send only once */
 					g_sending_station_ID = true;
 					g_sendID_seconds_countdown = g_ID_period_seconds;
 				}
@@ -567,14 +554,14 @@ ISR(TCB0_INT_vect)
 
 					if(!codeInc)
 					{
-						key = makeMorse(NULL, &repeat, &finished);
+						key = makeMorse(NULL, &repeat, &finished, CALLER_AUTOMATED_EVENT);
 						
 						if(!repeat && finished) /* ID has completed, so resume pattern */
 						{
 							g_last_status_code = STATUS_CODE_EVENT_STARTED_NOW_TRANSMITTING;
 							g_code_throttle = throttleValue(getFoxCodeSpeed());
 							repeat = true;
-							makeMorse(getCurrentPatternText(), &repeat, NULL);
+							makeMorse(getCurrentPatternText(), &repeat, NULL, CALLER_AUTOMATED_EVENT);
 							muteAfterID = g_sending_station_ID && g_off_air_seconds;
 							g_sending_station_ID = false;
 							if(!g_off_air_seconds)
@@ -650,7 +637,7 @@ ISR(TCB0_INT_vect)
 						/* Resume normal pattern */
 						g_code_throttle = throttleValue(getFoxCodeSpeed());
 						repeat = true;
-						makeMorse(getCurrentPatternText(), &repeat, NULL);    /* Reset pattern to start */
+						makeMorse(getCurrentPatternText(), &repeat, NULL, CALLER_AUTOMATED_EVENT);    /* Reset pattern to start */
 						LEDS.setRed(OFF);
 					}
 					else /* Off-the-air period just finished, or the event just began while off the air */
@@ -658,7 +645,7 @@ ISR(TCB0_INT_vect)
 						g_on_the_air = g_on_air_seconds;
 						g_code_throttle = throttleValue(getFoxCodeSpeed());
 						repeat = true;
-						makeMorse(getCurrentPatternText(), &repeat, NULL);
+						makeMorse(getCurrentPatternText(), &repeat, NULL, CALLER_AUTOMATED_EVENT);
 						codeInc = g_code_throttle;
 					}
 				}
@@ -671,13 +658,12 @@ ISR(TCB0_INT_vect)
 			bool sendBuffEmpty = g_text_buff.empty();
 			repeat = false;
 			
-			if(initializeManualTransmissions)
+			if(lastMorseCaller() != CALLER_MANUAL_TRANSMISSIONS)
 			{
-				initializeManualTransmissions = false;
 				g_text_buff.reset();
-				makeMorse((char*)"\0", &repeat, null); /* reset makeMorse */
 				sendBuffEmpty = true;
 				charFinished = true;
+				makeMorse((char*)"\0", &repeat, null, CALLER_MANUAL_TRANSMISSIONS); 
 			}
 			
 			if(sendBuffEmpty && charFinished)
@@ -692,7 +678,6 @@ ISR(TCB0_INT_vect)
 					}
 				
 					codeInc = g_code_throttle;
-					makeMorse((char*)"\0", &repeat, null); /* reset makeMorse */
 					idle = true;
 				}
 			}
@@ -706,7 +691,7 @@ ISR(TCB0_INT_vect)
 
 					if(!codeInc)
 					{
-						key = makeMorse(null, &repeat, &charFinished);
+						key = makeMorse(null, &repeat, &charFinished, CALLER_MANUAL_TRANSMISSIONS);
 
 						if(charFinished) /* Completed, send next char */
 						{
@@ -716,8 +701,8 @@ ISR(TCB0_INT_vect)
 								g_code_throttle = throttleValue(getPatternCodeSpeed());
 								cc[0] = g_text_buff.get();
 								cc[1] = '\0';
-								makeMorse(cc, &repeat, null);
-								key = makeMorse(null, &repeat, &charFinished);
+								makeMorse(cc, &repeat, null, CALLER_MANUAL_TRANSMISSIONS);
+								key = makeMorse(null, &repeat, &charFinished, CALLER_MANUAL_TRANSMISSIONS);
 							}
 						}
 
@@ -1057,14 +1042,8 @@ int main(void)
 			init_transmitter();
 			g_sleepshutdown_seconds = 120;
 			
-			if(g_awakenedBy == AWAKENED_BY_BUTTONPRESS)
+			if(g_awakenedBy != AWAKENED_BY_BUTTONPRESS)
 			{	
-				LEDS.init();
-				g_handle_counted_presses = 0;
-				g_switch_presses_count = 0;
-			}
-			else
-			{
 				serialbus_disable();
 			}
 			
@@ -2167,8 +2146,7 @@ EC activateEventUsingCurrentSettings(SC* statusCode)
 		g_last_status_code = STATUS_CODE_EVENT_STARTED_NOW_TRANSMITTING;
 		g_code_throttle = throttleValue(getFoxCodeSpeed());
 		bool repeat = true;
-		makeMorse(getCurrentPatternText(), &repeat, NULL);
-		g_enable_manual_transmissions = false;	
+		makeMorse(getCurrentPatternText(), &repeat, NULL, CALLER_AUTOMATED_EVENT);
 		
 		if(g_run_event_forever)
 		{
@@ -2287,8 +2265,6 @@ void suspendEvent()
 	g_run_event_forever = false;
 	g_sleepshutdown_seconds = 120;
 	keyTransmitter(OFF);
-	bool repeat = false;
-	makeMorse((char*)"\0", &repeat, null);  /* reset makeMorse */
 	g_enable_manual_transmissions = false;
 	LEDS.init();
 }
