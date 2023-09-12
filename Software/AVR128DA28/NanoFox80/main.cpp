@@ -89,7 +89,8 @@ typedef enum {
  * Whenever possible limit globals' scope to this file using "static"
  * Use "volatile" for globals shared between ISRs and foreground
  ************************************************************************/
-static char g_tempStr[50] = { '\0' };
+#define TEMP_STRING_SIZE 50
+static char g_tempStr[TEMP_STRING_SIZE+1] = { '\0' };
 static volatile EC g_last_error_code = ERROR_CODE_NO_ERROR;
 static volatile SC g_last_status_code = STATUS_CODE_IDLE;
 
@@ -180,7 +181,9 @@ Frequency_Hz g_frequency_beacon = EEPROM_FREQUENCY_BEACON_DEFAULT;
 int8_t g_utc_offset;
 uint8_t g_unlockCode[UNLOCK_CODE_SIZE + 2];
 
-volatile bool g_enable_manual_transmissions = false;
+extern volatile uint16_t i2c_failure_count;
+
+volatile bool g_enable_manual_transmissions = true;
 
 /***********************************************************************
  * Private Function Prototypes
@@ -312,6 +315,7 @@ void handle_1sec_tasks(void)
 					g_event_commenced = false;
 					g_sleepshutdown_seconds = 120;
 					LEDS.init();
+					g_days_run++;
 				
 					if(g_days_run < g_days_to_run)
 					{
@@ -319,7 +323,6 @@ void handle_1sec_tasks(void)
 						g_event_finish_epoch += SECONDS_24H;
 						g_sleepType = SLEEP_UNTIL_START_TIME;
 						g_go_to_sleep_now = true;
-						g_days_run++;
 					}
 					else
 					{
@@ -782,6 +785,10 @@ ISR(PORTD_PORT_vect)
 			g_sleeping = false;
 			g_awakenedBy = AWAKENED_BY_BUTTONPRESS;	
 		}
+		else if(!sb_enabled())
+		{
+			serialbus_init(SB_BAUD, SERIALBUS_USART);
+		}
 		
 		g_sleepshutdown_seconds = MAX(120U, g_sleepshutdown_seconds);
 	}
@@ -959,6 +966,10 @@ int main(void)
 					}
 				}	
 			}
+			else /* Make sure the text buffer is being emptied */
+			{
+				g_enable_manual_transmissions = true; /* There is only one consumer of g_text_buff so it is always OK to enable manual transmissions */
+			}
 		}
 		
 		if(g_long_button_press)
@@ -1036,16 +1047,17 @@ int main(void)
 			/* Re-enable BOD? */
 			g_sleeping = false;
 			atmel_start_init();
-			powerUp3V3();
-			RTC_set_calibration(g_clock_calibration);
-			while(util_delay_ms(2000));
-			init_transmitter();
-			g_sleepshutdown_seconds = 120;
 			
 			if(g_awakenedBy != AWAKENED_BY_BUTTONPRESS)
 			{	
 				serialbus_disable();
 			}
+
+			powerUp3V3();
+			RTC_set_calibration(g_clock_calibration);
+			while(util_delay_ms(2000));
+			init_transmitter();
+			g_sleepshutdown_seconds = 120;
 			
 			if(g_sleepType != SLEEP_UNTIL_NEXT_XMSN)
 			{
@@ -1070,6 +1082,13 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 
 		switch(msg_id)
 		{
+			case SB_MESSAGE_DEBUG:
+			{
+				sprintf(g_tempStr, "\nI2C error count = %d\n", i2c_failure_count);
+				sb_send_string(g_tempStr);
+			}
+			break;
+			
 			case SB_MESSAGE_SET_FOX:
 			{
 				int c1 = (int)(sb_buff->fields[SB_FIELD1][0]);
@@ -2260,12 +2279,11 @@ void initializeAllEventSettings(bool disableEvent)
 void suspendEvent()
 {
 	g_event_enabled = false;    /* get things stopped immediately */
-	g_on_the_air = 0;           /*  stop transmitting */
+	g_on_the_air = 0;           /* stop transmitting */
 	g_event_commenced = false;  /* get things stopped immediately */
 	g_run_event_forever = false;
 	g_sleepshutdown_seconds = 120;
 	keyTransmitter(OFF);
-	g_enable_manual_transmissions = false;
 	LEDS.init();
 }
 
@@ -2578,8 +2596,8 @@ void setupForFox(Fox_t fox, EventAction_t action)
 
 	if(action == START_NOTHING)
 	{
-		g_event_commenced = false; 
-		g_event_enabled = false;
+		g_event_commenced = false;                   /* do not get things running yet */
+		g_event_enabled = false;                     /* do not get things running yet */
 		keyTransmitter(OFF);
 		LEDS.setRed(OFF);
 	}
@@ -2601,18 +2619,6 @@ void setupForFox(Fox_t fox, EventAction_t action)
 	{
 		launchEvent((SC*)&g_last_status_code);
 	}
-
-// 	sendMorseTone(OFF);
-// 	g_code_throttle    = 0;                 /* Adjusts Morse code speed */
-// 	g_on_the_air       = false;             /* Controls transmitter Morse activity */
-
-// 	g_config_error = NULL_CONFIG;           /* Trigger a new configuration enunciation */
-// 	digitalWrite(PIN_LED, OFF);             /*  LED Off - in case it was left on */
-// 
-// 	digitalWrite(PIN_CW_KEY_LOGIC, OFF);    /* TX key line */
-// 	g_sendAMmodulation = false;
-// 	g_LED_enunciating = false;
-// 	g_config_error = NULL_CONFIG;           /* Trigger a new configuration enunciation */
 }
 
 time_t validateTimeString(char* str, time_t* epochVar)
@@ -2845,12 +2851,12 @@ void reportSettings(void)
 	
 	sb_send_string(TEXT_CURRENT_SETTINGS_TXT);
 	
-	sprintf(g_tempStr, "*   Time: %s\n", convertEpochToTimeString(now, buf, 50));
+	sprintf(g_tempStr, "*   Time: %s\n", convertEpochToTimeString(now, buf, TEMP_STRING_SIZE));
 	sb_send_string(g_tempStr);
 		
 	if(!event2Text(g_tempStr, g_event))
 	{
-		strncpy(buf, g_tempStr,50);
+		strncpy(buf, g_tempStr, TEMP_STRING_SIZE);
 		sprintf(g_tempStr, "*   Event: %s\n", buf);
 	}
 	else
@@ -2864,7 +2870,7 @@ void reportSettings(void)
 	
 	if(!fox2Text(g_tempStr, f))
 	{
-		strncpy(buf, g_tempStr, 50);
+		strncpy(buf, g_tempStr, TEMP_STRING_SIZE);
 		sprintf(g_tempStr, "*   Fox: %s\n", buf);
 	}
 	else
@@ -2926,9 +2932,9 @@ void reportSettings(void)
 		}
 	}
 	
-	sprintf(g_tempStr, "*   Start:  %s\n", convertEpochToTimeString(g_event_start_epoch, buf, 50));
+	sprintf(g_tempStr, "*   Start:  %s\n", convertEpochToTimeString(g_event_start_epoch, buf, TEMP_STRING_SIZE));
 	sb_send_string(g_tempStr);
-	sprintf(g_tempStr, "*   Finish: %s\n", convertEpochToTimeString(g_event_finish_epoch, buf, 50));
+	sprintf(g_tempStr, "*   Finish: %s\n", convertEpochToTimeString(g_event_finish_epoch, buf, TEMP_STRING_SIZE));
 	sb_send_string(g_tempStr);
 
 	if(g_event != EVENT_NONE)
@@ -3501,7 +3507,7 @@ void handleSerialCloning(void)
 						}
 						else
 						{
-							strncpy(g_tempStr, "ID \"\"\r", 50);
+							strncpy(g_tempStr, "ID \"\"\r", TEMP_STRING_SIZE);
 						}
  
 						sb_send_master_string(g_tempStr);

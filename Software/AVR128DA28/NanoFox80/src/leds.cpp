@@ -213,9 +213,15 @@ void leds::reset(void)
 /* Disables LED timer while resetting settings for interrupt safety. */
 void leds::init(void)
 {
+	init(LEDS_OFF);
+}
+
+void leds::init(Blink_t setBlink)
+{
 	TCB1.INTCTRL &= ~TCB_CAPT_bm; /* Disable timer interrupt */
 	reset();
 	TCB1.INTCTRL |= TCB_CAPT_bm;   /* Capture or Timeout: enabled */
+	if(setBlink != LEDS_OFF) blink(setBlink, true);
 }
 
 void leds::sendCode(char* str)
@@ -230,6 +236,7 @@ void leds::sendCode(char* str)
 	int lenstr = strlen(str);					
 	int i = 0;
 
+	bool holdMan = g_enable_manual_transmissions;
 	g_enable_manual_transmissions = false; /* simple thread collision avoidance */
 	
 	while(!g_text_buff.full() && i<lenstr && i<TEXT_BUFF_SIZE)
@@ -238,7 +245,7 @@ void leds::sendCode(char* str)
 	}
 	
 	timer_blink_inhibit = true; /* Prevent timer from controlling LED */
-	g_enable_manual_transmissions = true;
+	g_enable_manual_transmissions = holdMan;
 }
 
 void leds::blink(Blink_t blinkMode)

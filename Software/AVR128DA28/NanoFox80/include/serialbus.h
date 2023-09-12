@@ -53,6 +53,7 @@
 #define SERIALBUS_MIN_TX_INTERVAL_MS 100
 
 #define SB_BAUD 9600
+
 //#define MYUBRR(b) ((F_CPU + b * 8L) / (b * 16L) - 1)
 
 // typedef enum
@@ -90,6 +91,7 @@ typedef enum
 	SB_MESSAGE_SLP = 'S' * 100 + 'L' * 10 + 'P',				/* Sleep */
 	SB_MESSAGE_VER = 'V' * 100 + 'E' * 10 + 'R',				/* Version */
 	SB_MESSAGE_HELP = '?',										/* Help */
+	SB_MESSAGE_DEBUG = 'D' * 100 + 'B' * 10 + 'G',				/* Debug information */
 
 	SB_INVALID_MESSAGE = MAX_UINT16								/* This value must never overlap a valid message ID */
 } SBMessageID;
