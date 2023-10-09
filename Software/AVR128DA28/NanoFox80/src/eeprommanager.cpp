@@ -106,11 +106,11 @@ const struct EE_prom EEMEM EepromManager::ee_vars
 	0x00000000,	// 	Guard
 	0x00,		// 	uint8_t master_setting;
 	0x00000000, // 	Guard
-	0x00000000, // float voltage_threshold
+	0x00000000, //  float voltage_threshold
 	0x00000000, // 	Guard
-	0x0000,     // uint16_t clock_calibration
+	0x0000,		//  uint16_t clock_calibration
 	0x00000000, //  Guard
-	0x00,       // uint8_t days_to_run;
+	0x00,       //  uint8_t days_to_run
 	0x00000000, //  Guard
 	0x0000      // uint16_t i2c_failure_count;
 };
@@ -141,7 +141,7 @@ extern volatile int16_t g_ID_period_seconds;
 extern volatile int16_t g_intra_cycle_delay_time;
 extern volatile float g_voltage_threshold;
 extern uint16_t g_clock_calibration;
-extern uint8_t g_days_to_run;
+extern volatile uint8_t g_days_to_run;
 extern uint16_t g_i2c_failure_count;
 
 extern char g_tempStr[];

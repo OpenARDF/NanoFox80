@@ -162,15 +162,15 @@ typedef enum
 	Frequency_Hi =  Guard4_26 + GUARDSIZE,  /* 4 bytes */
 	Guard4_27 = Frequency_Hi + sizeof(Frequency_Hz),				/**** Guard = 4 bytes ****/
 	Frequency_Beacon =  Guard4_27 + GUARDSIZE,  /* 4 bytes */
-	Guard4_28 = Frequency_Beacon + sizeof(Frequency_Hz),				/**** Guard = 4 bytes ****/
+	Guard4_28 = Frequency_Beacon + sizeof(Frequency_Hz),			/**** Guard = 4 bytes ****/
 	Master_setting =  Guard4_28 + GUARDSIZE, /* bool: 1 byte */ 
-	Guard4_29 = Master_setting + sizeof(bool),					/**** Guard = 4 bytes ****/
+	Guard4_29 = Master_setting + sizeof(bool),						/**** Guard = 4 bytes ****/
 	Voltage_threshold =  Guard4_29 + GUARDSIZE,   /* 4 bytes */
 	Guard4_30 = Voltage_threshold + sizeof(float),					/**** Guard = 4 bytes ****/
 	Clock_calibration =  Guard4_30 + GUARDSIZE,   /* 2 bytes */
-	Guard4_31 = Clock_calibration + sizeof(uint16_t),					/**** Guard = 2 bytes ****/
-	Days_to_run = Guard4_31 + GUARDSIZE   /* 1 byte */,
-	Guard4_32 = Days_to_run + sizeof(uint16_t),	/**** Guard = 2 bytes ****/
+	Guard4_31 = Clock_calibration + sizeof(uint16_t),				/**** Guard = 2 bytes ****/
+	Days_to_run = Guard4_31 + GUARDSIZE,   /* 1 byte */
+	Guard4_32 = Days_to_run + sizeof(uint16_t),	                    /**** Guard = 2 bytes ****/
 	I2C_failure_count = Guard4_32 + GUARDSIZE   /* 2 bytes */
 } EE_var_t;
 

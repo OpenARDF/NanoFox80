@@ -897,11 +897,7 @@ int main(void)
 			
 			if(g_text_buff.empty())
 			{
-				if((g_battery_voltage >= 0.1) && (g_battery_voltage <= g_voltage_threshold))
-				{
-					LEDS.sendCode((char*)"V ");
-				}
-				else if(g_send_clone_success_countdown)
+				if(g_send_clone_success_countdown)
 				{
 					LEDS.sendCode((char*)"X ");
 				}
@@ -909,6 +905,10 @@ int main(void)
 				{
 					LEDS.sendCode((char*)"M ");
 				}
+			}
+			else /* Make sure the text buffer is being emptied */
+			{
+				g_enable_manual_transmissions = true; /* There is only one consumer of g_text_buff so it is always OK to enable manual transmissions */
 			}
 			
 			if(!isMasterCountdownSeconds)
