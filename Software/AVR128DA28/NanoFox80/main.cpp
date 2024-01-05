@@ -19,6 +19,7 @@
 #include "leds.h"
 #include "CircularStringBuff.h"
 #include "rtc.h"
+#include "rstctrl.h"
 
 #include <cpuint.h>
 #include <ccp.h>
@@ -300,12 +301,12 @@ void handle_1sec_tasks(void)
 
 	if(!g_cloningInProgress)
 	{
+		temp_time = time(null);
+
 		if(g_event_commenced && !g_run_event_forever)
 		{
-			if(g_event_finish_epoch)
+			if(g_event_finish_epoch) /* If a finish time has been set */
 			{
-				temp_time = time(null);
-
 				if(temp_time >= g_event_finish_epoch)
 				{
 					g_last_status_code = STATUS_CODE_EVENT_FINISHED;
@@ -341,6 +342,40 @@ void handle_1sec_tasks(void)
 				{
 					g_sendID_seconds_countdown--;
 				}
+				
+ 				if(g_fox[g_event] == FREQUENCY_TEST_BEACON)
+ 				{
+					static uint8_t selection = 0;
+ 					bool change = temp_time % 2;
+ 					
+					if(!change)
+					{
+						if(selection == 0)
+						{
+							init_transmitter(g_frequency_low);
+							g_code_throttle = throttleValue(14);
+							bool repeat = true;
+							makeMorse((char*)"E<<", &repeat, NULL, CALLER_AUTOMATED_EVENT);
+							selection = 1;
+						}
+						else if(selection == 1)
+						{
+							init_transmitter(g_frequency_med);
+							g_code_throttle = throttleValue(14);
+							bool repeat = true;
+							makeMorse((char*)"I<<", &repeat, NULL, CALLER_AUTOMATED_EVENT);
+							selection = 2;
+						}
+						else if(selection == 2)
+						{
+							init_transmitter(g_frequency_hi);
+							g_code_throttle = throttleValue(14);
+							bool repeat = true;
+							makeMorse((char*)"S<<", &repeat, NULL, CALLER_AUTOMATED_EVENT);
+							selection = 0;
+						}
+					}
+ 				}
 			}
 			else /* waiting for the start time to arrive */
 			{
@@ -401,7 +436,7 @@ void handle_1sec_tasks(void)
 					g_sleepType = SLEEP_FOREVER;
 				}
 			}
-			else
+			else if(!g_go_to_sleep_now)
 			{
 				if(g_sleepType == SLEEP_FOREVER)
 				{
@@ -450,7 +485,7 @@ ISR(TCB0_INT_vect)
 			
 			if(holdSwitch != (portDdebouncedVals() & (1 << SWITCH))) /* Change detected */
 			{	
-				if(holdSwitch) /* Switch was open, so now it must be closed */
+				if(holdSwitch) /* Switch was open, so it must have just now closed */
 				{
 					if(LEDS.active())
 					{
@@ -499,25 +534,32 @@ ISR(TCB0_INT_vect)
 				}
 			}
 		
-			if(switch_closures_count_period)
+			if(switch_closures_count_period) // Time to check if button presses have occurred
 			{
+				static uint8_t hold_switch_presses_count = 0;
 				switch_closures_count_period--;
 				
-				if(!switch_closures_count_period)
+				if(!switch_closures_count_period) // Time's up - examine how many button presses were counted
 				{
-					if(g_switch_presses_count && (g_switch_presses_count < 3))
+					if(g_switch_presses_count && (g_switch_presses_count < 6))
 					{
 						g_handle_counted_presses = g_switch_presses_count;
 					}
 					
 					g_switch_presses_count = 0;
+					hold_switch_presses_count = 0;
+				}
+				else if(g_switch_presses_count != hold_switch_presses_count) // Press detected - wait a while longer to see if there's another one
+				{
+					hold_switch_presses_count = g_switch_presses_count;
+					switch_closures_count_period = 40;
 				}
 			}
 			else if(g_switch_presses_count == 1 && buttonReleased)
 			{
-				switch_closures_count_period = 50;
+				switch_closures_count_period = 40;
 			}
-			else if(g_switch_presses_count > 2)
+			else if(g_switch_presses_count > 5) // Too many button presses - ignore them entirely
 			{
 				g_switch_presses_count = 0;
 			}
@@ -828,26 +870,19 @@ int main(void)
 	time_t now = time(null);
 	while((util_delay_ms(2000)) && (now == time(null)));
 	
-	sb_send_string((char*)PRODUCT_NAME_LONG);
-	sprintf(g_tempStr, "\n* SW Ver: %s\n", SW_REVISION);
-	sb_send_string(g_tempStr);
 	sb_send_string(TEXT_RESET_OCCURRED_TXT);
 	
 	if(now == time(null))
 	{
 		g_hardware_error |= (int)HARDWARE_NO_RTC;
 		RTC_init_backup();
-		sb_send_string(TEXT_RTC_NOT_RESPONDING_TXT);	
 	}
-	
-	g_sleepshutdown_seconds = 120;
 	
 	if(init_transmitter(getFrequencySetting()) != ERROR_CODE_NO_ERROR)
 	{
 		if(!txIsInitialized())
 		{
 			g_hardware_error |= (int)HARDWARE_NO_SI5351;
-			sb_send_string(TEXT_TX_NOT_RESPONDING_TXT);	
 		}
 	}
 	
@@ -855,6 +890,8 @@ int main(void)
 	
 	reportSettings();
 	sb_send_NewPrompt();
+
+	g_sleepshutdown_seconds = 120;
 
 	while (1) {
 		if(g_handle_counted_presses)
@@ -886,6 +923,21 @@ int main(void)
 			{
 				suspendEvent();
 				g_sleepType = SLEEP_USER_OVERRIDE;
+			}
+			else if(g_isMaster)
+			{
+				if((g_handle_counted_presses == 4) && txIsInitialized()) // keydown forever
+				{
+					suspendEvent();
+					g_sleepType = SLEEP_USER_OVERRIDE;
+					keyTransmitter(ON);
+					LEDS.setRed(ON);
+					g_sleepshutdown_seconds = 300; // Shut things down after 5 minutes
+				}
+				else if (g_handle_counted_presses == 5) // Perform software reset
+				{
+					RSTCTRL_reset();
+				}
 			}
 			
 			g_handle_counted_presses = 0;
@@ -1015,6 +1067,7 @@ int main(void)
 		 ******************************/
 		if(g_go_to_sleep_now && !g_cloningInProgress)
 		{
+			DISABLE_INTERRUPTS();
 			LEDS.deactivate();
 			serialbus_disable();
 			shutdown_transmitter();	
@@ -1029,6 +1082,7 @@ int main(void)
 			SLPCTRL_set_sleep_mode(SLPCTRL_SMODE_STDBY_gc);		
 			g_sleeping = true;
 			g_awakenedBy = AWAKENED_INIT;
+			ENABLE_INTERRUPTS();
 			
 			/* Disable BOD? */
 			
@@ -1094,6 +1148,12 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 
 		switch(msg_id)
 		{
+			case SB_MESSAGE_RESET:
+			{
+				RSTCTRL_reset();
+			}
+			break;
+			
 			case SB_MESSAGE_DEBUG:
 			{
 				char c1 = (sb_buff->fields[SB_FIELD1][0]);
@@ -1129,6 +1189,10 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 						else if((c1 == '2') && (c2 == '\0'))
 						{
 							c1 = FOXORING_FOX2;
+						}
+						else if((c1 == 'F') || (c1 == 'T'))
+						{
+							c1 = FREQUENCY_TEST_BEACON;
 						}
 						else
 						{
@@ -2013,14 +2077,18 @@ void __attribute__((optimize("O0"))) handleSerialBusMsgs()
 				if(!g_cloningInProgress)
 				{
 					reportSettings();
-					sb_send_string(HELP_TEXT_TXT);
+// 					sb_send_string(HELP_TEXT_TXT);
 				}
 			}
 			break;
 
 			default:
 			{
-				suppressResponse = true;
+				if(!g_cloningInProgress)
+				{
+//					reportSettings();
+					sb_send_string(HELP_TEXT_TXT);
+				}
 			}
 			break;
 		}
@@ -2189,6 +2257,7 @@ EC activateEventUsingCurrentSettings(SC* statusCode)
 		
 		if(g_run_event_forever)
 		{
+			powerToTransmitter(ON);
 			g_last_status_code = STATUS_CODE_EVENT_STARTED_NOW_TRANSMITTING;
 			g_on_the_air = g_on_air_seconds;
 			g_sendID_seconds_countdown = g_on_air_seconds - g_time_needed_for_ID;
@@ -2254,7 +2323,11 @@ EC activateEventUsingCurrentSettings(SC* statusCode)
 					}
 				}
 
-				if(!turnOnTransmitter)
+				if(turnOnTransmitter)
+				{
+					powerToTransmitter(ON);
+				}
+				else
 				{
 					keyTransmitter(OFF);
 				}
@@ -2601,7 +2674,17 @@ void setupForFox(Fox_t fox, EventAction_t action)
 			g_off_air_seconds = 0;						/* off period is very short */
 		}
 		break;
-
+		
+		case FREQUENCY_TEST_BEACON:
+		{
+			init_transmitter(getFrequencySetting());
+			g_intra_cycle_delay_time = 0;
+			g_sendID_seconds_countdown = 600;			/* wait 10 minutes send the ID */
+			g_on_air_seconds = 60;						/* on period is very long */
+			g_off_air_seconds = 0;						/* off period is very short */
+		}
+		break;
+		
 		case SPECTATOR:
 		case BEACON:
 		default:
@@ -2869,6 +2952,19 @@ void reportSettings(void)
 	
 	time_t now = time(null);
 	
+	sb_send_string((char*)PRODUCT_NAME_LONG);
+	sprintf(g_tempStr, "\n* SW Ver: %s\n", SW_REVISION);
+	sb_send_string(g_tempStr);
+		
+	if(g_hardware_error & (int)HARDWARE_NO_RTC)
+	{
+		sb_send_string(TEXT_RTC_NOT_RESPONDING_TXT);
+	}
+		
+	if(g_hardware_error & (int)HARDWARE_NO_SI5351)
+	{
+		sb_send_string(TEXT_TX_NOT_RESPONDING_TXT);
+	}
 	sb_send_string(TEXT_CURRENT_SETTINGS_TXT);
 	
 	sprintf(g_tempStr, "*   Time: %s\n", convertEpochToTimeString(now, buf, TEMP_STRING_SIZE));
@@ -3268,6 +3364,12 @@ char* getCurrentPatternText(void)
 		}
 		break;
 		
+		case FREQUENCY_TEST_BEACON:
+		{
+			c = (char*)"<";
+		}
+		break;
+		
 		case BEACON:
 		{
 			c = (char*)"MO";
@@ -3350,6 +3452,12 @@ Frequency_Hz getFrequencySetting(void)
 		}
 		break;
 		
+		case FREQUENCY_TEST_BEACON:
+		{
+			freq = g_frequency_low;
+		}
+		break;
+		
 		default:
 		{
 			freq = g_frequency;
@@ -3401,11 +3509,7 @@ void handleSerialCloning(void)
 					g_programming_state = SYNC_Align_to_Second_Transition;
 					g_programming_countdown = PROGRAMMING_MESSAGE_TIMEOUT_PERIOD;
 				}
-// 				else
-// 				{
-// 					handleSerialBusMsgs();
-// 				}
-			}			
+			}
 		}
 		break;
 		

@@ -33,7 +33,7 @@
 
 /******************************************************
  * Set the text that gets displayed to the user */
-#define SW_REVISION "0.98"
+#define SW_REVISION "0.99"
 
 //#define TRANQUILIZE_WATCHDOG
 
@@ -252,9 +252,9 @@ typedef uint16_t BatteryLevel;  /* in milliVolts */
 #define EEPROM_FOX_PATTERN_DEFAULT "MOE"
 #define EEPROM_FOXORING_PATTERN_DEFAULT "ME"
 #define EEPROM_FREQUENCY_DEFAULT 3700000
-#define EEPROM_FREQUENCY_LOW_DEFAULT 3530000
-#define EEPROM_FREQUENCY_MED_DEFAULT 3550000
-#define EEPROM_FREQUENCY_HI_DEFAULT 3570000
+#define EEPROM_FREQUENCY_LOW_DEFAULT 3520000
+#define EEPROM_FREQUENCY_MED_DEFAULT 3540000
+#define EEPROM_FREQUENCY_HI_DEFAULT 3560000
 #define EEPROM_FREQUENCY_BEACON_DEFAULT 3600000
 #define TEXT_SET_TIME_TXT (char*)"* > CLK T YYMMDDhhmmss <- Set current time\n"
 #define TEXT_SET_START_TXT (char*)"* > CLK S YYMMDDhhmmss <- Set start time\n"
@@ -347,6 +347,7 @@ typedef enum
 	FOXORING_FOX1,
 	FOXORING_FOX2,
 	FOXORING_FOX3,
+	FREQUENCY_TEST_BEACON,
 	INVALID_FOX
 	#if SUPPORT_TEMP_AND_VOLTAGE_REPORTING
 	,
