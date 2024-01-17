@@ -1113,9 +1113,16 @@ int main(void)
 			init_transmitter();
 			g_sleepshutdown_seconds = 120;
 			
-			if(g_sleepType != SLEEP_UNTIL_NEXT_XMSN)
+			if(g_awakenedBy == AWAKENED_BY_BUTTONPRESS)
 			{
-				g_start_event = true;
+				LEDS.blink(LEDS_OFF, true); /* Restart LED timeout */
+			}
+			else
+			{
+				if(g_sleepType != SLEEP_UNTIL_NEXT_XMSN)
+				{
+					g_start_event = true;
+				}
 			}
 
  			g_last_status_code = STATUS_CODE_RETURNED_FROM_SLEEP;
